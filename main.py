@@ -1,57 +1,35 @@
+import os
 from flask import Flask, request, render_template
-import openai
 
 app = Flask(__name__)
 
-# One-time hardcoded OpenAI key for setup
-openai.api_key = "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"
-
+# Home route – renders index.html
 @app.route("/")
-def index():
+def home():
     return render_template("index.html")
 
+# Route to handle form submissions
 @app.route("/generate-report", methods=["POST"])
 def generate_report():
-    name = request.form["name"]
-    vehicle = request.form["vehicle"]
-    code = request.form["code"]
-    email = request.form["email"]
+    name = request.form.get("name")
+    vehicle = request.form.get("vehicle")
+    code = request.form.get("code")
+    email = request.form.get("email")
 
-    try:
-        # GPT-4 powered report
-        prompt = f"""
-You are a certified automotive technician. A customer has a vehicle showing OBD2 code {code}.
-Generate a detailed diagnostic report that includes:
-- Technical and plain-English explanation of the code
-- Estimated repair costs in CAD
-- Environmental impact
-- Potential consequences of ignoring it
-- Preventative tips
-- DIY potential
-- Urgency scale from 1–10
+    # Log incoming data (for debug purposes)
+    print("Data received:", name, vehicle, code, email)
 
-Vehicle: {vehicle}
-Customer: {name}
-"""
+    # Placeholder response (replace with PDF generation or email logic)
+    return f"""
+    <h2>Report Generated</h2>
+    <p><strong>Name:</strong> {name}</p>
+    <p><strong>Vehicle:</strong> {vehicle}</p>
+    <p><strong>Diagnostic Code:</strong> {code}</p>
+    <p><strong>Email:</strong> {email}</p>
+    <br>
+    <a href="/">Back to Home</a>
+    """
 
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        full_report = response.choices[0].message.content.strip()
-
-    except Exception as e:
-        full_report = f"Error generating report:\n\n{str(e)}"
-
-    return render_template(
-        "report.html",
-        name=name,
-        vehicle=vehicle,
-        code=code,
-        email=email,
-        full_report=full_report
-    )
-
+# Run locally (ignored by Render in production)
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
