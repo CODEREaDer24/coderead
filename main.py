@@ -2,13 +2,10 @@ from flask import Flask, request, render_template_string
 import openai
 import os
 
-# Initialize Flask
 app = Flask(__name__)
 
-# Load API key from environment
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# HTML form template
 form_html = """
 <!DOCTYPE html>
 <html>
@@ -39,7 +36,6 @@ def generate_report():
         email = request.form.get('email')
 
         try:
-            # OpenAI ChatCompletion request
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
@@ -51,7 +47,6 @@ def generate_report():
         except Exception as e:
             analysis = f"Error generating analysis: {str(e)}"
 
-        # Return formatted report
         return f"""
         <pre>
         CodeREAD Vehicle Diagnostic Report
@@ -66,8 +61,4 @@ def generate_report():
         </pre>
         """
 
-    return form_html
-
-# For local dev only
-if __name__ == "__main__":
-    app.run(debug=True)
+    return form_htmlp
