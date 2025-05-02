@@ -1,3 +1,4 @@
 flask
-openai==0.28
-gunicorn
+openai
+reportlab
+httpx==0.28.1
