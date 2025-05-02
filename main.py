@@ -1,16 +1,10 @@
-from flask import Flask, render_template
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template('index.html')
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
-    from flask import Flask, request
-
-app = Flask(__name__)
+    return render_template("index.html")
 
 @app.route("/generate-report", methods=["POST"])
 def generate_report():
@@ -21,4 +15,7 @@ def generate_report():
 
     print("Data received:", name, vehicle, code, email)
 
-    # Placeholder for actual report logic
+    return f"Report generated for {name} ({vehicle}) with code {code}. Confirmation sent to {email}."
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
