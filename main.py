@@ -22,4 +22,3 @@ def generate_report():
     print("Data received:", name, vehicle, code, email)
 
     # Placeholder for actual report logic
-    return f"Report generated for {name} with code {code}"
