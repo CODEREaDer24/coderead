@@ -1,51 +1,57 @@
 from flask import Flask, request, render_template
 import openai
-import os
 
 app = Flask(__name__)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# One-time hardcoded OpenAI key for setup
+openai.api_key = "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"
 
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
 @app.route("/generate-report", methods=["POST"])
 def generate_report():
-    name = request.form.get("name")
-    vehicle = request.form.get("vehicle")
-    code = request.form.get("code")
-    email = request.form.get("email")
-
-    # Create smart GPT prompt
-    prompt = f"""
-    Generate a diagnostic report for the following vehicle and trouble code.
-
-    Vehicle: {vehicle}
-    Diagnostic Code: {code}
-
-    Provide:
-    - A plain-language explanation and technical explanation
-    - CodeREAD urgency scale (1–10)
-    - Estimated repair cost in CAD
-    - Consequences of ignoring the issue
-    - Preventative care tips
-    - DIY potential
-    - Environmental impact
-    - YouTube video links (if available)
-    - 2 recommended Windsor-area mechanics: Clover Auto and Tecumseh Auto
-    """
+    name = request.form["name"]
+    vehicle = request.form["vehicle"]
+    code = request.form["code"]
+    email = request.form["email"]
 
     try:
+        # GPT-4 powered report
+        prompt = f"""
+You are a certified automotive technician. A customer has a vehicle showing OBD2 code {code}.
+Generate a detailed diagnostic report that includes:
+- Technical and plain-English explanation of the code
+- Estimated repair costs in CAD
+- Environmental impact
+- Potential consequences of ignoring it
+- Preventative tips
+- DIY potential
+- Urgency scale from 1–10
+
+Vehicle: {vehicle}
+Customer: {name}
+"""
+
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7
+            messages=[{"role": "user", "content": prompt}]
         )
-        report = response["choices"][0]["message"]["content"]
-    except Exception as e:
-        report = f"Error generating report: {e}"
 
-    return render_template("report.html", name=name, vehicle=vehicle, code=code, email=email, full_report=report)
+        full_report = response.choices[0].message.content.strip()
+
+    except Exception as e:
+        full_report = f"Error generating report:\n\n{str(e)}"
+
+    return render_template(
+        "report.html",
+        name=name,
+        vehicle=vehicle,
+        code=code,
+        email=email,
+        full_report=full_report
+    )
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)
