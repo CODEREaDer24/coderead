@@ -61,4 +61,4 @@ def generate_report():
         </pre>
         """
 
-    return form_htmlp
+    return form_html
