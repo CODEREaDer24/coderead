@@ -8,7 +8,9 @@ import smtplib
 from email.message import EmailMessage
 
 app = Flask(__name__)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Use your existing environment variable key exactly
+client = OpenAI(api_key=os.getenv("Open_api_key"))
 
 @app.route("/")
 def home():
@@ -21,33 +23,35 @@ def generate_report():
     code = request.form.get("code")
     email = request.form.get("email")
 
+    # Get OpenAI analysis
     analysis = get_code_analysis(code)
+
+    # Generate PDF
     pdf = generate_pdf(name, vehicle, code, email, analysis)
+
+    # Send email if SMTP settings exist
     send_report_email(email, pdf, name, code)
 
+    # Return downloadable PDF
     pdf.seek(0)
     return send_file(pdf, as_attachment=True, download_name="CodeREAD_Report.pdf", mimetype="application/pdf")
 
 def get_code_analysis(code):
     try:
         prompt = (
-            f"You are CodeREAD, an AI car diagnostic assistant. Analyze OBD2 trouble code {code}.\n"
-            "Respond with the following sections:\n"
-            "1. Simple explanation\n"
+            f"You are CodeREAD, an AI car diagnostic assistant. Explain OBD2 code {code} clearly with:\n"
+            "1. Plain English explanation\n"
             "2. Urgency (1–10)\n"
             "3. Consequences of ignoring it\n"
-            "4. Recommended repairs (pro & DIY)\n"
+            "4. Repair suggestions (pro + DIY)\n"
             "5. Environmental impact"
         )
-
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=500
         )
-
         return response.choices[0].message.content.strip()
-
     except Exception as e:
         return f"Error generating analysis: {e}"
 
@@ -84,11 +88,15 @@ def send_report_email(to_email, pdf_buffer, name, code):
         smtp_user = os.getenv("SMTP_USER")
         smtp_pass = os.getenv("SMTP_PASS")
 
+        if not (smtp_server and smtp_user and smtp_pass):
+            print("SMTP environment variables not fully set. Skipping email.")
+            return
+
         msg = EmailMessage()
         msg["Subject"] = f"CodeREAD Report – {code}"
         msg["From"] = smtp_user
         msg["To"] = to_email
-        msg.set_content(f"Hi {name},\n\nAttached is your vehicle diagnostic report for code {code}.\n\n– CodeREAD")
+        msg.set_content(f"Hi {name},\n\nYour CodeREAD report for code {code} is attached as a PDF.")
 
         pdf_buffer.seek(0)
         msg.add_attachment(pdf_buffer.read(), maintype="application", subtype="pdf", filename="CodeREAD_Report.pdf")
@@ -97,6 +105,9 @@ def send_report_email(to_email, pdf_buffer, name, code):
             server.starttls()
             server.login(smtp_user, smtp_pass)
             server.send_message(msg)
+
+        print("Email sent successfully.")
+
     except Exception as e:
         print(f"Email send failed: {e}")
 
