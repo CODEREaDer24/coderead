@@ -13,9 +13,8 @@ def generate_report():
     code = request.form.get("code")
     email = request.form.get("email")
 
-    print("Data received:", name, vehicle, code, email)
-
-    return f"Report generated for {name} ({vehicle}) with code {code}. Confirmation sent to {email}."
+    # Show a clean, styled report on-screen
+    return render_template("report.html", name=name, vehicle=vehicle, code=code, email=email)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
