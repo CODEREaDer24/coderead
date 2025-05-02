@@ -1,14 +1,14 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_file
+from reportlab.pdfgen import canvas
+from io import BytesIO
 
 app = Flask(__name__)
 
-# Home route – renders index.html
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# Route to handle form submissions
 @app.route("/generate-report", methods=["POST"])
 def generate_report():
     name = request.form.get("name")
@@ -16,20 +16,20 @@ def generate_report():
     code = request.form.get("code")
     email = request.form.get("email")
 
-    # Log incoming data (for debug purposes)
-    print("Data received:", name, vehicle, code, email)
+    # Create PDF in memory
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
+    p.drawString(100, 750, f"Report for {name}")
+    p.drawString(100, 730, f"Vehicle: {vehicle}")
+    p.drawString(100, 710, f"Diagnostic Code: {code}")
+    p.drawString(100, 690, f"Email: {email}")
+    p.showPage()
+    p.save()
 
-    # Placeholder response (replace with PDF generation or email logic)
-    return f"""
-    <h2>Report Generated</h2>
-    <p><strong>Name:</strong> {name}</p>
-    <p><strong>Vehicle:</strong> {vehicle}</p>
-    <p><strong>Diagnostic Code:</strong> {code}</p>
-    <p><strong>Email:</strong> {email}</p>
-    <br>
-    <a href="/">Back to Home</a>
-    """
+    buffer.seek(0)
 
-# Run locally (ignored by Render in production)
+    # Return PDF as response
+    return send_file(buffer, as_attachment=True, download_name="report.pdf")
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
