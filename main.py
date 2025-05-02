@@ -2,50 +2,58 @@ from flask import Flask, request, render_template_string
 import openai
 import os
 
+# Initialize Flask
 app = Flask(__name__)
 
-# Load API key from environment variable
+# Load API key from environment
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# HTML form (for testing)
-html_form = '''
-<!doctype html>
+# HTML form template
+form_html = """
+<!DOCTYPE html>
 <html>
-<head><title>CodeREAD Report Generator</title></head>
-<body style="font-family: sans-serif;">
-  <h2>Enter Diagnostic Info</h2>
+<head><title>CodeREAD Diagnostic</title></head>
+<body style="font-family:sans-serif; padding:40px;">
+  <h2>CodeREAD Diagnostic Report Generator</h2>
   <form method="POST">
-    Customer Name: <input name="name"><br><br>
-    Vehicle Info: <input name="vehicle"><br><br>
-    OBD2 Code: <input name="code"><br><br>
-    Email: <input name="email"><br><br>
+    <label>Customer Name:</label><br>
+    <input name="name"><br><br>
+    <label>Vehicle (make/model/year):</label><br>
+    <input name="vehicle"><br><br>
+    <label>OBD2 Code:</label><br>
+    <input name="code"><br><br>
+    <label>Email:</label><br>
+    <input name="email"><br><br>
     <button type="submit">Generate Report</button>
   </form>
 </body>
 </html>
-'''
+"""
 
 @app.route('/', methods=['GET', 'POST'])
 def generate_report():
     if request.method == 'POST':
-        name = request.form['name']
-        vehicle = request.form['vehicle']
-        code = request.form['code']
-        email = request.form['email']
+        name = request.form.get('name')
+        vehicle = request.form.get('vehicle')
+        code = request.form.get('code')
+        email = request.form.get('email')
 
         try:
+            # OpenAI ChatCompletion request
             response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "You are a diagnostic expert generating detailed vehicle issue reports for customers."},
-                    {"role": "user", "content": f"Generate a CodeREAD report for code {code} on a {vehicle}."}
+                    {"role": "system", "content": "You are a vehicle diagnostics expert."},
+                    {"role": "user", "content": f"Generate a diagnostic report for code {code} on a {vehicle}."}
                 ]
             )
             analysis = response['choices'][0]['message']['content']
         except Exception as e:
             analysis = f"Error generating analysis: {str(e)}"
 
-        report = f"""
+        # Return formatted report
+        return f"""
+        <pre>
         CodeREAD Vehicle Diagnostic Report
         ----------------------------------
         Customer Name: {name}
@@ -55,12 +63,11 @@ def generate_report():
 
         AI Diagnostic Analysis:
         {analysis}
+        </pre>
         """
 
-        return f"<pre>{report}</pre>"
+    return form_html
 
-    return html_form
-
-# Run the app (for local dev)
+# For local dev only
 if __name__ == "__main__":
     app.run(debug=True)
