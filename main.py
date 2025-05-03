@@ -3,12 +3,11 @@ import os
 import openai
 from dotenv import load_dotenv
 
-# Load API key from .env
 load_dotenv()
-api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    raise Exception("Missing OpenAI API key. Set OPENAI_API_KEY in your environment.")
-openai.api_key = api_key
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+if not openai.api_key:
+    raise ValueError("OPENAI_API_KEY is missing. Check your environment variables.")
 
 app = Flask(__name__)
 
@@ -24,50 +23,59 @@ def generate():
     code = request.form.get('code', 'N/A').upper()
 
     prompt = f"""
-    You are CodeREAD, an AI automotive diagnostics expert.
+    You are CodeREAD, an expert automotive AI trained to analyze vehicle OBD2 codes.
+    The user submitted the code {code} for vehicle {vehicle}.
 
-    A user submitted code {code}. Return a single-line response with sections separated by "|".
+    Return a detailed diagnostic report covering the following 9 sections:
 
-    Format:
-    Technical Summary | Layman's Summary | Urgency (1-10 number only) | Urgency Explanation |
-    Repair Cost Estimate (CAD) | Consequences of Ignoring | Preventative Maintenance Tips |
-    DIY Potential | Environmental Impact
+    1. Technical Summary (what the code means)
+    2. Layman Summary (plain English)
+    3. Urgency Rating (1–10) and explanation
+    4. Estimated Repair Cost in CAD
+    5. Consequences of Not Fixing
+    6. Preventative Maintenance Tips
+    7. DIY Potential
+    8. Environmental Impact
+    9. Related YouTube Video link (real link only)
 
-    Respond with exactly 9 sections, no newlines or labels.
+    Format your response exactly like this, using a double-pipe (||) to separate sections, all on one line:
+
+    [Technical Summary] || [Layman Summary] || [Urgency Rating and explanation] || [Repair Cost] || [Consequences] || [Preventative Tips] || [DIY Potential] || [Environmental Impact] || [YouTube Link]
     """
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.4
+            temperature=0.5,
         )
 
-        parts = response.choices[0].message["content"].split('|')
+        result = response.choices[0].message['content']
+        parts = result.split('||')
         if len(parts) < 9:
-            raise ValueError("AI response missing required fields.")
+            raise ValueError("Incomplete GPT response")
 
-        urgency_raw = parts[2].strip()
-        urgency = ''.join(filter(str.isdigit, urgency_raw)) or "5"
-        urgency_position = min(int(urgency), 10) * 10
+        urgency_text = parts[2].strip()
+        urgency_num = ''.join(filter(str.isdigit, urgency_text)) or "5"
+        urgency_position = min(int(urgency_num), 10) * 10
 
         return render_template("report.html",
             name=name,
             email=email,
             vehicle=vehicle,
             code=code,
-            urgency=urgency,
-            urgency_position=urgency_position,
-            urgency_explanation=parts[3].strip(),
             tech_summary=parts[0].strip(),
             layman_summary=parts[1].strip(),
-            repair_cost=parts[4].strip(),
-            consequences=parts[5].strip(),
-            preventative_tips=parts[6].strip(),
-            diy_potential=parts[7].strip(),
-            environmental_impact=parts[8].strip(),
-            recommended_mechanic="Clover Auto & Tecumseh Auto (Windsor)",
-            video_link="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            urgency=urgency_num,
+            urgency_explanation=urgency_text,
+            urgency_position=urgency_position,
+            repair_cost=parts[3].strip(),
+            consequences=parts[4].strip(),
+            preventative_tips=parts[5].strip(),
+            diy_potential=parts[6].strip(),
+            environmental_impact=parts[7].strip(),
+            video_link=parts[8].strip(),
+            recommended_mechanic="Clover Auto & Tecumseh Auto (Windsor)"
         )
 
     except Exception as e:
