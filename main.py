@@ -1,63 +1,84 @@
-from flask import Flask, render_template, request, send_file
-from flask_mail import Mail, Message
-from openai import OpenAI
-from dotenv import load_dotenv
-from xhtml2pdf import pisa
 import os
-import io
+from flask import Flask, render_template, request, send_file
+from dotenv import load_dotenv
+import openai
+from fpdf import FPDF
+import smtplib
+from email.message import EmailMessage
 
+# Load environment variables from .env
 load_dotenv()
+
+# Set up OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Email credentials
+EMAIL_ADDRESS = os.getenv("EMAIL_USER")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASS")
 
 app = Flask(__name__)
 
-# Config from .env
-app.config['MAIL_SERVER'] = 'smtp.mail.yahoo.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
-app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
-
-mail = Mail(app)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 @app.route('/')
-def form():
+def index():
     return render_template('form.html')
 
-@app.route('/report', methods=['POST'])
-def generate_report():
-    name = request.form['name']
-    email = request.form['email']
-    code = request.form['code']
-    vehicle = f"{request.form['year']} {request.form['make']} {request.form['model']}"
+@app.route('/generate', methods=['POST'])
+def generate():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    vehicle = request.form.get('vehicle')
+    code = request.form.get('code')
 
-    # Ask OpenAI for analysis
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[{
-            "role": "user",
-            "content": f"Explain OBD2 code {code} in detail. Include cost, urgency (1–10), consequences, DIY options, and environmental impact."
-        }]
-    )
-    analysis = response.choices[0].message.content.strip()
+    prompt = f"""Provide a full vehicle diagnostic summary for OBD2 code {code}.
+    Include:
+    1. Technical explanation
+    2. Layman’s explanation
+    3. Urgency (1–10)
+    4. Repair cost estimate in CAD
+    5. Consequences if not fixed
+    6. Preventative tips
+    7. DIY potential
+    8. Environmental impact
+    9. Recommended mechanic in Windsor, Ontario
+    10. Link to YouTube video explaining the code"""
 
-    # Make HTML for PDF
-    html = render_template('report_template.html', name=name, email=email, vehicle=vehicle, code=code, analysis=analysis)
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        output = response['choices'][0]['message']['content']
+    except Exception as e:
+        return f"AI report generation failed: {e}"
 
-    # Convert HTML to PDF
-    pdf_stream = io.BytesIO()
-    pisa.CreatePDF(io.StringIO(html), dest=pdf_stream)
-    pdf_stream.seek(0)
+    # Create PDF
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, f"CodeREAD Diagnostic Report\n\nCustomer: {name}\nVehicle: {vehicle}\nCode: {code}\n\n{output}")
 
-    # Send email
-    msg = Message(subject="Your CodeRead Report",
-                  sender=app.config['MAIL_USERNAME'],
-                  recipients=[email])
-    msg.body = f"Hi {name},\n\nYour vehicle diagnostic report is attached.\n\n- CodeRead"
-    msg.attach("report.pdf", "application/pdf", pdf_stream.read())
-    mail.send(msg)
+    pdf_file_path = "/tmp/report.pdf"
+    pdf.output(pdf_file_path)
 
-    return f"Report sent to {email}!"
+    # Email PDF
+    msg = EmailMessage()
+    msg['Subject'] = f'Your CodeREAD Report for {code}'
+    msg['From'] = EMAIL_ADDRESS
+    msg['To'] = email
+    msg.set_content("Attached is your detailed CodeREAD diagnostic report.")
+
+    with open(pdf_file_path, 'rb') as f:
+        msg.add_attachment(f.read(), maintype='application', subtype='pdf', filename='CodeREAD_Report.pdf')
+
+    try:
+        with smtplib.SMTP_SSL('smtp.mail.yahoo.com', 465) as smtp:
+            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            smtp.send_message(msg)
+    except Exception as e:
+        return f"Email sending failed: {e}"
+
+    return send_file(pdf_file_path, as_attachment=True)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
