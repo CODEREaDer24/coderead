@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template_string
-import openai
 import os
+from openai import OpenAI
+from openai.types.chat import ChatCompletionMessage
 
 app = Flask(__name__)
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 form_html = """
 <!DOCTYPE html>
@@ -27,23 +27,23 @@ form_html = """
 </html>
 """
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def generate_report():
-    if request.method == 'POST':
-        name = request.form.get('name')
-        vehicle = request.form.get('vehicle')
-        code = request.form.get('code')
-        email = request.form.get('email')
+    if request.method == "POST":
+        name = request.form.get("name")
+        vehicle = request.form.get("vehicle")
+        code = request.form.get("code")
+        email = request.form.get("email")
 
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are a vehicle diagnostics expert."},
                     {"role": "user", "content": f"Generate a diagnostic report for code {code} on a {vehicle}."}
                 ]
             )
-            analysis = response['choices'][0]['message']['content']
+            analysis = response.choices[0].message.content
         except Exception as e:
             analysis = f"Error generating analysis: {str(e)}"
 
