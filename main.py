@@ -5,8 +5,6 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-
-# Set OpenAI key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 if not openai.api_key:
     raise ValueError("OPENAI_API_KEY is missing. Check your environment variables.")
@@ -25,25 +23,26 @@ def generate():
     code = request.form.get('code', 'N/A').upper()
 
     prompt = f"""
-    You are CodeREAD, an expert automotive AI trained to analyze vehicle OBD2 codes.
-    The user submitted the code {code} for vehicle {vehicle}.
+You are CodeREAD, an expert automotive AI trained to analyze vehicle OBD2 codes.
+The user submitted the code {code} for vehicle {vehicle}.
+Return a detailed diagnostic report covering:
 
-    Return a detailed diagnostic report covering the following:
-    1. Technical Summary
-    2. Layman Summary
-    3. Urgency Rating (1–10) and explanation
-    4. Estimated Repair Cost in CAD
-    5. Consequences of Not Fixing
-    6. Preventative Maintenance Tips
-    7. DIY Potential
-    8. Environmental Impact
-    9. Recommended Replacement Parts (brand + model if possible)
-    10. YouTube Video links for each of the above sections where relevant (at least 3 real links)
-    11. 3 Top-rated local mechanics in Windsor, ON with star ratings and contact info
+1. Technical Summary
+2. Layman Summary
+3. Urgency Rating (1–10) and explanation
+4. Estimated Repair Cost in CAD
+5. Consequences of Not Fixing
+6. Preventative Maintenance Tips
+7. DIY Potential
+8. Environmental Impact
+9. Recommended Parts
+10. Related YouTube Video link (real links only)
+11. Top 3 Mechanics in Windsor with ratings
 
-    Format your response exactly like this, using double-pipe (||) to separate each section on a single line:
-    [Technical Summary] || [Layman Summary] || [Urgency Rating and explanation] || [Repair Cost] || [Consequences] || [Preventative Tips] || [DIY Potential] || [Environmental Impact] || [Parts Recommendation] || [Video Links] || [Mechanic List]
-    """
+Format your response as one line using || to separate sections.
+Example:
+[Tech Summary] || [Layman Summary] || [Urgency] || [Repair Cost] || [Consequences] || [Preventative Tips] || [DIY] || [Environment] || [Parts] || [Video Link] || [Mechanics]
+"""
 
     try:
         response = openai.ChatCompletion.create(
@@ -53,9 +52,10 @@ def generate():
         )
 
         result = response.choices[0].message['content']
-        parts = result.split('||')
+        parts = result.split("||")
+
         if len(parts) < 11:
-            raise ValueError("Incomplete GPT response")
+            raise ValueError("Incomplete response from GPT")
 
         urgency_text = parts[2].strip()
         urgency_num = ''.join(filter(str.isdigit, urgency_text)) or "5"
