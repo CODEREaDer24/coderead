@@ -20,35 +20,39 @@ def generate():
     code = request.form.get('code', 'N/A').upper()
 
     prompt = f"""
-    You are CodeREAD, an AI car diagnostics expert.
-    The user submitted OBD2 trouble code {code}.
+    You are CodeREAD, an AI automotive diagnostic expert.
 
-    Generate a diagnostic report with the following sections, separated by "|":
-    1. Technical Summary
-    2. Layman's Summary
-    3. Urgency (1–10)
-    4. Urgency Explanation
-    5. Estimated Repair Cost (CAD)
-    6. Consequences of Ignoring
-    7. Preventative Maintenance Tips
-    8. DIY Potential
-    9. Environmental Impact
+    A customer has submitted OBD2 code: {code}
 
-    Write all responses clearly and in plain text. No formatting or markdown.
+    Please return your response using this **strict format** with sections separated by "|" on a single line:
+
+    [1] Technical Summary |
+    [2] Layman's Summary |
+    [3] Urgency (1–10 as a number only) |
+    [4] Urgency Explanation |
+    [5] Repair Cost Estimate in CAD |
+    [6] Consequences of Ignoring |
+    [7] Preventative Maintenance Tips |
+    [8] DIY Potential |
+    [9] Environmental Impact
+
+    Do not add commentary, labels, or line breaks. Keep it on a single line.
     """
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.5
+            temperature=0.4
         )
 
         parts = response.choices[0].message["content"].split('|')
         if len(parts) < 9:
-            raise ValueError("Incomplete response from OpenAI.")
+            raise ValueError("Incomplete GPT response")
 
-        urgency = parts[2].strip()
+        # Safely parse urgency as int
+        urgency_raw = parts[2].strip()
+        urgency = ''.join(filter(str.isdigit, urgency_raw)) or "5"
         urgency_position = min(int(urgency), 10) * 10
 
         return render_template("report.html",
