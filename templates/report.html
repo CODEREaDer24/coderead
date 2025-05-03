@@ -6,29 +6,23 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #fff;
+      background: #f7f7f7;
       margin: 0;
-      padding: 30px;
+      padding: 40px;
       color: #333;
     }
     .container {
+      background: white;
+      padding: 30px;
       max-width: 800px;
       margin: auto;
-      padding: 30px;
-      border: 1px solid #ccc;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       border-radius: 8px;
     }
-    header {
+    h1 {
+      color: #d10000;
       text-align: center;
       margin-bottom: 30px;
-    }
-    header img {
-      max-width: 180px;
-    }
-    h1 {
-      color: #D10000;
-      font-size: 26px;
-      margin-top: 10px;
     }
     .info p {
       margin: 5px 0;
@@ -36,50 +30,38 @@
     .label {
       font-weight: bold;
     }
-    .urgency-container {
-      margin: 30px 0;
-      text-align: center;
+    .section {
+      margin-top: 30px;
+    }
+    .section h2 {
+      color: #d10000;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
     }
     .urgency-bar {
-      height: 25px;
-      background: linear-gradient(to right, green, yellow, orange, red);
-      border-radius: 12px;
-      overflow: hidden;
+      height: 20px;
+      background: linear-gradient(to right, green, yellow, red);
+      border-radius: 10px;
+      margin: 20px 0;
       position: relative;
     }
-    .urgency-indicator {
+    .urgency-marker {
       position: absolute;
       top: 0;
       height: 100%;
       width: 2px;
       background: black;
-      left: calc({{ urgency }}0%);
-    }
-    .urgency-label {
-      font-size: 14px;
-      margin-top: 8px;
-    }
-    .section {
-      margin-top: 25px;
-    }
-    .section h2 {
-      color: #D10000;
-      font-size: 18px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 4px;
-      margin-bottom: 10px;
+      left: calc({{ urgency | int * 10 }}%);
     }
     a {
-      color: #0056b3;
+      color: #0066cc;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <img src="{{ url_for('static', filename='coderead-logo.png') }}" alt="CodeREAD Logo">
-      <h1>CodeREAD Vehicle Diagnostic Report</h1>
-    </header>
+    <h1>CodeREAD Vehicle Diagnostic Report</h1>
 
     <div class="info">
       <p><span class="label">Customer Name:</span> {{ name }}</p>
@@ -88,11 +70,12 @@
       <p><span class="label">Email:</span> {{ email }}</p>
     </div>
 
-    <div class="urgency-container">
+    <div class="section">
+      <h2>Urgency</h2>
       <div class="urgency-bar">
-        <div class="urgency-indicator" style="left: calc({{ urgency | int * 10 }}%);"></div>
+        <div class="urgency-marker"></div>
       </div>
-      <div class="urgency-label">Urgency Level: {{ urgency }}/10 — {{ urgency_explanation }}</div>
+      <p><strong>Level:</strong> {{ urgency }}/10 – {{ urgency_explanation }}</p>
     </div>
 
     <div class="section">
@@ -118,4 +101,23 @@
 
     <div class="section">
       <h2>DIY Potential</h2>
-      <p>{{ diy
+      <p>{{ diy_potential }}</p>
+    </div>
+
+    <div class="section">
+      <h2>Environmental Impact</h2>
+      <p>{{ environmental_impact }}</p>
+    </div>
+
+    <div class="section">
+      <h2>Recommended Mechanic</h2>
+      <p>{{ recommended_mechanic }}</p>
+    </div>
+
+    <div class="section">
+      <h2>Related Video</h2>
+      <p><a href="{{ video_link }}" target="_blank">{{ video_link }}</a></p>
+    </div>
+  </div>
+</body>
+</html>
