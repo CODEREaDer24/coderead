@@ -1,20 +1,13 @@
+from flask import Flask, render_template, request
 import os
-from flask import Flask, render_template, request, send_file
-from dotenv import load_dotenv
 import openai
-from fpdf import FPDF
-import smtplib
-from email.message import EmailMessage
+from dotenv import load_dotenv
 
-# Load environment variables from .env
+# Load environment variables from a .env file (if running locally)
 load_dotenv()
 
-# Set up OpenAI API key
+# Ensure the API key is correctly set from environment variables
 openai.api_key = os.getenv("OPENAI_API_KEY")
-
-# Email credentials
-EMAIL_ADDRESS = os.getenv("EMAIL_USER")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASS")
 
 app = Flask(__name__)
 
@@ -24,60 +17,68 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    vehicle = request.form.get('vehicle')
-    code = request.form.get('code')
+    name = request.form.get('name', 'Unknown')
+    email = request.form.get('email', 'unknown@example.com')
+    vehicle = request.form.get('vehicle', 'Unknown Vehicle')
+    code = request.form.get('code', 'N/A').upper()
 
-    prompt = f"""Provide a full vehicle diagnostic summary for OBD2 code {code}.
-    Include:
-    1. Technical explanation
-    2. Layman’s explanation
-    3. Urgency (1–10)
-    4. Repair cost estimate in CAD
-    5. Consequences if not fixed
-    6. Preventative tips
-    7. DIY potential
-    8. Environmental impact
-    9. Recommended mechanic in Windsor, Ontario
-    10. Link to YouTube video explaining the code"""
+    prompt = f"""
+    You are CodeREAD, an AI automotive diagnostic expert.
+
+    A customer has submitted OBD2 code: {code}
+
+    Please return your response using this **strict format** with sections separated by "|" on a single line:
+
+    [1] Technical Summary |
+    [2] Layman's Summary |
+    [3] Urgency (1–10 as a number only) |
+    [4] Urgency Explanation |
+    [5] Repair Cost Estimate in CAD |
+    [6] Consequences of Ignoring |
+    [7] Preventative Maintenance Tips |
+    [8] DIY Potential |
+    [9] Environmental Impact
+
+    Do not add commentary, labels, or line breaks. Keep it on a single line.
+    """
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4
         )
-        output = response['choices'][0]['message']['content']
+
+        parts = response.choices[0].message["content"].split('|')
+        if len(parts) < 9:
+            raise ValueError("Incomplete GPT response")
+
+        # Safely parse urgency as int
+        urgency_raw = parts[2].strip()
+        urgency = ''.join(filter(str.isdigit, urgency_raw)) or "5"
+        urgency_position = min(int(urgency), 10) * 10
+
+        return render_template("report.html",
+            name=name,
+            email=email,
+            vehicle=vehicle,
+            code=code,
+            urgency=urgency,
+            urgency_position=urgency_position,
+            urgency_explanation=parts[3].strip(),
+            tech_summary=parts[0].strip(),
+            layman_summary=parts[1].strip(),
+            repair_cost=parts[4].strip(),
+            consequences=parts[5].strip(),
+            preventative_tips=parts[6].strip(),
+            diy_potential=parts[7].strip(),
+            environmental_impact=parts[8].strip(),
+            recommended_mechanic="Clover Auto & Tecumseh Auto (Windsor)",
+            video_link="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        )
+
     except Exception as e:
-        return f"AI report generation failed: {e}"
-
-    # Create PDF
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, f"CodeREAD Diagnostic Report\n\nCustomer: {name}\nVehicle: {vehicle}\nCode: {code}\n\n{output}")
-
-    pdf_file_path = "/tmp/report.pdf"
-    pdf.output(pdf_file_path)
-
-    # Email PDF
-    msg = EmailMessage()
-    msg['Subject'] = f'Your CodeREAD Report for {code}'
-    msg['From'] = EMAIL_ADDRESS
-    msg['To'] = email
-    msg.set_content("Attached is your detailed CodeREAD diagnostic report.")
-
-    with open(pdf_file_path, 'rb') as f:
-        msg.add_attachment(f.read(), maintype='application', subtype='pdf', filename='CodeREAD_Report.pdf')
-
-    try:
-        with smtplib.SMTP_SSL('smtp.mail.yahoo.com', 465) as smtp:
-            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            smtp.send_message(msg)
-    except Exception as e:
-        return f"Email sending failed: {e}"
-
-    return send_file(pdf_file_path, as_attachment=True)
+        return f"AI report generation failed: {str(e)}"
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
