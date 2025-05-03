@@ -1,27 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>CodeREAD Diagnostic Form</title>
+  <meta charset="UTF-8">
+  <title>CodeREAD Report Generator</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 40px; background: #f2f2f2; }
-    h2 { color: #cc0000; }
-    label { display: block; margin-top: 15px; }
-    input { width: 100%; padding: 8px; margin-top: 5px; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      color: #d9534f;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+    }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
     button {
       margin-top: 20px;
-      background-color: #cc0000;
+      background-color: #d9534f;
       color: white;
-      padding: 10px 20px;
       border: none;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 4px;
       cursor: pointer;
     }
-    button:hover { background-color: #a60000; }
+    button:hover {
+      background-color: #c9302c;
+    }
   </style>
 </head>
 <body>
-  <h2>CodeREAD Report Generator</h2>
-  <form method="POST" action="/generate">
-    <label>Customer Name:</label>
-    <input type="text" name="name" required>
 
-    <label
+  <h1>Generate a Vehicle Diagnostic Report</h1>
+
+  <form method="POST" action="/">
+    <label for="name">Customer Name:</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="vehicle">Vehicle (make/model/year):</label>
+    <input type="text" id="vehicle" name="vehicle" required>
+
+    <label for="code">OBD2 Code:</label>
+    <input type="text" id="code" name="code" required>
+
+    <label for="email">Customer Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <button type="submit">Generate Report</button>
+  </form>
+
+</body>
+</html>
