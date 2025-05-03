@@ -3,10 +3,8 @@ import os
 import openai
 from dotenv import load_dotenv
 
-# Load .env variables (used in local or Render env)
+# Load API key from .env
 load_dotenv()
-
-# Pull API key from environment safely
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise Exception("Missing OpenAI API key. Set OPENAI_API_KEY in your environment.")
