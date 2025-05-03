@@ -79,16 +79,28 @@
       <h2>Issue Summary</h2>
       <p><strong>Technical:</strong> {{ tech_summary }}</p>
       <p><strong>Layman:</strong> {{ layman_summary }}</p>
+      <p><a href="{{ code_video_link }}" target="_blank">Watch Code Explanation Video</a></p>
     </div>
 
     <div class="section"><h2>Repair Cost Estimate</h2><p>{{ repair_cost }}</p></div>
     <div class="section"><h2>Consequences of Ignoring</h2><p>{{ consequences }}</p></div>
     <div class="section"><h2>Preventative Care Tips</h2><p>{{ preventative_tips }}</p></div>
-    <div class="section"><h2>DIY Potential</h2><p>{{ diy_potential }}</p></div>
+    <div class="section">
+      <h2>DIY Potential</h2>
+      <p>{{ diy_potential }}</p>
+      <p><a href="{{ diy_video_link }}" target="_blank">Watch DIY Repair Video</a></p>
+    </div>
     <div class="section"><h2>Environmental Impact</h2><p>{{ environmental_impact }}</p></div>
-    <div class="section"><h2>Recommended Parts</h2><p>{{ parts_recommendation }}</p></div>
-    <div class="section"><h2>Related Videos</h2><p>{{ video_links|safe }}</p></div>
-    <div class="section"><h2>Recommended Mechanics (Windsor)</h2><p>{{ mechanic_list }}</p></div>
+    <div class="section">
+      <h2>Recommended Parts</h2>
+      <p>{{ parts_recommendation }}</p>
+      <p><a href="{{ parts_link }}" target="_blank">Buy Parts</a></p>
+    </div>
+    <div class="section">
+      <h2>Recommended Mechanics (Windsor)</h2>
+      <p>{{ mechanic_list }}</p>
+      <p><a href="{{ mechanic_links }}" target="_blank">View Mechanics</a></p>
+    </div>
   </div>
 </body>
-</html>
+</html>>
