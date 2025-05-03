@@ -3,12 +3,12 @@ import os
 
 app = Flask(__name__)
 
-# Homepage with the form
+# Homepage route – serves the diagnostic form
 @app.route('/')
 def index():
     return render_template('form.html')
 
-# Generate report from form data
+# Generate route – builds the report from submitted form data
 @app.route('/generate', methods=['POST'])
 def generate():
     name = request.form.get('name', 'Unknown')
@@ -16,18 +16,18 @@ def generate():
     vehicle = request.form.get('vehicle', 'Unknown Vehicle')
     code = request.form.get('code', 'N/A').upper()
 
-    # Static logic for now — you can plug in real AI or lookups later
+    # === Placeholder logic until OpenAI is integrated ===
     urgency = "6"
     urgency_explanation = "Moderate concern – emissions system not warming up efficiently."
-    tech_summary = f"The {code} code is triggered by poor performance in the catalytic converter heater circuit."
-    layman_summary = "Your emissions system isn’t warming up fast enough, which can fail tests and harm the engine over time."
-    repair_cost = "Estimate: $600–$2,000 CAD depending on parts and labour."
-    consequences = "Vehicle may fail emissions testing. Long-term engine damage if ignored."
-    preventative_tips = "Drive longer trips occasionally to help the system reach operating temp. Regular checkups help."
-    diy_potential = "Low. Diagnosis and fix often require a mechanic with proper tools."
-    environmental_impact = "Increased emissions and lower fuel efficiency."
-    recommended_mechanic = "Clover Auto & Tecumseh Auto (Windsor)."
-    video_link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    tech_summary = f"The diagnostic trouble code {code} indicates a potential issue in the emission system, likely related to catalytic converter efficiency or sensor feedback."
+    layman_summary = "This code means your car isn't processing emissions correctly. It might fail a test or run rough if ignored."
+    repair_cost = "Estimated repair: $600–$2,000 CAD depending on diagnosis and parts."
+    consequences = "Ignoring this could result in poor fuel economy, failed emissions, or damage to the engine."
+    preventative_tips = "Schedule regular maintenance and emissions checks. Avoid excessive idling and short trips."
+    diy_potential = "Low to Moderate – may require scan tools and mechanical skill."
+    environmental_impact = "Elevated emissions, reduced fuel efficiency, higher pollution."
+    recommended_mechanic = "Clover Auto & Tecumseh Auto – Trusted in Windsor."
+    video_link = f"https://www.youtube.com/results?search_query=OBD2+Code+{code}+explanation"
 
     return render_template("report.html",
         name=name,
@@ -47,7 +47,7 @@ def generate():
         video_link=video_link
     )
 
-# Render-compatible run block
+# Required for deployment on Render
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
