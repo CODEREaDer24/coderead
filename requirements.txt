@@ -1,6 +1,6 @@
 flask>=2.3
 gunicorn>=20.1
-openai==1.14.3
+openai==0.28.1
 xhtml2pdf==0.2.11
 flask-mail==0.9.1
 python-dotenv>=1.0
