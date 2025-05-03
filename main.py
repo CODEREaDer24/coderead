@@ -13,14 +13,14 @@ def index():
         code = request.form["code"]
         email = request.form["email"]
 
-        prompt = f"Generate a detailed diagnostic report for OBD2 code {code} on a {vehicle}. Include: urgency (1-10), summary (tech + layman), cost (CAD), consequences, preventative care tips, DIY potential, environmental impact, and recommend a mechanic in Windsor. Format in HTML for a customer report. Use this customer info: Name: {name}, Email: {email}."
+        prompt = f"Generate a detailed diagnostic report for OBD2 code {code} on a {vehicle}. Include: urgency (1–10), summary (tech + layman), estimated repair cost (CAD), consequences of not fixing it, preventative care tips, DIY potential, environmental impact, and recommend a mechanic in Windsor. Format in HTML as a clean customer-facing diagnostic report. Include: Name: {name}, Email: {email}."
 
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
 
-        report = response.choices[0].message.content
+        report = response.choices[0].message['content']
         return report
 
     return render_template("form.html")
