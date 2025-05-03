@@ -1,27 +1,27 @@
 from flask import Flask, request, render_template
-import os
 from openai import OpenAI
+import os
 
 app = Flask(__name__)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route("/", methods=["GET", "POST"])
-def index():
+def home():
     if request.method == "POST":
-        name = request.form.get("name")
-        vehicle = request.form.get("vehicle")
-        code = request.form.get("code")
-        email = request.form.get("email")
+        name = request.form["name"]
+        vehicle = request.form["vehicle"]
+        code = request.form["code"]
+        email = request.form["email"]
 
         try:
-            response = client.chat.completions.create(
+            chat_response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[
-                    {"role": "system", "content": "You are a professional automotive diagnostics expert."},
-                    {"role": "user", "content": f"Generate a diagnostic report for OBD2 code {code} on a {vehicle}."}
+                    {"role": "system", "content": "You are a vehicle diagnostics expert."},
+                    {"role": "user", "content": f"Generate a diagnostic report for code {code} on a {vehicle}."}
                 ]
             )
-            analysis = response.choices[0].message.content
+            analysis = chat_response.choices[0].message.content
         except Exception as e:
             analysis = f"Error generating analysis: {str(e)}"
 
