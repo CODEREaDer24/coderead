@@ -1,15 +1,28 @@
 from flask import Flask, render_template, request
 import os
 import openai
+from flask_mail import Mail, Message
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 
+# Set OpenAI key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 if not openai.api_key:
     raise ValueError("OPENAI_API_KEY is missing. Check your environment variables.")
 
 app = Flask(__name__)
+
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER', 'support@coderead.ca')
+
+mail = Mail(app)
 
 @app.route('/')
 def index():
@@ -59,7 +72,7 @@ def generate():
         urgency_num = ''.join(filter(str.isdigit, urgency_text)) or "5"
         urgency_position = min(int(urgency_num), 10) * 10
 
-        return render_template("report.html",
+        rendered = render_template("report.html",
             name=name,
             email=email,
             vehicle=vehicle,
@@ -77,6 +90,13 @@ def generate():
             video_link=parts[8].strip(),
             recommended_mechanic="Clover Auto & Tecumseh Auto (Windsor)"
         )
+
+        # Email the rendered report
+        msg = Message(f"Your CodeRead Report: {code}", recipients=[email])
+        msg.html = rendered
+        mail.send(msg)
+
+        return rendered
 
     except Exception as e:
         return f"AI report generation failed: {str(e)}"
