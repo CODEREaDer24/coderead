@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CodeREAD Diagnostic Form</title>
+  <title>CodeREAD Report Generator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f2f2f2;
-      padding: 50px;
+      padding: 40px;
     }
-    .form-container {
+    .container {
       background: white;
       padding: 30px;
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -21,35 +21,51 @@
       text-align: center;
       color: #d10000;
     }
-    input[type="text"], input[type="email"] {
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 20px;
+    }
+    input[type="text"],
+    input[type="email"] {
       width: 100%;
       padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
+      margin-top: 5px;
       border-radius: 4px;
+      border: 1px solid #ccc;
     }
     button {
+      margin-top: 30px;
       width: 100%;
-      padding: 12px;
-      background: #d10000;
+      background-color: #d10000;
       color: white;
+      padding: 15px;
       border: none;
       border-radius: 4px;
       font-size: 16px;
     }
     button:hover {
-      background: #a80000;
+      background-color: #a80000;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="form-container">
-    <h1>CodeREAD Diagnostic Form</h1>
-    <form action="/generate" method="post">
-      <input type="text" name="name" placeholder="Customer Name" required>
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="text" name="vehicle" placeholder="Vehicle (Make and Model)" required>
-      <input type="text" name="code" placeholder="OBD2 Code (e.g., P0420)" required>
+  <div class="container">
+    <h1>Generate Your CodeREAD Report</h1>
+    <form action="/report" method="POST">
+      <label for="name">Customer Name</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="vehicle">Vehicle Info</label>
+      <input type="text" id="vehicle" name="vehicle" placeholder="e.g. 2015 Toyota Camry" required>
+
+      <label for="code">OBD2 Code</label>
+      <input type="text" id="code" name="code" placeholder="e.g. P0420" required>
+
       <button type="submit">Generate Report</button>
     </form>
   </div>
