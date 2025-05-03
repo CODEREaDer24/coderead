@@ -24,7 +24,3 @@ def generate_report():
             analysis = response.choices[0].message.content
         except Exception as e:
             analysis = f"Error generating analysis: {str(e)}"
-
-        return render_template("report.html", name=name, vehicle=vehicle, code=code, email=email, analysis=analysis)
-
-    return render_template("form.html")
