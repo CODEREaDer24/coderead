@@ -1,5 +1,10 @@
 from flask import Flask, render_template, request
 import os
+import openai
+from dotenv import load_dotenv
+
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
@@ -14,37 +19,59 @@ def generate():
     vehicle = request.form.get('vehicle', 'Unknown Vehicle')
     code = request.form.get('code', 'N/A').upper()
 
-    urgency = "6"
-    urgency_position = int(urgency) * 10
-    urgency_explanation = "Moderate concern – emissions system not warming up efficiently."
-    tech_summary = f"The {code} code is triggered by poor performance in the catalytic converter heater circuit."
-    layman_summary = "Your emissions system isn’t warming up fast enough, which can fail tests and harm the engine over time."
-    repair_cost = "Estimate: $600–$2,000 CAD depending on parts and labour."
-    consequences = "Vehicle may fail emissions testing. Long-term engine damage if ignored."
-    preventative_tips = "Drive longer trips occasionally to help the system reach operating temp. Regular checkups help."
-    diy_potential = "Low. Diagnosis and fix often require a mechanic with proper tools."
-    environmental_impact = "Increased emissions and lower fuel efficiency."
-    recommended_mechanic = "Clover Auto & Tecumseh Auto (Windsor)."
-    video_link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    prompt = f"""
+    You are CodeREAD, an AI car diagnostics expert.
+    The user submitted OBD2 trouble code {code}.
 
-    return render_template("report.html",
-        name=name,
-        vehicle=vehicle,
-        code=code,
-        email=email,
-        urgency=urgency,
-        urgency_position=urgency_position,
-        urgency_explanation=urgency_explanation,
-        tech_summary=tech_summary,
-        layman_summary=layman_summary,
-        repair_cost=repair_cost,
-        consequences=consequences,
-        preventative_tips=preventative_tips,
-        diy_potential=diy_potential,
-        environmental_impact=environmental_impact,
-        recommended_mechanic=recommended_mechanic,
-        video_link=video_link
-    )
+    Generate a diagnostic report with the following sections, separated by "|":
+    1. Technical Summary
+    2. Layman's Summary
+    3. Urgency (1–10)
+    4. Urgency Explanation
+    5. Estimated Repair Cost (CAD)
+    6. Consequences of Ignoring
+    7. Preventative Maintenance Tips
+    8. DIY Potential
+    9. Environmental Impact
+
+    Write all responses clearly and in plain text. No formatting or markdown.
+    """
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.5
+        )
+
+        parts = response.choices[0].message["content"].split('|')
+        if len(parts) < 9:
+            raise ValueError("Incomplete response from OpenAI.")
+
+        urgency = parts[2].strip()
+        urgency_position = min(int(urgency), 10) * 10
+
+        return render_template("report.html",
+            name=name,
+            email=email,
+            vehicle=vehicle,
+            code=code,
+            urgency=urgency,
+            urgency_position=urgency_position,
+            urgency_explanation=parts[3].strip(),
+            tech_summary=parts[0].strip(),
+            layman_summary=parts[1].strip(),
+            repair_cost=parts[4].strip(),
+            consequences=parts[5].strip(),
+            preventative_tips=parts[6].strip(),
+            diy_potential=parts[7].strip(),
+            environmental_impact=parts[8].strip(),
+            recommended_mechanic="Clover Auto & Tecumseh Auto (Windsor)",
+            video_link="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        )
+
+    except Exception as e:
+        return f"AI report generation failed: {str(e)}"
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
