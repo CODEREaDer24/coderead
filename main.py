@@ -1,9 +1,9 @@
 from flask import Flask, request, render_template
-from openai import OpenAI
+import openai
 import os
 
 app = Flask(__name__)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -29,10 +29,10 @@ def index():
         )
 
         try:
-            response = client.chat.completions.create(
+            response = openai.ChatCompletion.create(
                 model="gpt-4",
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.7,
+                temperature=0.7
             )
 
             analysis = response.choices[0].message.content
