@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
+# Set OpenAI API Key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 if not openai.api_key:
     raise ValueError("OPENAI_API_KEY is missing. Check your environment variables.")
@@ -23,26 +25,25 @@ def generate():
     code = request.form.get('code', 'N/A').upper()
 
     prompt = f"""
-You are CodeREAD, an expert automotive AI trained to analyze vehicle OBD2 codes.
-The user submitted the code {code} for vehicle {vehicle}.
-Return a detailed diagnostic report covering:
+    You are CodeREAD, an expert automotive AI trained to analyze vehicle OBD2 codes. 
+    The user submitted the code {code} for vehicle {vehicle}.
+    Return a detailed diagnostic report with the following fields (each one clearly separated by '||'):
 
-1. Technical Summary
-2. Layman Summary
-3. Urgency Rating (1–10) and explanation
-4. Estimated Repair Cost in CAD
-5. Consequences of Not Fixing
-6. Preventative Maintenance Tips
-7. DIY Potential
-8. Environmental Impact
-9. Recommended Parts
-10. Related YouTube Video link (real links only)
-11. Top 3 Mechanics in Windsor with ratings
+    1. Technical Summary
+    2. Layman Summary
+    3. Urgency (1–10) with explanation
+    4. Estimated Repair Cost (CAD)
+    5. Consequences of Not Fixing
+    6. Preventative Maintenance Tips
+    7. DIY Potential
+    8. Environmental Impact
+    9. Recommended Replacement Parts
+    10. YouTube Video Link (real)
+    11. Three Highly Rated Windsor Mechanics with Google Ratings and Specialties
 
-Format your response as one line using || to separate sections.
-Example:
-[Tech Summary] || [Layman Summary] || [Urgency] || [Repair Cost] || [Consequences] || [Preventative Tips] || [DIY] || [Environment] || [Parts] || [Video Link] || [Mechanics]
-"""
+    Format your response on one line using double-pipes: 
+    [Technical] || [Layman] || [Urgency] || [Repair Cost] || [Consequences] || [Tips] || [DIY] || [Environmental] || [Parts] || [Video] || [Mechanics]
+    """
 
     try:
         response = openai.ChatCompletion.create(
@@ -50,14 +51,13 @@ Example:
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
         )
-
         result = response.choices[0].message['content']
-        parts = result.split("||")
+        parts = [part.strip() for part in result.split('||')]
 
         if len(parts) < 11:
-            raise ValueError("Incomplete response from GPT")
+            raise ValueError("Incomplete GPT response. Got less than 11 parts.")
 
-        urgency_text = parts[2].strip()
+        urgency_text = parts[2]
         urgency_num = ''.join(filter(str.isdigit, urgency_text)) or "5"
         urgency_position = min(int(urgency_num), 10) * 10
 
@@ -66,19 +66,19 @@ Example:
             email=email,
             vehicle=vehicle,
             code=code,
-            tech_summary=parts[0].strip(),
-            layman_summary=parts[1].strip(),
+            tech_summary=parts[0],
+            layman_summary=parts[1],
             urgency=urgency_num,
             urgency_explanation=urgency_text,
             urgency_position=urgency_position,
-            repair_cost=parts[3].strip(),
-            consequences=parts[4].strip(),
-            preventative_tips=parts[5].strip(),
-            diy_potential=parts[6].strip(),
-            environmental_impact=parts[7].strip(),
-            parts_recommendation=parts[8].strip(),
-            video_links=parts[9].strip(),
-            mechanic_list=parts[10].strip()
+            repair_cost=parts[3],
+            consequences=parts[4],
+            preventative_tips=parts[5],
+            diy_potential=parts[6],
+            environmental_impact=parts[7],
+            parts_recommendation=parts[8],
+            video_links=parts[9],
+            mechanic_list=parts[10]
         )
 
     except Exception as e:
