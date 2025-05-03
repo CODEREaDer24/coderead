@@ -1,14 +1,18 @@
 from flask import Flask, render_template, request
 import os
+import openai
 
 app = Flask(__name__)
 
-# Homepage route – serves the diagnostic form
+# Load your OpenAI API key from environment variable
+openai.api_key = os.environ.get("OPENAI_API_KEY")
+
+# Homepage with diagnostic form
 @app.route('/')
 def index():
     return render_template('form.html')
 
-# Generate route – builds the report from submitted form data
+# Generate route — calls OpenAI and builds the report
 @app.route('/generate', methods=['POST'])
 def generate():
     name = request.form.get('name', 'Unknown')
@@ -16,38 +20,55 @@ def generate():
     vehicle = request.form.get('vehicle', 'Unknown Vehicle')
     code = request.form.get('code', 'N/A').upper()
 
-    # === Placeholder logic until OpenAI is integrated ===
-    urgency = "6"
-    urgency_explanation = "Moderate concern – emissions system not warming up efficiently."
-    tech_summary = f"The diagnostic trouble code {code} indicates a potential issue in the emission system, likely related to catalytic converter efficiency or sensor feedback."
-    layman_summary = "This code means your car isn't processing emissions correctly. It might fail a test or run rough if ignored."
-    repair_cost = "Estimated repair: $600–$2,000 CAD depending on diagnosis and parts."
-    consequences = "Ignoring this could result in poor fuel economy, failed emissions, or damage to the engine."
-    preventative_tips = "Schedule regular maintenance and emissions checks. Avoid excessive idling and short trips."
-    diy_potential = "Low to Moderate – may require scan tools and mechanical skill."
-    environmental_impact = "Elevated emissions, reduced fuel efficiency, higher pollution."
-    recommended_mechanic = "Clover Auto & Tecumseh Auto – Trusted in Windsor."
-    video_link = f"https://www.youtube.com/results?search_query=OBD2+Code+{code}+explanation"
+    # Prompt sent to OpenAI
+    prompt = f"""
+You are an automotive diagnostic assistant. The customer has entered the diagnostic trouble code: {code}.
 
+Create a structured report including:
+- A brief technical explanation
+- A simplified layman's summary
+- Urgency (scale 1–10) with explanation
+- Estimated repair cost in CAD
+- Consequences of ignoring
+- Preventative tips
+- DIY potential
+- Environmental impact
+
+Make the tone professional but clear. Keep answers concise and easy to read.
+"""
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=700
+        )
+
+        ai_output = response['choices'][0]['message']['content']
+    except Exception as e:
+        ai_output = f"Error generating report: {str(e)}"
+
+    # For now, just dump the output into the 'tech_summary' field for testing
     return render_template("report.html",
         name=name,
         vehicle=vehicle,
         code=code,
         email=email,
-        urgency=urgency,
-        urgency_explanation=urgency_explanation,
-        tech_summary=tech_summary,
-        layman_summary=layman_summary,
-        repair_cost=repair_cost,
-        consequences=consequences,
-        preventative_tips=preventative_tips,
-        diy_potential=diy_potential,
-        environmental_impact=environmental_impact,
-        recommended_mechanic=recommended_mechanic,
-        video_link=video_link
+        urgency="–",
+        urgency_explanation="–",
+        tech_summary=ai_output,
+        layman_summary="–",
+        repair_cost="–",
+        consequences="–",
+        preventative_tips="–",
+        diy_potential="–",
+        environmental_impact="–",
+        recommended_mechanic="Clover Auto & Tecumseh Auto (Windsor)",
+        video_link=f"https://www.youtube.com/results?search_query=OBD2+Code+{code}+explanation"
     )
 
-# Required for deployment on Render
+# Render-compatible run block
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
