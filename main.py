@@ -5,8 +5,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
-if not openai.api_key:
-    raise ValueError("OPENAI_API_KEY is missing. Check your environment variables.")
 
 app = Flask(__name__)
 
@@ -16,27 +14,28 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    name = request.form.get('name', 'Unknown')
-    email = request.form.get('email', 'unknown@example.com')
-    vehicle = request.form.get('vehicle', 'Unknown Vehicle')
-    code = request.form.get('code', 'N/A').upper()
+    name = request.form.get('name')
+    email = request.form.get('email')
+    vehicle = request.form.get('vehicle')
+    code = request.form.get('code')
 
     prompt = f"""
-    You are CodeREAD, an expert automotive AI trained to analyze vehicle OBD2 codes. The user submitted code {code} for vehicle {vehicle}.
-    Return a comprehensive diagnostic report covering the following 10 sections:
-    1. Technical Summary (what the code means)
-    2. Layman Summary (plain English)
-    3. Urgency Rating (1–10) and explanation
-    4. Estimated Repair Cost in CAD
-    5. Consequences of Not Fixing
-    6. Preventative Maintenance Tips
-    7. DIY Potential
-    8. Environmental Impact
-    9. Recommended Parts (realistic)
-    10. 3 Real YouTube links (DIY, explanation, or diagnosis)
-    Format your response like this, using a double-pipe (||) to separate sections, all on one line:
-    [Technical Summary] || [Layman Summary] || [Urgency Rating and explanation] || [Repair Cost] || [Consequences] || [Preventative Tips] || [DIY Potential] || [Environmental Impact] || [Parts Recommendation] || [YouTube Links as clickable URLs]
-    """
+You are CodeREAD, an expert automotive AI trained to analyze vehicle OBD2 codes. The user submitted the code {code} for vehicle {vehicle}.
+Return a diagnostic report with 10 full sections, separated by double pipes (||), in this order:
+1. Technical Summary
+2. Layman Summary
+3. Urgency rating (1–10) + short explanation
+4. Estimated Repair Cost in CAD
+5. Consequences of Not Fixing
+6. Preventative Maintenance Tips
+7. DIY Potential with link to a real DIY video
+8. Environmental Impact
+9. Parts Needed (with link to a real part on Amazon or RockAuto)
+10. Mechanic Recommendations for Windsor with Google Map links
+
+Strict format:
+[Technical Summary] || [Layman Summary] || [Urgency Rating and explanation] || [Repair Cost] || [Consequences] || [Preventative Tips] || [DIY Potential and Video] || [Environmental Impact] || [Parts Recommendation with Link] || [Mechanic List with Links]
+"""
 
     try:
         response = openai.ChatCompletion.create(
@@ -45,38 +44,37 @@ def generate():
             temperature=0.5,
         )
         result = response.choices[0].message['content']
-        parts = result.split('||')
-        if len(parts) < 10:
-            raise ValueError("Incomplete GPT response")
+        parts = [part.strip() for part in result.split("||")]
 
-        urgency_text = parts[2].strip()
+        if len(parts) < 10:
+            raise ValueError("Incomplete response from GPT.")
+
+        urgency_text = parts[2]
         urgency_num = ''.join(filter(str.isdigit, urgency_text)) or "5"
         urgency_position = min(int(urgency_num), 10) * 10
 
-        rendered = render_template("report.html",
+        return render_template("report.html",
             name=name,
             email=email,
             vehicle=vehicle,
             code=code,
-            tech_summary=parts[0].strip(),
-            layman_summary=parts[1].strip(),
+            tech_summary=parts[0],
+            layman_summary=parts[1],
             urgency=urgency_num,
             urgency_explanation=urgency_text,
             urgency_position=urgency_position,
-            repair_cost=parts[3].strip(),
-            consequences=parts[4].strip(),
-            preventative_tips=parts[5].strip(),
-            diy_potential=parts[6].strip(),
-            environmental_impact=parts[7].strip(),
-            parts_recommendation=parts[8].strip(),
-            video_links=parts[9].strip().replace("http", "<br>http"),
-            mechanic_list="Clover Auto (4.8★) and Tecumseh Auto (4.7★) – Windsor, ON"
+            repair_cost=parts[3],
+            consequences=parts[4],
+            preventative_tips=parts[5],
+            diy_potential=parts[6],
+            environmental_impact=parts[7],
+            parts_recommendation=parts[8],
+            mechanic_list=parts[9],
+            video_links=parts[6]  # Assuming DIY video is in section 7
         )
-        return rendered
-
     except Exception as e:
         return f"AI report generation failed: {str(e)}"
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host="0.0.0.0", port=port)
