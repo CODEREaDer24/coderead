@@ -1,77 +1,67 @@
 from flask import Flask, render_template, request
-import openai
+from flask_mail import Mail, Message
+from xhtml2pdf import pisa
+from io import BytesIO
 import os
 
 app = Flask(__name__)
 
-# Set your OpenAI API key from environment variable
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Load email config from environment or .env
+app.config['MAIL_SERVER'] = 'smtp.mail.yahoo.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
-# Home route
+mail = Mail(app)
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('form.html')
 
-# Form and report route
-@app.route('/generate', methods=['GET', 'POST'])
+@app.route('/generate', methods=['POST'])
 def generate():
-    if request.method == 'GET':
-        return render_template('form.html')
+    name = request.form.get('name')
+    email = request.form.get('email')
+    vehicle = request.form.get('vehicle')
+    code = request.form.get('code').upper()
 
-    name = request.form.get('name', 'Unknown')
-    email = request.form.get('email', 'unknown@example.com')
-    vehicle = request.form.get('vehicle', 'Unknown Vehicle')
-    code = request.form.get('code', 'N/A').upper()
+    urgency = "6"
+    urgency_explanation = "Moderate concern – emissions system not warming up efficiently."
+    tech_summary = f"The {code} code is triggered by poor performance in the catalytic converter heater circuit."
+    layman_summary = "Your emissions system isn’t warming up fast enough, which can fail tests and harm the engine over time."
+    repair_cost = "Estimate: $600–$2,000 CAD"
+    consequences = "Vehicle may fail emissions testing."
+    preventative_tips = "Drive longer trips occasionally."
+    diy_potential = "Low"
+    environmental_impact = "Increased emissions."
+    recommended_mechanic = "Clover Auto & Tecumseh Auto (Windsor)"
+    video_link = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 
-    try:
-        prompt = (
-            f"Explain automotive OBD2 code {code} in detail.\n"
-            f"1. Technical explanation\n"
-            f"2. Layman explanation\n"
-            f"3. Urgency (1–10 and why)\n"
-            f"4. Repair cost (CAD)\n"
-            f"5. Consequences of ignoring\n"
-            f"6. Preventative tips\n"
-            f"7. DIY potential\n"
-            f"8. Environmental impact\n"
-            f"9. Recommended mechanic (Windsor)\n"
-            f"10. YouTube video URL"
-        )
+    rendered = render_template("report.html",
+        name=name, vehicle=vehicle, code=code, email=email,
+        urgency=urgency, urgency_explanation=urgency_explanation,
+        tech_summary=tech_summary, layman_summary=layman_summary,
+        repair_cost=repair_cost, consequences=consequences,
+        preventative_tips=preventative_tips, diy_potential=diy_potential,
+        environmental_impact=environmental_impact, recommended_mechanic=recommended_mechanic,
+        video_link=video_link
+    )
 
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7
-        )
+    # Generate PDF
+    pdf = BytesIO()
+    pisa.CreatePDF(rendered, dest=pdf)
+    pdf.seek(0)
 
-        content = response['choices'][0]['message']['content']
-        parts = content.split('\n')
+    # Send email with PDF
+    msg = Message("Your CodeREAD Diagnostic Report", recipients=[email])
+    msg.body = "Attached is your diagnostic report from CodeREAD."
+    msg.attach("CodeREAD_Report.pdf", "application/pdf", pdf.read())
+    mail.send(msg)
 
-        urgency_line = next((line for line in parts if line.startswith("3.")), "3. Urgency: 5 – unknown")
-        urgency_val = ''.join(filter(str.isdigit, urgency_line.split(':')[1].strip().split()[0]))
-        urgency = int(urgency_val) if urgency_val else 5
+    return rendered
 
-        return render_template('report.html',
-            name=name,
-            email=email,
-            vehicle=vehicle,
-            code=code,
-            urgency=urgency,
-            urgency_explanation=urgency_line.split("–", 1)[-1].strip(),
-            tech_summary=parts[0].split(":", 1)[-1].strip(),
-            layman_summary=parts[1].split(":", 1)[-1].strip(),
-            repair_cost=parts[3].split(":", 1)[-1].strip(),
-            consequences=parts[4].split(":", 1)[-1].strip(),
-            preventative_tips=parts[5].split(":", 1)[-1].strip(),
-            diy_potential=parts[6].split(":", 1)[-1].strip(),
-            environmental_impact=parts[7].split(":", 1)[-1].strip(),
-            recommended_mechanic=parts[8].split(":", 1)[-1].strip(),
-            video_link=parts[9].split(":", 1)[-1].strip()
-        )
-
-    except Exception as e:
-        return f"AI report generation failed: {e}"
-
-# Run app locally or on Render
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
