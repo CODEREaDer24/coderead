@@ -13,54 +13,63 @@ def index():
         code = request.form["code"]
         email = request.form["email"]
 
-        # Send prompt to OpenAI for expanded parameters
-        prompt = f"""
-        For a {vehicle}, generate the following based on diagnostic code {code}:
-        1. A technical explanation.
-        2. A layman's explanation.
-        3. An urgency rating from 1–10.
-        4. Estimated cost range to repair in CAD.
-        5. Consequences of not fixing the issue.
-        6. Preventative maintenance tips.
-        7. DIY potential (yes/no and why).
-        8. Environmental impact (if any).
-        9. A good video link that explains this code.
-        10. A highly-rated mechanic in Windsor, Ontario (Clover Auto or Tecumseh Auto preferred).
-        """
-
         try:
+            prompt = f"""
+You are CodeREAD AI. Generate a structured JSON object based on the following OBD2 trouble code and vehicle:
+
+Vehicle: {vehicle}
+Code: {code}
+
+Output fields in JSON:
+- urgency (1–10 scale)
+- layman explanation
+- cost_estimate in CAD
+- consequences of ignoring
+- preventative care tips
+- DIY potential
+- environmental impact
+- recommended mechanic (use Clover Auto or Tecumseh Auto in Windsor)
+- video_link (valid YouTube URL about this code)
+
+Example format:
+{{
+  "urgency": 6,
+  "layman": "...",
+  "cost_estimate": "...",
+  "consequences": "...",
+  "preventative_tips": "...",
+  "diy_potential": "...",
+  "environmental_impact": "...",
+  "recommended_mechanic": "...",
+  "video_link": "https://youtube.com/example"
+}}
+"""
+
             response = client.chat.completions.create(
                 model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are an expert vehicle diagnostics assistant."},
-                    {"role": "user", "content": prompt}
-                ]
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7
             )
-
-            reply = response.choices[0].message.content
-
-            # Extract values manually from the response (rough parse)
-            lines = reply.split('\n')
-            data = {
-                "name": name,
-                "vehicle": vehicle,
-                "code": code,
-                "email": email,
-                "tech_issue": lines[0].split(": ", 1)[-1],
-                "plain_issue": lines[1].split(": ", 1)[-1],
-                "urgency": lines[2].split(": ", 1)[-1],
-                "cost_estimate": lines[3].split(": ", 1)[-1],
-                "consequences": lines[4].split(": ", 1)[-1],
-                "tips": lines[5].split(": ", 1)[-1],
-                "diy": lines[6].split(": ", 1)[-1],
-                "environment": lines[7].split(": ", 1)[-1],
-                "video_url": lines[8].split(": ", 1)[-1],
-                "mechanic": lines[9].split(": ", 1)[-1],
-            }
+            data = eval(response.choices[0].message.content)
 
         except Exception as e:
-            return f"<h1>Error generating report:</h1><p>{str(e)}</p>"
+            return render_template("report.html", name=name, vehicle=vehicle, code=code, email=email,
+                                   urgency="Error", layman=str(e), cost_estimate="", consequences="",
+                                   preventative_tips="", diy_potential="", environmental_impact="",
+                                   recommended_mechanic="", video_link="")
 
-        return render_template("report.html", **data)
+        return render_template("report.html", name=name, vehicle=vehicle, code=code, email=email,
+                               urgency=data.get("urgency", "N/A"),
+                               layman=data.get("layman", ""),
+                               cost_estimate=data.get("cost_estimate", ""),
+                               consequences=data.get("consequences", ""),
+                               preventative_tips=data.get("preventative_tips", ""),
+                               diy_potential=data.get("diy_potential", ""),
+                               environmental_impact=data.get("environmental_impact", ""),
+                               recommended_mechanic=data.get("recommended_mechanic", ""),
+                               video_link=data.get("video_link", ""))
 
     return render_template("form.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)
