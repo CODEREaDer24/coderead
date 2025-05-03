@@ -24,9 +24,6 @@
       text-align: center;
       margin-bottom: 30px;
     }
-    .info p {
-      margin: 5px 0;
-    }
     .label {
       font-weight: bold;
     }
@@ -37,11 +34,10 @@
       color: #d10000;
       border-bottom: 1px solid #ccc;
       padding-bottom: 5px;
-      margin-bottom: 10px;
     }
     .urgency-bar {
       height: 20px;
-      background: linear-gradient(to right, green, yellow, red);
+      background: linear-gradient(to right, green, yellow, orange, red);
       border-radius: 10px;
       margin: 20px 0;
       position: relative;
@@ -63,12 +59,10 @@
   <div class="container">
     <h1>CodeREAD Vehicle Diagnostic Report</h1>
 
-    <div class="info">
-      <p><span class="label">Customer Name:</span> {{ name }}</p>
-      <p><span class="label">Vehicle:</span> {{ vehicle }}</p>
-      <p><span class="label">OBD2 Code:</span> {{ code }}</p>
-      <p><span class="label">Email:</span> {{ email }}</p>
-    </div>
+    <p><span class="label">Customer Name:</span> {{ name }}</p>
+    <p><span class="label">Vehicle:</span> {{ vehicle }}</p>
+    <p><span class="label">OBD2 Code:</span> {{ code }}</p>
+    <p><span class="label">Email:</span> {{ email }}</p>
 
     <div class="section">
       <h2>Urgency</h2>
@@ -84,40 +78,13 @@
       <p><strong>Layman:</strong> {{ layman_summary }}</p>
     </div>
 
-    <div class="section">
-      <h2>Repair Cost Estimate</h2>
-      <p>{{ repair_cost }}</p>
-    </div>
-
-    <div class="section">
-      <h2>Consequences of Ignoring</h2>
-      <p>{{ consequences }}</p>
-    </div>
-
-    <div class="section">
-      <h2>Preventative Care Tips</h2>
-      <p>{{ preventative_tips }}</p>
-    </div>
-
-    <div class="section">
-      <h2>DIY Potential</h2>
-      <p>{{ diy_potential }}</p>
-    </div>
-
-    <div class="section">
-      <h2>Environmental Impact</h2>
-      <p>{{ environmental_impact }}</p>
-    </div>
-
-    <div class="section">
-      <h2>Recommended Mechanic</h2>
-      <p>{{ recommended_mechanic }}</p>
-    </div>
-
-    <div class="section">
-      <h2>Related Video</h2>
-      <p><a href="{{ video_link }}" target="_blank">{{ video_link }}</a></p>
-    </div>
+    <div class="section"><h2>Repair Cost Estimate</h2><p>{{ repair_cost }}</p></div>
+    <div class="section"><h2>Consequences of Ignoring</h2><p>{{ consequences }}</p></div>
+    <div class="section"><h2>Preventative Care Tips</h2><p>{{ preventative_tips }}</p></div>
+    <div class="section"><h2>DIY Potential</h2><p>{{ diy_potential }}</p></div>
+    <div class="section"><h2>Environmental Impact</h2><p>{{ environmental_impact }}</p></div>
+    <div class="section"><h2>Recommended Mechanic</h2><p>{{ recommended_mechanic }}</p></div>
+    <div class="section"><h2>Related Video</h2><p><a href="{{ video_link }}" target="_blank">{{ video_link }}</a></p></div>
   </div>
 </body>
 </html>
