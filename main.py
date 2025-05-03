@@ -3,11 +3,14 @@ import os
 import openai
 from dotenv import load_dotenv
 
-# Load environment variables from a .env file (if running locally)
+# Load .env variables (used in local or Render env)
 load_dotenv()
 
-# Ensure the API key is correctly set from environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Pull API key from environment safely
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise Exception("Missing OpenAI API key. Set OPENAI_API_KEY in your environment.")
+openai.api_key = api_key
 
 app = Flask(__name__)
 
@@ -23,23 +26,16 @@ def generate():
     code = request.form.get('code', 'N/A').upper()
 
     prompt = f"""
-    You are CodeREAD, an AI automotive diagnostic expert.
+    You are CodeREAD, an AI automotive diagnostics expert.
 
-    A customer has submitted OBD2 code: {code}
+    A user submitted code {code}. Return a single-line response with sections separated by "|".
 
-    Please return your response using this **strict format** with sections separated by "|" on a single line:
+    Format:
+    Technical Summary | Layman's Summary | Urgency (1-10 number only) | Urgency Explanation |
+    Repair Cost Estimate (CAD) | Consequences of Ignoring | Preventative Maintenance Tips |
+    DIY Potential | Environmental Impact
 
-    [1] Technical Summary |
-    [2] Layman's Summary |
-    [3] Urgency (1–10 as a number only) |
-    [4] Urgency Explanation |
-    [5] Repair Cost Estimate in CAD |
-    [6] Consequences of Ignoring |
-    [7] Preventative Maintenance Tips |
-    [8] DIY Potential |
-    [9] Environmental Impact
-
-    Do not add commentary, labels, or line breaks. Keep it on a single line.
+    Respond with exactly 9 sections, no newlines or labels.
     """
 
     try:
@@ -51,9 +47,8 @@ def generate():
 
         parts = response.choices[0].message["content"].split('|')
         if len(parts) < 9:
-            raise ValueError("Incomplete GPT response")
+            raise ValueError("AI response missing required fields.")
 
-        # Safely parse urgency as int
         urgency_raw = parts[2].strip()
         urgency = ''.join(filter(str.isdigit, urgency_raw)) or "5"
         urgency_position = min(int(urgency), 10) * 10
