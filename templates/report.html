@@ -48,7 +48,7 @@
       height: 100%;
       width: 2px;
       background: black;
-      left: calc({{ urgency_position }}%);
+      left: calc({{ urgency | int * 10 }}%);
     }
     a {
       color: #0066cc;
