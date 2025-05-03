@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template
 from openai import OpenAI
 import os
+import json
 
 app = Flask(__name__)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -20,27 +21,27 @@ You are CodeREAD AI. Generate a structured JSON object based on the following OB
 Vehicle: {vehicle}
 Code: {code}
 
-Output fields in JSON:
-- urgency (1–10 scale)
-- layman explanation
-- cost_estimate in CAD
-- consequences of ignoring
-- preventative care tips
-- DIY potential
-- environmental impact
-- recommended mechanic (use Clover Auto or Tecumseh Auto in Windsor)
-- video_link (valid YouTube URL about this code)
+Output ONLY JSON with the following keys:
+- urgency (1–10)
+- layman
+- cost_estimate
+- consequences
+- preventative_tips
+- diy_potential
+- environmental_impact
+- recommended_mechanic (Clover Auto or Tecumseh Auto, Windsor preferred)
+- video_link
 
 Example format:
 {{
   "urgency": 6,
-  "layman": "...",
-  "cost_estimate": "...",
-  "consequences": "...",
-  "preventative_tips": "...",
-  "diy_potential": "...",
-  "environmental_impact": "...",
-  "recommended_mechanic": "...",
+  "layman": "This means...",
+  "cost_estimate": "$350–$600 CAD",
+  "consequences": "Engine wear and emissions increase...",
+  "preventative_tips": "Check and replace sensors regularly...",
+  "diy_potential": "Low. Requires professional tools.",
+  "environmental_impact": "Higher emissions, fuel waste",
+  "recommended_mechanic": "Clover Auto, Windsor",
   "video_link": "https://youtube.com/example"
 }}
 """
@@ -50,13 +51,15 @@ Example format:
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7
             )
-            data = eval(response.choices[0].message.content)
+
+            content = response.choices[0].message.content.strip()
+            data = json.loads(content)
 
         except Exception as e:
             return render_template("report.html", name=name, vehicle=vehicle, code=code, email=email,
-                                   urgency="Error", layman=str(e), cost_estimate="", consequences="",
-                                   preventative_tips="", diy_potential="", environmental_impact="",
-                                   recommended_mechanic="", video_link="")
+                                   urgency="Error", layman=str(e), cost_estimate="",
+                                   consequences="", preventative_tips="", diy_potential="",
+                                   environmental_impact="", recommended_mechanic="", video_link="")
 
         return render_template("report.html", name=name, vehicle=vehicle, code=code, email=email,
                                urgency=data.get("urgency", "N/A"),
