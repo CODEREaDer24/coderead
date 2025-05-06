@@ -1,80 +1,90 @@
-from flask import Flask, render_template, request
+from flask import Flask, request, render_template, send_file
+from openai import OpenAI
+from fpdf import FPDF
 import os
-import openai
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 from dotenv import load_dotenv
+from code_analyzer import analyze_codes  # <- You must create this module based on our structure
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('form.html')
+openai_api_key = os.getenv("OPENAI_API_KEY")
+email_sender = os.getenv("EMAIL_SENDER")
+email_password = os.getenv("EMAIL_PASSWORD")
 
-@app.route('/generate', methods=['POST'])
-def generate():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    vehicle = request.form.get('vehicle')
-    code = request.form.get('code')
+@app.route("/")
+def home():
+    return render_template("report.html")
 
-    prompt = f"""
-You are CodeREAD, an expert automotive AI trained to analyze vehicle OBD2 codes. The user submitted the code {code} for vehicle {vehicle}.
-Return a diagnostic report with 10 full sections, separated by double pipes (||), in this order:
-1. Technical Summary
-2. Layman Summary
-3. Urgency rating (1–10) + short explanation
-4. Estimated Repair Cost in CAD
-5. Consequences of Not Fixing
-6. Preventative Maintenance Tips
-7. DIY Potential with link to a real DIY video
-8. Environmental Impact
-9. Parts Needed (with link to a real part on Amazon or RockAuto)
-10. Mechanic Recommendations for Windsor with Google Map links
+@app.route("/generate_report", methods=["POST"])
+def generate_report():
+    data = {
+        "customer_name": request.form["customer_name"],
+        "address": request.form["address"],
+        "phone": request.form["phone"],
+        "email": request.form["email"],
+        "make": request.form["make"],
+        "model": request.form["model"],
+        "year": request.form["year"],
+        "codes": request.form["codes"]
+    }
 
-Strict format:
-[Technical Summary] || [Layman Summary] || [Urgency Rating and explanation] || [Repair Cost] || [Consequences] || [Preventative Tips] || [DIY Potential and Video] || [Environmental Impact] || [Parts Recommendation with Link] || [Mechanic List with Links]
-"""
+    code_list = [code.strip().upper() for code in data["codes"].split(",")]
+    analysis = analyze_codes(code_list, data)
 
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.5,
-        )
-        result = response.choices[0].message['content']
-        parts = [part.strip() for part in result.split("||")]
+    pdf_path = create_pdf_report(data, analysis)
+    send_email_with_pdf(data["email"], pdf_path)
 
-        if len(parts) < 10:
-            raise ValueError("Incomplete response from GPT.")
+    return send_file(pdf_path, as_attachment=True)
 
-        urgency_text = parts[2]
-        urgency_num = ''.join(filter(str.isdigit, urgency_text)) or "5"
-        urgency_position = min(int(urgency_num), 10) * 10
+def create_pdf_report(data, analysis):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", "B", 16)
+    pdf.cell(200, 10, "CodeREAD Diagnostic Report", ln=True, align="C")
+    pdf.ln(10)
 
-        return render_template("report.html",
-            name=name,
-            email=email,
-            vehicle=vehicle,
-            code=code,
-            tech_summary=parts[0],
-            layman_summary=parts[1],
-            urgency=urgency_num,
-            urgency_explanation=urgency_text,
-            urgency_position=urgency_position,
-            repair_cost=parts[3],
-            consequences=parts[4],
-            preventative_tips=parts[5],
-            diy_potential=parts[6],
-            environmental_impact=parts[7],
-            parts_recommendation=parts[8],
-            mechanic_list=parts[9],
-            video_links=parts[6]  # Assuming DIY video is in section 7
-        )
-    except Exception as e:
-        return f"AI report generation failed: {str(e)}"
+    # Customer Info
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, f"Customer: {data['customer_name']}\nAddress: {data['address']}\nPhone: {data['phone']}\nEmail: {data['email']}\nVehicle: {data['year']} {data['make']} {data['model']}\n")
+    pdf.ln(5)
+
+    for item in analysis:
+        pdf.set_font("Arial", "B", 14)
+        pdf.cell(0, 10, f"Code: {item['code']}", ln=True)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, f"Issue: {item['issue']}\nPlain Language: {item['layman']}\nUrgency (1–10): {item['urgency']}\nRepair Cost: {item['cost']} CAD\nConsequences: {item['consequences']}\nPreventative Tips: {item['preventative']}\nDIY Potential: {item['diy']}\nEnvironmental Impact: {item['environment']}\nInterrelationships: {item['interrelationships']}\n")
+        pdf.multi_cell(0, 10, f"Video Explanation: {item['video_link']}\nDIY Guide: {item['diy_video']}\nParts: {item['parts_link']}\nRecommended Mechanics: {item['mechanics']}")
+        pdf.ln(10)
+
+    filename = f"/tmp/report_{data['customer_name'].replace(' ', '_')}.pdf"
+    pdf.output(filename)
+    return filename
+
+def send_email_with_pdf(to_email, file_path):
+    msg = MIMEMultipart()
+    msg["From"] = email_sender
+    msg["To"] = to_email
+    msg["Subject"] = "Your CodeREAD Diagnostic Report"
+
+    body = "Attached is your full diagnostic report from CodeREAD.ca.\nVisit www.read.codes for more info."
+    msg.attach(MIMEText(body, "plain"))
+
+    with open(file_path, "rb") as f:
+        part = MIMEApplication(f.read(), Name=os.path.basename(file_path))
+        part["Content-Disposition"] = f'attachment; filename="{os.path.basename(file_path)}"'
+        msg.attach(part)
+
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(email_sender, email_password)
+    server.send_message(msg)
+    server.quit()
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
