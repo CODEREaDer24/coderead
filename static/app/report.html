@@ -2,101 +2,142 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CodeREAD Diagnostic Report</title>
+  <title>CodeREAD Vehicle Diagnostic Report</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #fff;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
       color: #333;
     }
     header {
+      background-color: #990000;
+      color: white;
+      padding: 20px;
       text-align: center;
-      padding: 10px;
     }
-    .section {
-      margin-bottom: 20px;
+    main {
+      padding: 30px;
+      max-width: 800px;
+      margin: auto;
+      background-color: white;
     }
     h2 {
       color: #990000;
-      border-bottom: 1px solid #ccc;
+      margin-top: 30px;
+      border-bottom: 2px solid #ccc;
       padding-bottom: 5px;
     }
-    .gauge {
-      width: 100%;
-      max-width: 300px;
-      margin: 0 auto;
+    .badge {
+      display: inline-block;
+      background: #28a745;
+      color: white;
+      padding: 5px 10px;
+      margin-left: 10px;
+      border-radius: 5px;
+      font-size: 0.85em;
     }
-    .resources {
-      margin-top: 10px;
+    .urgency {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 0;
+      padding: 15px;
+      border-left: 8px solid red;
+      background-color: #fff3f3;
     }
-    ul {
-      padding-left: 20px;
+    .highlight {
+      font-weight: bold;
+      font-size: 1.1em;
     }
-    .video, .part, .mechanic {
-      margin-bottom: 5px;
+    .data-block {
+      background-color: #f9f9f9;
+      border-left: 4px solid #990000;
+      padding: 15px;
+      margin: 10px 0;
+    }
+    .resource-links a {
+      display: block;
+      margin: 5px 0;
+      color: #0056b3;
+      text-decoration: none;
+    }
+    .resource-links a:hover {
+      text-decoration: underline;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.85em;
+      color: #999;
+      margin-top: 50px;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>CodeREAD Diagnostic Report</h1>
+    <p>AI-Powered Insights with Verified Repair Recommendations</p>
   </header>
 
-  <div class="section">
-    <h2>Vehicle Information</h2>
-    <p><strong>Customer:</strong> [Name]</p>
-    <p><strong>Vehicle:</strong> [Year Make Model]</p>
-    <p><strong>OBD2 Code:</strong> [PXXXX]</p>
-  </div>
+  <main>
+    <section>
+      <h2>Customer & Vehicle Info</h2>
+      <p><span class="highlight">Customer:</span> Mike Moody</p>
+      <p><span class="highlight">Vehicle:</span> 2017 Honda Civic</p>
+      <p><span class="highlight">Diagnostic Code:</span> P0455 - EVAP Emission System Leak Detected</p>
+    </section>
 
-  <div class="section">
-    <h2>Urgency Level</h2>
-    <div class="gauge">
-      <img src="/static/app/urgency-gauge.png" alt="Urgency Gauge" width="280">
-    </div>
-    <p><strong>Severity:</strong> Immediate | Fine for Now | Wait Until Next Visit</p>
-  </div>
+    <section>
+      <h2>Urgency Level <span class="badge">VERIFIED</span></h2>
+      <div class="urgency">
+        <div>
+          <p><strong>Severity:</strong> HIGH</p>
+          <p>This issue may cause fuel loss or damage to emissions components. Immediate attention recommended.</p>
+        </div>
+        <img src="/static/app/urgency-gauge.png" alt="Urgency Gauge" width="120">
+      </div>
+    </section>
 
-  <div class="section">
-    <h2>AI Diagnostic Summary</h2>
-    <p><strong>Technical:</strong> [Technical Explanation]</p>
-    <p><strong>Layman:</strong> [Layman Explanation]</p>
-  </div>
+    <section>
+      <h2>Technical Explanation <span class="badge">AI VERIFIED</span></h2>
+      <div class="data-block">
+        <p><strong>Technical:</strong> The onboard computer has detected a large leak in the EVAP system, which manages fuel vapor emissions.</p>
+        <p><strong>Layman’s:</strong> Your car’s system to keep gas fumes from leaking is failing — it’s likely a cracked hose or loose gas cap.</p>
+      </div>
+    </section>
 
-  <div class="section">
-    <h2>Repair Insights</h2>
-    <p><strong>Estimated Repair Cost:</strong> $[XXX] CAD</p>
-    <p><strong>Consequences of Ignoring:</strong> [Description]</p>
-    <p><strong>Preventative Tips:</strong> [Description]</p>
-    <p><strong>DIY Potential:</strong> [Description]</p>
-    <p><strong>Environmental Impact:</strong> [Description]</p>
-  </div>
+    <section>
+      <h2>Repair Overview</h2>
+      <div class="data-block">
+        <p><strong>Estimated Cost:</strong> $120–$250 CAD</p>
+        <p><strong>DIY Potential:</strong> Medium – Check for obvious hose cracks or try replacing the gas cap.</p>
+        <p><strong>Preventative Tip:</strong> Avoid topping off the gas tank and check for moisture around the fuel neck.</p>
+        <p><strong>Environmental Impact:</strong> Higher emissions and fuel vapor release into the atmosphere.</p>
+      </div>
+    </section>
 
-  <div class="section">
-    <h2>Parts & Resources</h2>
-    <div class="resources">
-      <div class="part"><a href="[Parts Link 1]" target="_blank">Recommended Part #1</a></div>
-      <div class="part"><a href="[Parts Link 2]" target="_blank">Recommended Part #2</a></div>
-    </div>
-  </div>
+    <section>
+      <h2>Videos & Resources</h2>
+      <div class="resource-links">
+        <a href="https://youtube.com/watch?v=example1" target="_blank">Video: What is an EVAP System?</a>
+        <a href="https://youtube.com/watch?v=example2" target="_blank">DIY Fix: P0455 Large Leak</a>
+        <a href="https://rockauto.com/" target="_blank">Order Parts from RockAuto</a>
+      </div>
+    </section>
 
-  <div class="section">
-    <h2>Video Guides</h2>
-    <div class="resources">
-      <div class="video"><a href="[Video Link 1]" target="_blank">Explanation Video</a></div>
-      <div class="video"><a href="[Video Link 2]" target="_blank">DIY Repair Guide</a></div>
-    </div>
-  </div>
+    <section>
+      <h2>Trusted Mechanics Near You</h2>
+      <ul>
+        <li><strong>Clover Auto</strong> – 4.7 stars – (519) 555-1212</li>
+        <li><strong>Tecumseh Auto</strong> – 4.6 stars – (519) 555-3434</li>
+        <li><strong>Walker’s Garage</strong> – 4.8 stars – (519) 555-8989</li>
+      </ul>
+    </section>
 
-  <div class="section">
-    <h2>Top Mechanics in Your Area</h2>
-    <div class="resources">
-      <div class="mechanic"><strong>Clover Auto</strong> – 4.7 stars (519-XXX-XXXX)</div>
-      <div class="mechanic"><strong>Tecumseh Auto</strong> – 4.6 stars (519-XXX-XXXX)</div>
-      <div class="mechanic"><strong>[Mechanic 3]</strong> – 4.8 stars (519-XXX-XXXX)</div>
-    </div>
-  </div>
-
+    <footer>
+      Report generated by CodeREAD AI — empowering you with insight before stepping into the shop.
+    </footer>
+  </main>
 </body>
 </html>
