@@ -1,57 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CodeREAD Vehicle Diagnostic Report</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeREAD Diagnostic Report</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f7f7f7;
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
       margin: 0;
-      padding: 40px;
-      color: #333;
     }
     .container {
-      background: white;
-      padding: 30px;
       max-width: 800px;
       margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 8px;
+      background-color: #1e1e1e;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
-    h1 {
-      color: #d10000;
+    h1, h2 {
+      color: #90caf9;
+    }
+    .urgency {
       text-align: center;
-      margin-bottom: 30px;
+      margin: 2rem 0;
     }
-    .label {
+    .urgency-meter {
+      font-size: 2rem;
       font-weight: bold;
+      color: #ff7043;
     }
     .section {
-      margin-top: 30px;
-    }
-    .section h2 {
-      color: #d10000;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
-    }
-    .urgency-bar {
-      height: 20px;
-      background: linear-gradient(to right, green, yellow, orange, red);
-      border-radius: 10px;
-      margin: 20px 0;
-      position: relative;
-    }
-    .urgency-marker {
-      position: absolute;
-      top: 0;
-      height: 100%;
-      width: 2px;
-      background: black;
-      left: calc({{ urgency_position }}%);
+      margin-bottom: 2rem;
     }
     a {
-      color: #0066cc;
+      color: #64b5f6;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -59,62 +48,65 @@
   <div class="container">
     <h1>CodeREAD Vehicle Diagnostic Report</h1>
 
-    <p><span class="label">Customer Name:</span> {{ name }}</p>
-    <p><span class="label">Vehicle:</span> {{ vehicle }}</p>
-    <p><span class="label">OBD2 Code:</span> {{ code }}</p>
-    <p><span class="label">Email:</span> {{ email }}</p>
-
     <div class="section">
-      <h2>Urgency</h2>
-      <div class="urgency-bar">
-        <div class="urgency-marker"></div>
-      </div>
-      <p><strong>Level:</strong> {{ urgency }}/10 – {{ urgency_explanation }}</p>
+      <h2>Customer Info</h2>
+      <p><strong>Name:</strong> {{ name }}</p>
+      <p><strong>Vehicle:</strong> {{ vehicle }}</p>
+      <p><strong>Code:</strong> {{ code }}</p>
+      <p><strong>Email:</strong> {{ email }}</p>
+    </div>
+
+    <div class="section urgency">
+      <h2>Urgency Level</h2>
+      <div class="urgency-meter">{{ urgency_level }} – {{ urgency_label }}</div>
     </div>
 
     <div class="section">
-      <h2>Issue Summary</h2>
-      <p><strong>Technical:</strong> {{ tech_summary }}</p>
-      <p><strong>Layman:</strong> {{ layman_summary }}</p>
-      <p><a href="{{ code_video_link }}" target="_blank">Watch Code Explanation Video</a></p>
+      <h2>Diagnostic Explanation</h2>
+      <p>{{ explanation }}</p>
     </div>
 
     <div class="section">
-      <h2>Repair Cost Estimate</h2>
-      <p>{{ repair_cost }}</p>
+      <h2>Estimated Repair Cost</h2>
+      <p>{{ costs }}</p>
     </div>
 
     <div class="section">
-      <h2>Consequences of Ignoring</h2>
+      <h2>Consequences of Not Fixing</h2>
       <p>{{ consequences }}</p>
     </div>
 
     <div class="section">
       <h2>Preventative Care Tips</h2>
-      <p>{{ preventative_tips }}</p>
+      <p>{{ tips }}</p>
     </div>
 
     <div class="section">
       <h2>DIY Potential</h2>
-      <p>{{ diy_potential }}</p>
-      <p><a href="{{ diy_video_link }}" target="_blank">Watch DIY Repair Video</a></p>
+      <p>{{ diy }}</p>
     </div>
 
     <div class="section">
       <h2>Environmental Impact</h2>
-      <p>{{ environmental_impact }}</p>
+      <p>{{ impact }}</p>
     </div>
 
     <div class="section">
-      <h2>Recommended Parts</h2>
-      <p>{{ parts_recommendation }}</p>
-      <p><a href="{{ parts_link }}" target="_blank">Buy Parts</a></p>
+      <h2>Helpful Videos</h2>
+      <ul>
+        {% for video in videos %}
+          <li><a href="{{ video.link }}" target="_blank">{{ video.title }}</a></li>
+        {% endfor %}
+      </ul>
     </div>
 
     <div class="section">
-      <h2>Recommended Mechanics (Windsor)</h2>
-      <p>{{ mechanic_list }}</p>
-      <p><a href="{{ mechanic_links }}" target="_blank">View Mechanics</a></p>
+      <h2>Top Local Mechanics</h2>
+      <ul>
+        {% for mech in mechanics %}
+          <li>{{ mech.name }} – {{ mech.rating }}</li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
 </body>
