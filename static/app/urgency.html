@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Urgency Scale</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            padding: 30px;
+            text-align: center;
+        }
+        h1 {
+            color: #990000;
+        }
+        .gauge-container {
+            width: 300px;
+            height: 150px;
+            background: conic-gradient(green 0deg, orange 90deg, red 180deg);
+            border-radius: 150px 150px 0 0;
+            margin: 40px auto;
+            position: relative;
+        }
+        .needle {
+            width: 6px;
+            height: 90px;
+            background: black;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform-origin: bottom center;
+            transform: rotate(120deg); /* Example: 120 degrees is high urgency */
+        }
+        .labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .advice-box {
+            background-color: #fff3cd;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid #ffeeba;
+            border-radius: 10px;
+            color: #856404;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Urgency Assessment</h1>
+    <div class="gauge-container">
+        <div class="needle"></div>
+    </div>
+    <div class="labels">
+        <span>Can Wait</span>
+        <span>Fine for Now</span>
+        <span>Immediate</span>
+    </div>
+    <div class="advice-box">
+        <strong>AI Advice:</strong><br>
+        This issue is critical. Avoid driving and see a mechanic immediately to prevent engine or emissions damage.
+    </div>
+</body>
+</html>
