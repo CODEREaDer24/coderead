@@ -2,6 +2,8 @@
 <html>
 <head>
   <title>CodeREAD Diagnostic Report</title>
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#cc0000">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -44,5 +46,13 @@
     <div class="label">AI Diagnostic Analysis:</div>
     <div class="analysis">{{ analysis }}</div>
   </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/static/sw.js')
+        .then(reg => console.log("Service Worker registered:", reg))
+        .catch(err => console.error("Service Worker error:", err));
+    }
+  </script>
 </body>
 </html>
