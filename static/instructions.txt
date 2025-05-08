@@ -1,0 +1,25 @@
+
+INSTRUCTIONS FOR PWA SETUP (CodeRead)
+
+1. Upload these files to your Flask app's static folder:
+   - icon-192.png
+   - icon-512.png
+   - manifest.json
+   - sw.js
+
+2. In your HTML template (likely index.html or report.html), add this inside <head>:
+   <link rel="manifest" href="/static/manifest.json">
+   <meta name="theme-color" content="#cc0000">
+
+3. At the end of <body>, before </body>, add:
+   <script>
+     if ('serviceWorker' in navigator) {
+       navigator.serviceWorker.register('/static/sw.js');
+     }
+   </script>
+
+4. Push these changes to GitHub.
+5. Render will redeploy automatically.
+6. Visit the site on a mobile browser, tap "Add to Home Screen".
+
+Done! Your app will now install like a native app.
