@@ -4,11 +4,12 @@ import os
 
 app = Flask(__name__)
 
+# Set OpenAI API key from environment variable
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+@app.route("/", methods=["GET"])
+def form():
+    return render_template("form.html")
 
 @app.route("/report", methods=["POST"])
 def report():
@@ -17,7 +18,7 @@ def report():
     code = request.form["code"]
     email = request.form["email"]
 
-    prompt = f"Generate a diagnostic explanation for OBD2 code {code} on a {vehicle}."
+    prompt = f"Generate a clear diagnostic explanation for OBD2 code {code} on a {vehicle}. Include consequences of ignoring it, urgency, and possible DIY options."
 
     response = openai.ChatCompletion.create(
         model="gpt-4",
