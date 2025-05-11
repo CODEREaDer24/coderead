@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import openai
 import os
+import re
 
 app = Flask(__name__)
 openai.api_key = os.environ.get("OPENAI_API_KEY")
@@ -18,17 +19,19 @@ def report():
 
     prompt = f"""
     You are CodeREAD's automotive AI. Generate a full diagnostic report for OBD2 code {code} on a {vehicle}.
-    Include all sections clearly:
-    1. Technical and layman's explanation
-    2. Urgency level 1–10 + a brief urgency label
-    3. Estimated repair cost in CAD
-    4. Consequences of ignoring it
-    5. Preventative maintenance tips
-    6. DIY potential (and any cautions)
-    7. Environmental impact
-    8. Suggest 2 helpful YouTube video links with titles
-    9. Recommend 3 mechanics in Windsor, Ontario with ratings
-    Format each section clearly.
+    Use the following section headers:
+    1. Technical Explanation
+    2. Layman's Explanation
+    3. Urgency Level (1–100) with label (Immediate, Fine for Now, Can Wait)
+    4. Estimated Repair Cost in CAD
+    5. Consequences of Not Fixing
+    6. Preventative Maintenance Tips
+    7. DIY Potential (and any cautions)
+    8. Environmental Impact
+    9. YouTube Video Links with titles (2 real links)
+    10. Mechanics (only list these 2 in Windsor, Ontario):
+        - Clover Auto – 4.8 Stars
+        - Tecumseh Auto Repair – 4.6 Stars
     """
 
     response = openai.ChatCompletion.create(
@@ -38,42 +41,43 @@ def report():
 
     content = response["choices"][0]["message"]["content"]
 
-    # --- Simple parsing (replace with better parsing later) ---
-    def extract(section):
-        if section in content:
-            start = content.find(section) + len(section)
-            end = content.find("\n", start)
-            return content[start:end].strip()
-        return "Data unavailable"
+    def extract_between(text, start, end):
+        try:
+            return text.split(start)[1].split(end)[0].strip()
+        except IndexError:
+            return "Data unavailable"
 
-    explanation = content.split("1.")[1].split("2.")[0].strip()
-    urgency_raw = content.split("2.")[1].split("3.")[0].strip()
-    urgency_level = ''.join([c for c in urgency_raw if c.isdigit()]) or "N/A"
-    urgency_label = urgency_raw.replace(urgency_level, '').strip(" -–")
-    costs = content.split("3.")[1].split("4.")[0].strip()
-    consequences = content.split("4.")[1].split("5.")[0].strip()
-    tips = content.split("5.")[1].split("6.")[0].strip()
-    diy = content.split("6.")[1].split("7.")[0].strip()
-    impact = content.split("7.")[1].split("8.")[0].strip()
+    technical = extract_between(content, "1. Technical Explanation", "2. Layman's Explanation")
+    layman = extract_between(content, "2. Layman's Explanation", "3. Urgency Level")
+    urgency_block = extract_between(content, "3. Urgency Level", "4. Estimated Repair Cost")
 
-    # Videos
-    video_block = content.split("8.")[1].split("9.")[0].strip().split("\n")
+    urgency_match = re.search(r"(\d{1,3})\s*[-–]\s*(.*)", urgency_block)
+    if urgency_match:
+        urgency_level = urgency_match.group(1)
+        urgency_label = urgency_match.group(2).strip()
+    else:
+        urgency_level = "N/A"
+        urgency_label = urgency_block.strip()
+
+    costs = extract_between(content, "4. Estimated Repair Cost", "5. Consequences of Not Fixing")
+    consequences = extract_between(content, "5. Consequences of Not Fixing", "6. Preventative Maintenance Tips")
+    tips = extract_between(content, "6. Preventative Maintenance Tips", "7. DIY Potential")
+    diy = extract_between(content, "7. DIY Potential", "8. Environmental Impact")
+    impact = extract_between(content, "8. Environmental Impact", "9. YouTube Video Links")
+
+    video_block = extract_between(content, "9. YouTube Video Links", "10. Mechanics")
     videos = []
-    for line in video_block:
-        if "http" in line:
-            parts = line.split("http")
-            title = parts[0].strip(" -•")
-            link = "http" + parts[1].strip()
+    for line in video_block.splitlines():
+        match = re.search(r"(.*)https?://(\S+)", line)
+        if match:
+            title = match.group(1).strip(" -•")
+            link = "https://" + match.group(2).strip()
             videos.append({"title": title, "link": link})
 
-    # Mechanics
-    mech_block = content.split("9.")[1].strip().split("\n")
-    mechanics = []
-    for line in mech_block:
-        if "–" in line or "-" in line:
-            sep = "–" if "–" in line else "-"
-            name, rating = line.split(sep, 1)
-            mechanics.append({"name": name.strip(), "rating": rating.strip()})
+    mechanics = [
+        {"name": "Clover Auto", "rating": "4.8 Stars"},
+        {"name": "Tecumseh Auto Repair", "rating": "4.6 Stars"}
+    ]
 
     return render_template("report.html",
                            name=name,
@@ -82,7 +86,8 @@ def report():
                            email=email,
                            urgency_level=urgency_level,
                            urgency_label=urgency_label,
-                           explanation=explanation,
+                           technical=technical,
+                           layman=layman,
                            costs=costs,
                            consequences=consequences,
                            tips=tips,
