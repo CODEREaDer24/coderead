@@ -1,113 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CodeREAD Diagnostic Report</title>
+  <meta charset="UTF-8">
+  <title>CodeREAD Report</title>
   <style>
     body {
       background-color: #121212;
       color: #e0e0e0;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, sans-serif;
       padding: 2rem;
-      margin: 0;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background-color: #1e1e1e;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
     h1, h2 {
       color: #90caf9;
     }
-    .urgency {
-      text-align: center;
-      margin: 2rem 0;
-    }
-    .urgency-meter {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #ff7043;
-    }
-    .section {
-      margin-bottom: 2rem;
+    section {
+      margin-top: 2rem;
     }
     a {
       color: #64b5f6;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>CodeREAD Vehicle Diagnostic Report</h1>
+  <h1>Customer Info</h1>
+  <p><strong>Name:</strong> {{ name or "N/A" }}</p>
+  <p><strong>Vehicle:</strong> {{ vehicle or "N/A" }}</p>
+  <p><strong>Code:</strong> {{ code or "N/A" }}</p>
+  <p><strong>Email:</strong> {{ email or "N/A" }}</p>
 
-    <div class="section">
-      <h2>Customer Info</h2>
-      <p><strong>Name:</strong> {{ name }}</p>
-      <p><strong>Vehicle:</strong> {{ vehicle }}</p>
-      <p><strong>Code:</strong> {{ code }}</p>
-      <p><strong>Email:</strong> {{ email }}</p>
-    </div>
+  <section>
+    <h2>Urgency Level</h2>
+    <p><strong>{{ urgency_level or "N/A" }} – {{ urgency_label or "N/A" }}</strong></p>
+  </section>
 
-    <div class="section urgency">
-      <h2>Urgency Level</h2>
-      <div class="urgency-meter">{{ urgency_level }} – {{ urgency_label }}</div>
-    </div>
+  <section>
+    <h2>Technical Explanation</h2>
+    <p>{{ technical or "N/A" }}</p>
+  </section>
 
-    <div class="section">
-      <h2>Diagnostic Explanation</h2>
-      <p>{{ explanation }}</p>
-    </div>
+  <section>
+    <h2>Layman's Explanation</h2>
+    <p>{{ layman or "N/A" }}</p>
+  </section>
 
-    <div class="section">
-      <h2>Estimated Repair Cost</h2>
-      <p>{{ costs }}</p>
-    </div>
+  <section>
+    <h2>Estimated Repair Cost</h2>
+    <p>{{ costs or "N/A" }}</p>
+  </section>
 
-    <div class="section">
-      <h2>Consequences of Not Fixing</h2>
-      <p>{{ consequences }}</p>
-    </div>
+  <section>
+    <h2>Consequences of Not Fixing</h2>
+    <p>{{ consequences or "N/A" }}</p>
+  </section>
 
-    <div class="section">
-      <h2>Preventative Care Tips</h2>
-      <p>{{ tips }}</p>
-    </div>
+  <section>
+    <h2>Preventative Maintenance Tips</h2>
+    <p>{{ tips or "N/A" }}</p>
+  </section>
 
-    <div class="section">
-      <h2>DIY Potential</h2>
-      <p>{{ diy }}</p>
-    </div>
+  <section>
+    <h2>DIY Potential</h2>
+    <p>{{ diy or "N/A" }}</p>
+  </section>
 
-    <div class="section">
-      <h2>Environmental Impact</h2>
-      <p>{{ impact }}</p>
-    </div>
+  <section>
+    <h2>Environmental Impact</h2>
+    <p>{{ impact or "N/A" }}</p>
+  </section>
 
-    <div class="section">
-      <h2>Helpful Videos</h2>
-      <ul>
-        {% for video in videos %}
-          <li><a href="{{ video.link }}" target="_blank">{{ video.title }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
+  <section>
+    <h2>Helpful Videos</h2>
+    <ul>
+      {% for v in videos %}
+        <li><a href="{{ v.link }}" target="_blank">{{ v.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
 
-    <div class="section">
-      <h2>Top Local Mechanics</h2>
-      <ul>
-        {% for mech in mechanics %}
-          <li>{{ mech.name }} – {{ mech.rating }}</li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
+  <section>
+    <h2>Top Local Mechanics</h2>
+    <ul>
+      {% for m in mechanics %}
+        <li>{{ m.name }} – {{ m.rating }}</li>
+      {% endfor %}
+    </ul>
+  </section>
 </body>
 </html>
