@@ -2,13 +2,46 @@
 <html>
 <head>
     <title>CodeREAD Diagnostic Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fefefe;
+            padding: 40px;
+            max-width: 600px;
+            margin: auto;
+            border: 3px solid #C0392B;
+            border-radius: 10px;
+            background-color: #fff4f4;
+        }
+        h1 {
+            color: #C0392B;
+            text-align: center;
+        }
+        textarea, button {
+            width: 100%;
+            font-size: 16px;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #C0392B;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #a93226;
+        }
+    </style>
 </head>
 <body>
-    <h1>Enter Diagnostic Code</h1>
+    <h1>CodeREAD Diagnostic Input</h1>
     <form action="/report" method="post">
-        <label for="code">Diagnostic Code:</label>
-        <input type="text" id="code" name="code" required>
-        <button type="submit">Generate Report</button>
+        <label for="codes">Enter one or more OBD2 codes (e.g. P0320, P0420):</label>
+        <textarea name="codes" id="codes" rows="4" required></textarea>
+        <button type="submit">Generate Full Report</button>
     </form>
 </body>
 </html>
