@@ -52,7 +52,7 @@ def report():
     <head>
         <title>CodeREAD Full Report</title>
         <style>
-            body {{ font-family: Arial, sans-serif; padding: 20px; }}
+            body {{ font-family: Arial, sans-serif; padding: 20px; background-color: #fefefe; }}
             h1 {{ color: #C0392B; }}
             .code-section {{ margin-bottom: 40px; }}
             .urgency-meter {{
