@@ -9,6 +9,7 @@
       color: #e0e0e0;
       font-family: Arial, sans-serif;
       padding: 2rem;
+      line-height: 1.6;
     }
     h1, h2 {
       color: #90caf9;
@@ -18,6 +19,14 @@
     }
     a {
       color: #64b5f6;
+      text-decoration: none;
+    }
+    .video-fallback {
+      color: #777;
+      font-style: italic;
+    }
+    ul {
+      padding-left: 1.2rem;
     }
   </style>
 </head>
@@ -72,7 +81,11 @@
     <h2>Helpful Videos</h2>
     <ul>
       {% for v in videos %}
-        <li><a href="{{ v.link }}" target="_blank">{{ v.title }}</a></li>
+        {% if v.link != "#" %}
+          <li><a href="{{ v.link }}" target="_blank">{{ v.title }}</a></li>
+        {% else %}
+          <li class="video-fallback">{{ v.title }}</li>
+        {% endif %}
       {% endfor %}
     </ul>
   </section>
