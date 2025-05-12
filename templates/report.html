@@ -42,11 +42,12 @@
   <section>
     <h2 style="margin-top: 0;">Urgency Level</h2>
     <p><strong>{{ urgency_level or "N/A" }} – {{ urgency_label or "Unknown" }}</strong></p>
-    {% if "Immediate" in urgency_label %}
+    {% set label = urgency_label|lower %}
+    {% if "immediate" in label %}
       <img src="https://i.imgur.com/DQwGhFb.png" alt="Urgency Meter - Immediate" class="urgency-img" />
-    {% elif "Fine" in urgency_label %}
+    {% elif "fine" in label %}
       <img src="https://i.imgur.com/fVQzFHP.png" alt="Urgency Meter - Fine for Now" class="urgency-img" />
-    {% elif "Wait" in urgency_label %}
+    {% elif "wait" in label %}
       <img src="https://i.imgur.com/jKZm2JN.png" alt="Urgency Meter - Can Wait" class="urgency-img" />
     {% else %}
       <p><em>No urgency image available.</em></p>
