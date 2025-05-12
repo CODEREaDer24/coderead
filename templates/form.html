@@ -1,47 +1,146 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CodeREAD Diagnostic Form</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fefefe;
-            padding: 40px;
-            max-width: 600px;
-            margin: auto;
-            border: 3px solid #C0392B;
-            border-radius: 10px;
-            background-color: #fff4f4;
-        }
-        h1 {
-            color: #C0392B;
-            text-align: center;
-        }
-        textarea, button {
-            width: 100%;
-            font-size: 16px;
-            padding: 10px;
-            margin-top: 20px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background-color: #C0392B;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #a93226;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeREAD Diagnostic Report</title>
+  <style>
+    :root {
+      --red: #ff3c3c;
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --text: #e0e0e0;
+      --input: #2a2a2a;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--red);
+      margin-bottom: 1rem;
+    }
+
+    .tagline {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #aaa;
+    }
+
+    .container {
+      background-color: var(--panel);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.25);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h2 {
+      color: var(--red);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: none;
+      background-color: var(--input);
+      color: white;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      background-color: var(--red);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e03535;
+    }
+
+    .footer {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #777;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+      .container {
+        padding: 1.25rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>CodeREAD Diagnostic Input</h1>
-    <form action="/report" method="post">
-        <label for="codes">Enter one or more OBD2 codes (e.g. P0320, P0420):</label>
-        <textarea name="codes" id="codes" rows="4" required></textarea>
-        <button type="submit">Generate Full Report</button>
+  <div class="logo">CodeREAD</div>
+  <div class="tagline">Real AI reports. Not guesses. Know before you go.</div>
+
+  <div class="container">
+    <h2>Get Your Diagnostic Report</h2>
+    <form action="/report" method="POST">
+      <label for="name">Customer Name</label>
+      <input type="text" id="name" name="name" required />
+
+      <label for="email">Customer Email</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" required />
+
+      <label for="address">Customer Address</label>
+      <input type="text" id="address" name="address" required />
+
+      <label for="make">Vehicle Make</label>
+      <input type="text" id="make" name="make" required />
+
+      <label for="model">Vehicle Model</label>
+      <input type="text" id="model" name="model" required />
+
+      <label for="year">Vehicle Year</label>
+      <input type="text" id="year" name="year" required />
+
+      <label for="codes">Enter OBD2 code(s)</label>
+      <input type="text" id="codes" name="codes" placeholder="e.g. P0300, P0420" required />
+
+      <button type="submit">Generate Full Report</button>
     </form>
+  </div>
+
+  <div class="footer">
+    Powered by CodeREAD AI | read.codes
+  </div>
 </body>
 </html>
