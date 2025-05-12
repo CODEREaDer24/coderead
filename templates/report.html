@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>CodeREAD Diagnostic Report</title>
+  <meta charset="UTF-8" />
+  <title>CodeREAD Report</title>
   <style>
     body {
       background-color: #121212;
@@ -28,10 +28,6 @@
     ul {
       padding-left: 1.2rem;
     }
-    .section-label {
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-    }
   </style>
 </head>
 <body>
@@ -48,37 +44,37 @@
 
   <section>
     <h2>Technical Explanation</h2>
-    <p>{{ technical or "No technical explanation returned." }}</p>
+    <p>{{ technical or "Data unavailable" }}</p>
   </section>
 
   <section>
     <h2>Layman's Explanation</h2>
-    <p>{{ layman or "No simplified explanation available." }}</p>
+    <p>{{ layman or "Data unavailable" }}</p>
   </section>
 
   <section>
     <h2>Estimated Repair Cost</h2>
-    <p>{{ costs or "No cost estimate provided." }}</p>
+    <p>{{ costs or "Data unavailable" }}</p>
   </section>
 
   <section>
     <h2>Consequences of Not Fixing</h2>
-    <p>{{ consequences or "No consequences data found." }}</p>
+    <p>{{ consequences or "Data unavailable" }}</p>
   </section>
 
   <section>
     <h2>Preventative Maintenance Tips</h2>
-    <p>{{ tips or "No preventative advice returned." }}</p>
+    <p>{{ tips or "Data unavailable" }}</p>
   </section>
 
   <section>
     <h2>DIY Potential</h2>
-    <p>{{ diy or "No DIY guidance provided." }}</p>
+    <p>{{ diy or "Data unavailable" }}</p>
   </section>
 
   <section>
     <h2>Environmental Impact</h2>
-    <p>{{ impact or "No environmental details included." }}</p>
+    <p>{{ impact or "Data unavailable" }}</p>
   </section>
 
   <section>
@@ -100,15 +96,11 @@
 
   <section>
     <h2>Top Local Mechanics</h2>
-    {% if mechanics %}
-      <ul>
-        {% for m in mechanics %}
-          <li>{{ m.name or "Unnamed Shop" }} – {{ m.rating or "No rating" }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="video-fallback">No mechanic recommendations available.</p>
-    {% endif %}
+    <ul>
+      {% for m in mechanics %}
+        <li>{{ m.name or "Unnamed Shop" }} – {{ m.rating or "No rating" }}</li>
+      {% endfor %}
+    </ul>
   </section>
 </body>
 </html>
