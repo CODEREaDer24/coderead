@@ -102,7 +102,7 @@
     {% if videos %}
       <ul>
         {% for v in videos %}
-          {% if v.link and v.link != "#" %}
+          {% if v.link and v.link.startswith("http") %}
             <li><a href="{{ v.link }}" target="_blank">{{ v.title or "Untitled Video" }}</a></li>
           {% else %}
             <li class="video-fallback">{{ v.title or "Video title unavailable" }}</li>
