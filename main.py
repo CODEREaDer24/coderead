@@ -1,15 +1,16 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, render_template
 import json
+import os
 
 app = Flask(__name__)
 
-# Load enhanced AI-powered diagnostic content
+# Load enhanced diagnostic data
 with open("parts_links.json") as f:
     parts_data = json.load(f)
 
 @app.route("/", methods=["GET"])
 def form():
-    return render_template_string(open("form.html").read())
+    return render_template("form.html")
 
 @app.route("/report", methods=["POST"])
 def report():
@@ -19,8 +20,12 @@ def report():
     if not matched:
         return "<h1>No matching codes found.</h1>"
 
+    # Load report template manually since it's string-formatted
+    report_template_path = os.path.join("templates", "report.html")
+    with open(report_template_path) as f:
+        report_template = f.read()
+
     report_sections = ""
-    report_template = open("report.html").read()
 
     for item in matched:
         mechanics_html = "".join([
@@ -46,7 +51,7 @@ def report():
 
         report_sections += f"<div class='code-section'>{section}</div><hr>"
 
-    full_html = f"""
+    return f"""
     <!DOCTYPE html>
     <html>
     <head>
@@ -71,5 +76,3 @@ def report():
     </body>
     </html>
     """
-
-    return full_html
