@@ -67,14 +67,14 @@ def report():
         impact = extract_between(content, "8. Environmental Impact:", "9. Helpful Videos:")
         video_block = extract_between(content, "9. Helpful Videos:", "10. Mechanics:")
 
+        # Robust video link parser
         videos = []
         for line in video_block.splitlines():
-            if "http" in line:
-                title, link = line.split("http", 1)
-                videos.append({"title": title.strip(" -•"), "link": "http" + link.strip()})
-            elif line.strip():
-                videos.append({"title": line.strip(), "link": "#"})
-
+            match = re.search(r"(.*)(https?://[^\s]+)", line)
+            if match:
+                title = match.group(1).strip(" -•")
+                link = match.group(2).strip()
+                videos.append({"title": title, "link": link})
         if not videos:
             videos.append({"title": "No videos found", "link": "#"})
 
