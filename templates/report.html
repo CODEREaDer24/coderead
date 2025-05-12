@@ -1,46 +1,160 @@
-<div style="border: 3px solid #C0392B; padding: 20px; margin-bottom: 40px; border-radius: 10px; background-color: #fff4f4;">
-    <h2 style="color: #C0392B;">Diagnostic Code: {code}</h2>
-    <p><strong>Technical Explanation:</strong> {issue_tech}</p>
-    <p><strong>Plain-English Explanation:</strong> {issue_plain}</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeREAD Report</title>
+  <style>
+    :root {
+      --red: #ff3c3c;
+      --bg: #121212;
+      --panel: #1e1e1e;
+      --text: #f0f0f0;
+    }
 
-    <h3 style="margin-top: 20px;">Urgency Level</h3>
-    <div style="position: relative; height: 20px; width: 100%; background: #ddd; border-radius: 10px;">
-        <div style="height: 100%; width: {urgency}%; background: linear-gradient(to right, green, orange, red); border-radius: 10px;"></div>
-        <div style="position: absolute; top: -25px; left: {urgency}%; transform: translateX(-50%); font-weight: bold;">{urgency}/100</div>
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background-color: var(--panel);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: var(--red);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .section {
+      margin-bottom: 1.5rem;
+    }
+
+    .section h2 {
+      color: var(--red);
+      font-size: 1.2rem;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .value {
+      font-size: 1rem;
+      margin: 0.25rem 0;
+    }
+
+    .urgency {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ff6a6a;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+    }
+
+    a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .video-link {
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Diagnostic Report</h1>
+
+    <div class="section">
+      <h2>Customer Info</h2>
+      <div class="value"><strong>Name:</strong> {{ name }}</div>
+      <div class="value"><strong>Email:</strong> {{ email }}</div>
+      <div class="value"><strong>Phone:</strong> {{ phone }}</div>
+      <div class="value"><strong>Address:</strong> {{ address }}</div>
     </div>
 
-    <div style="display: flex; flex-wrap: wrap; margin-top: 20px;">
-        <div style="flex: 1; min-width: 300px;">
-            <h4 style="margin-top: 10px;">Estimated Repair Cost</h4>
-            <p><img src="https://img.icons8.com/ios-filled/24/000000/money.png"/> {cost}</p>
-
-            <h4>DIY Potential</h4>
-            <p><img src="https://img.icons8.com/ios-filled/24/000000/wrench.png"/> {diy}</p>
-
-            <h4>Environmental Impact</h4>
-            <p><img src="https://img.icons8.com/ios-filled/24/000000/leaf.png"/> {impact}</p>
-
-            <h4>Preventative Tips</h4>
-            <p><img src="https://img.icons8.com/ios-filled/24/000000/light-on.png"/> {prevention}</p>
-        </div>
-
-        <div style="flex: 1; min-width: 300px;">
-            <h4>Consequences of Ignoring</h4>
-            <p><img src="https://img.icons8.com/ios-filled/24/000000/error.png"/> {consequences}</p>
-
-            <h4>Part Recommendation</h4>
-            <p><strong>{part}</strong></p>
-            <p><a href="{part_link}" target="_blank"><img src="https://img.icons8.com/ios-filled/24/000000/shopping-cart.png"/> Buy Part</a></p>
-
-            <h4>How-To Video</h4>
-            <p><a href="{video_link}" target="_blank">
-                <img src="https://img.icons8.com/ios-filled/24/000000/youtube-play.png"/> Watch Video
-            </a></p>
-        </div>
+    <div class="section">
+      <h2>Vehicle Info</h2>
+      <div class="value"><strong>Make:</strong> {{ vehicle_make }}</div>
+      <div class="value"><strong>Model:</strong> {{ vehicle_model }}</div>
+      <div class="value"><strong>Year:</strong> {{ vehicle_year }}</div>
+      <div class="value"><strong>Code:</strong> {{ code }}</div>
     </div>
 
-    <h4 style="margin-top: 20px;">Recommended Mechanics</h4>
-    <ul style="list-style: none; padding-left: 0;">
-        {mechanics}
-    </ul>
-</div>
+    <div class="section urgency">
+      URGENCY LEVEL: {{ urgency }} / 100
+    </div>
+
+    <div class="section">
+      <h2>Issue Explanation</h2>
+      <div class="value">{{ explanation }}</div>
+    </div>
+
+    <div class="section">
+      <h2>Consequences of Ignoring</h2>
+      <div class="value">{{ consequences }}</div>
+    </div>
+
+    <div class="section">
+      <h2>Estimated Repair Cost (CAD)</h2>
+      <div class="value">{{ cost }}</div>
+    </div>
+
+    <div class="section">
+      <h2>Preventative Tips</h2>
+      <div class="value">{{ preventative }}</div>
+    </div>
+
+    <div class="section">
+      <h2>DIY Repair Potential</h2>
+      <div class="value">{{ diy }}</div>
+    </div>
+
+    <div class="section">
+      <h2>Environmental Impact</h2>
+      <div class="value">{{ environment }}</div>
+    </div>
+
+    <div class="section">
+      <h2>Video Resources</h2>
+      <div class="video-link"><a href="{{ video_explanation }}" target="_blank">Explanation Video</a></div>
+      <div class="video-link"><a href="{{ video_diy }}" target="_blank">DIY Repair Guide</a></div>
+      <div class="video-link"><a href="{{ video_consequences }}" target="_blank">Why You Shouldn’t Ignore This</a></div>
+    </div>
+
+    <div class="section">
+      <h2>Recommended Mechanics</h2>
+      <div class="value">{{ mechanic_1 }}</div>
+      <div class="value">{{ mechanic_2 }}</div>
+      <div class="value">{{ mechanic_3 }}</div>
+    </div>
+
+    <div class="footer">
+      Report generated by <strong>CodeREAD AI</strong> | <a href="https://read.codes" target="_blank">read.codes</a>
+    </div>
+  </div>
+</body>
+</html>
