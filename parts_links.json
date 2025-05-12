@@ -1,0 +1,38 @@
+[
+  {
+    "code": "P0320",
+    "part": "Crankshaft Position Sensor",
+    "part_link": "https://www.amazon.ca/dp/B000C9WZEO",
+    "video_link": "https://www.youtube.com/watch?v=UUW2V0vUvbM",
+    "issue_tech": "Ignition/Distributor Engine Speed Input Circuit Malfunction",
+    "issue_plain": "Your engine’s computer isn’t getting a signal from the crankshaft or distributor.",
+    "urgency": 85,
+    "cost": "$120–$300 CAD",
+    "consequences": "If ignored, your engine may stall unexpectedly or fail to start at all.",
+    "diy": "Challenging but possible with basic tools and a replacement sensor.",
+    "impact": "Minimal emissions increase, but repeated misfires can damage the catalytic converter.",
+    "prevention": "Regular sensor inspections and securing wiring harnesses.",
+    "mechanics": [
+      { "name": "Clover Auto", "rating": "4.8", "contact": "519-555-1122" },
+      { "name": "Tecumseh Auto Repair", "rating": "4.6", "contact": "519-555-3344" }
+    ]
+  },
+  {
+    "code": "P0420",
+    "part": "Catalytic Converter",
+    "part_link": "https://www.amazon.ca/dp/B000C9VG7U",
+    "video_link": "https://www.youtube.com/watch?v=9VZ5K8n5jj0",
+    "issue_tech": "Catalyst System Efficiency Below Threshold (Bank 1)",
+    "issue_plain": "Your catalytic converter isn’t cleaning the exhaust as it should.",
+    "urgency": 70,
+    "cost": "$500–$1800 CAD",
+    "consequences": "Failed emissions test, increased pollution, potential engine damage.",
+    "diy": "Not recommended — requires cutting exhaust piping and welding.",
+    "impact": "Major contributor to emissions if not fixed.",
+    "prevention": "Avoid driving with misfires or bad sensors that lead to premature failure.",
+    "mechanics": [
+      { "name": "Clover Auto", "rating": "4.8", "contact": "519-555-1122" },
+      { "name": "Tecumseh Auto Repair", "rating": "4.6", "contact": "519-555-3344" }
+    ]
+  }
+]
