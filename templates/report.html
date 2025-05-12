@@ -1,126 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>CodeREAD Report</title>
-  <style>
-    body {
-      background-color: #121212;
-      color: #e0e0e0;
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      line-height: 1.6;
-    }
-    h1, h2 {
-      color: #90caf9;
-    }
-    section {
-      margin-top: 2rem;
-    }
-    a {
-      color: #64b5f6;
-      text-decoration: none;
-    }
-    .video-fallback {
-      color: #888;
-      font-style: italic;
-    }
-    ul {
-      padding-left: 1.2rem;
-    }
-    .urgency-img {
-      display: block;
-      margin: 1rem auto;
-      max-width: 400px;
-      width: 100%;
-    }
-  </style>
-</head>
-<body>
-  <h1>CodeREAD Diagnostic Report</h1>
+<h2>Code: {code}</h2>
+<p><strong>Technical Explanation:</strong> {issue_tech}</p>
+<p><strong>Plain-English Explanation:</strong> {issue_plain}</p>
 
-  <section>
-    <h2 style="margin-top: 0;">Urgency Level</h2>
-    <p><strong>{{ urgency_level or "N/A" }} – {{ urgency_label or "Unknown" }}</strong></p>
-    {% set label = urgency_label|lower %}
-    {% if "immediate" in label %}
-      <img src="https://i.imgur.com/DQwGhFb.png" alt="Urgency Meter - Immediate" class="urgency-img" />
-    {% elif "fine" in label %}
-      <img src="https://i.imgur.com/fVQzFHP.png" alt="Urgency Meter - Fine for Now" class="urgency-img" />
-    {% elif "wait" in label %}
-      <img src="https://i.imgur.com/jKZm2JN.png" alt="Urgency Meter - Can Wait" class="urgency-img" />
-    {% else %}
-      <p><em>No urgency image available.</em></p>
-    {% endif %}
-  </section>
+<div class="urgency-meter">
+    <div class="urgency-bar" style="width: {urgency}%"></div>
+</div>
+<p><strong>Urgency Level:</strong> {urgency}/100</p>
 
-  <section>
-    <h2>Customer Info</h2>
-    <p><strong>Name:</strong> {{ name or "N/A" }}</p>
-    <p><strong>Vehicle:</strong> {{ vehicle or "N/A" }}</p>
-    <p><strong>Code:</strong> {{ code or "N/A" }}</p>
-    <p><strong>Email:</strong> {{ email or "N/A" }}</p>
-  </section>
+<p><strong>Estimated Repair Cost:</strong> {cost}</p>
+<p><strong>Consequences of Ignoring:</strong> {consequences}</p>
+<p><strong>DIY Potential:</strong> {diy}</p>
+<p><strong>Environmental Impact:</strong> {impact}</p>
+<p><strong>Preventative Tips:</strong> {prevention}</p>
 
-  <section>
-    <h2>Technical Explanation</h2>
-    <p>{{ technical or "Data unavailable" }}</p>
-  </section>
+<p><strong>Part Needed:</strong> {part}</p>
+<p><a href="{part_link}" target="_blank">Buy Part</a></p>
+<p><a href="{video_link}" target="_blank">Watch Repair Video</a></p>
 
-  <section>
-    <h2>Layman's Explanation</h2>
-    <p>{{ layman or "Data unavailable" }}</p>
-  </section>
-
-  <section>
-    <h2>Estimated Repair Cost</h2>
-    <p>{{ costs or "Data unavailable" }}</p>
-  </section>
-
-  <section>
-    <h2>Consequences of Not Fixing</h2>
-    <p>{{ consequences or "Data unavailable" }}</p>
-  </section>
-
-  <section>
-    <h2>Preventative Maintenance Tips</h2>
-    <p>{{ tips or "Data unavailable" }}</p>
-  </section>
-
-  <section>
-    <h2>DIY Potential</h2>
-    <p>{{ diy or "Data unavailable" }}</p>
-  </section>
-
-  <section>
-    <h2>Environmental Impact</h2>
-    <p>{{ impact or "Data unavailable" }}</p>
-  </section>
-
-  <section>
-    <h2>Helpful Videos</h2>
-    {% if videos %}
-      <ul>
-        {% for v in videos %}
-          {% if v.link and v.link.startswith("http") %}
-            <li><a href="{{ v.link }}" target="_blank">{{ v.title or "Untitled Video" }}</a></li>
-          {% else %}
-            <li class="video-fallback">{{ v.title or "Video title unavailable" }}</li>
-          {% endif %}
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="video-fallback">No videos provided.</p>
-    {% endif %}
-  </section>
-
-  <section>
-    <h2>Top Local Mechanics</h2>
-    <ul>
-      {% for m in mechanics %}
-        <li>{{ m.name or "Unnamed Shop" }} – {{ m.rating or "No rating" }}</li>
-      {% endfor %}
-    </ul>
-  </section>
-</body>
-</html>
+<p><strong>Recommended Mechanics:</strong></p>
+<ul>{mechanics}</ul>
