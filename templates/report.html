@@ -28,18 +28,37 @@
     ul {
       padding-left: 1.2rem;
     }
+    .urgency-img {
+      display: block;
+      margin: 1rem auto;
+      max-width: 400px;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
-  <h1>Customer Info</h1>
-  <p><strong>Name:</strong> {{ name or "N/A" }}</p>
-  <p><strong>Vehicle:</strong> {{ vehicle or "N/A" }}</p>
-  <p><strong>Code:</strong> {{ code or "N/A" }}</p>
-  <p><strong>Email:</strong> {{ email or "N/A" }}</p>
+  <h1>CodeREAD Diagnostic Report</h1>
 
   <section>
-    <h2>Urgency Level</h2>
+    <h2 style="margin-top: 0;">Urgency Level</h2>
     <p><strong>{{ urgency_level or "N/A" }} – {{ urgency_label or "Unknown" }}</strong></p>
+    {% if "Immediate" in urgency_label %}
+      <img src="https://i.imgur.com/DQwGhFb.png" alt="Urgency Meter - Immediate" class="urgency-img" />
+    {% elif "Fine" in urgency_label %}
+      <img src="https://i.imgur.com/fVQzFHP.png" alt="Urgency Meter - Fine for Now" class="urgency-img" />
+    {% elif "Wait" in urgency_label %}
+      <img src="https://i.imgur.com/jKZm2JN.png" alt="Urgency Meter - Can Wait" class="urgency-img" />
+    {% else %}
+      <p><em>No urgency image available.</em></p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Customer Info</h2>
+    <p><strong>Name:</strong> {{ name or "N/A" }}</p>
+    <p><strong>Vehicle:</strong> {{ vehicle or "N/A" }}</p>
+    <p><strong>Code:</strong> {{ code or "N/A" }}</p>
+    <p><strong>Email:</strong> {{ email or "N/A" }}</p>
   </section>
 
   <section>
