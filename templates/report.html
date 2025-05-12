@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CodeREAD Report</title>
+  <title>CodeREAD Diagnostic Report</title>
   <style>
     body {
       background-color: #121212;
@@ -22,11 +22,15 @@
       text-decoration: none;
     }
     .video-fallback {
-      color: #777;
+      color: #888;
       font-style: italic;
     }
     ul {
       padding-left: 1.2rem;
+    }
+    .section-label {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
     }
   </style>
 </head>
@@ -39,64 +43,72 @@
 
   <section>
     <h2>Urgency Level</h2>
-    <p><strong>{{ urgency_level or "N/A" }} – {{ urgency_label or "N/A" }}</strong></p>
+    <p><strong>{{ urgency_level or "N/A" }} – {{ urgency_label or "Unknown" }}</strong></p>
   </section>
 
   <section>
     <h2>Technical Explanation</h2>
-    <p>{{ technical or "N/A" }}</p>
+    <p>{{ technical or "No technical explanation returned." }}</p>
   </section>
 
   <section>
     <h2>Layman's Explanation</h2>
-    <p>{{ layman or "N/A" }}</p>
+    <p>{{ layman or "No simplified explanation available." }}</p>
   </section>
 
   <section>
     <h2>Estimated Repair Cost</h2>
-    <p>{{ costs or "N/A" }}</p>
+    <p>{{ costs or "No cost estimate provided." }}</p>
   </section>
 
   <section>
     <h2>Consequences of Not Fixing</h2>
-    <p>{{ consequences or "N/A" }}</p>
+    <p>{{ consequences or "No consequences data found." }}</p>
   </section>
 
   <section>
     <h2>Preventative Maintenance Tips</h2>
-    <p>{{ tips or "N/A" }}</p>
+    <p>{{ tips or "No preventative advice returned." }}</p>
   </section>
 
   <section>
     <h2>DIY Potential</h2>
-    <p>{{ diy or "N/A" }}</p>
+    <p>{{ diy or "No DIY guidance provided." }}</p>
   </section>
 
   <section>
     <h2>Environmental Impact</h2>
-    <p>{{ impact or "N/A" }}</p>
+    <p>{{ impact or "No environmental details included." }}</p>
   </section>
 
   <section>
     <h2>Helpful Videos</h2>
-    <ul>
-      {% for v in videos %}
-        {% if v.link != "#" %}
-          <li><a href="{{ v.link }}" target="_blank">{{ v.title }}</a></li>
-        {% else %}
-          <li class="video-fallback">{{ v.title }}</li>
-        {% endif %}
-      {% endfor %}
-    </ul>
+    {% if videos %}
+      <ul>
+        {% for v in videos %}
+          {% if v.link and v.link != "#" %}
+            <li><a href="{{ v.link }}" target="_blank">{{ v.title or "Untitled Video" }}</a></li>
+          {% else %}
+            <li class="video-fallback">{{ v.title or "Video title unavailable" }}</li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="video-fallback">No videos provided.</p>
+    {% endif %}
   </section>
 
   <section>
     <h2>Top Local Mechanics</h2>
-    <ul>
-      {% for m in mechanics %}
-        <li>{{ m.name }} – {{ m.rating }}</li>
-      {% endfor %}
-    </ul>
+    {% if mechanics %}
+      <ul>
+        {% for m in mechanics %}
+          <li>{{ m.name or "Unnamed Shop" }} – {{ m.rating or "No rating" }}</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="video-fallback">No mechanic recommendations available.</p>
+    {% endif %}
   </section>
 </body>
 </html>
