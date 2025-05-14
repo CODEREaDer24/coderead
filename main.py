@@ -1,106 +1,101 @@
-import os
+from flask import Flask, render_template, request
+import logging
+import requests
 import json
-from flask import Flask, render_template, request, redirect, url_for
-import openai
+import os
+from datetime import datetime
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
 
-# Set your OpenAI API key in an environment variable for safety.
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+def clean_url(url):
+    if not isinstance(url, str):
+        return '#'
+    url = url.strip().split()[0].rstrip('.')
+    return url if url.startswith('http') else '#'
 
 @app.route("/", methods=["GET"])
 def index():
-    # Render the homepage with the diagnostic form.
     return render_template("index.html")
 
 @app.route("/report", methods=["POST"])
 def report():
-    # Collect form data from the request.
-    name = request.form.get("name", "").strip()
-    email = request.form.get("email", "").strip()
-    phone = request.form.get("phone", "").strip()
-    make = request.form.get("make", "").strip()
-    model = request.form.get("model", "").strip()
-    year = request.form.get("year", "").strip()
-    code = request.form.get("code", "").strip()
+    data = request.form.to_dict()
 
-    # Basic validation: ensure all fields are provided.
-    if not all([name, email, phone, make, model, year, code]):
-        # If any field is missing, redirect back to the homepage.
-        return redirect(url_for("index"))
-
-    # Prepare the OpenAI API prompt/messages for GPT-4.
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are an expert automotive technician AI. "
-                "Provide concise car diagnostic information in JSON format."
-            )
-        },
-        {
-            "role": "user",
-            "content": (
-                f"My vehicle is a {year} {make} {model} with the code {code}. "
-                "Provide a JSON diagnostic report with keys: explanation, urgency, estimated_cost, video_links. "
-                "Respond only with a JSON object."
-            )
-        }
-    ]
-
-    result = {}
-    try:
-        # Call the OpenAI API (GPT-4) to get a completion.
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=messages,
-            temperature=0  # use deterministic output for consistent JSON
-        )
-        # Parse the JSON response from the AI.
-        reply_content = response.choices[0].message.content
-        result = json.loads(reply_content)
-    except Exception as e:
-        # If the API call fails or returns invalid JSON, use fallback defaults.
-        result = {}
-
-    # Define fallback default values for the report fields.
-    fallback = {
-        "explanation": "No explanation is available for this code.",
-        "urgency": "Unknown",
-        "estimated_cost": "N/A",
-        "video_links": []
+    customer = {
+        'customer_name': data.get('name', 'N/A'),
+        'customer_email': data.get('email', 'N/A'),
+        'customer_phone': data.get('phone', 'N/A')
     }
-    # Ensure all expected keys exist in the result; fill missing ones with defaults.
-    for key, default_value in fallback.items():
-        if key not in result or result[key] is None or result[key] == "":
-            result[key] = default_value
+    vehicle = {
+        'vehicle_make': data.get('make', '').capitalize(),
+        'vehicle_model': data.get('model', '').upper(),
+        'vehicle_year': data.get('year', ''),
+        'code': data.get('code', '').upper()
+    }
 
-    # Validate and filter video link URLs (ensure they start with http:// or https://).
-    links = result.get("video_links", [])
-    if not isinstance(links, list):
-        links = [links] if links else []
-    valid_links = []
-    for link in links:
-        if isinstance(link, str) and link.startswith(("http://", "https://")):
-            valid_links.append(link)
-    result["video_links"] = valid_links
+    headers = {
+        'Authorization': f'Bearer {OPENAI_API_KEY}',
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        "model": "gpt-4o",
+        "messages": [
+            {"role": "system", "content": "Return valid JSON with keys: technical_explanation, layman_explanation, urgency_percent, urgency_label, repair_cost_cad, consequences, preventative_tips (list), diy_potential, environmental_impact, video_explanation_url, video_diy_url, video_consequences_url, mechanics (list of {name,rating,phone})"},
+            {"role": "user", "content": f"OBD2 code {vehicle['code']} on a {vehicle['vehicle_year']} {vehicle['vehicle_make']} {vehicle['vehicle_model']}."}
+        ]
+    }
 
-    # Render the report page with the data (use the template to format nicely).
+    try:
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        content = response.json().get('choices', [{}])[0].get('message', {}).get('content', '{}')
+        parsed = json.loads(content)
+    except Exception as e:
+        logging.error("Error processing OpenAI response", exc_info=True)
+        parsed = {}
+
+    defaults = {
+        "technical_explanation": "Not available.",
+        "layman_explanation": "Not available.",
+        "urgency_percent": 0,
+        "urgency_label": "Unknown",
+        "repair_cost_cad": "N/A",
+        "consequences": "N/A",
+        "preventative_tips": [],
+        "diy_potential": "N/A",
+        "environmental_impact": 0,
+        "video_explanation_url": "#",
+        "video_diy_url": "#",
+        "video_consequences_url": "#",
+        "mechanics": []
+    }
+    for key, fallback in defaults.items():
+        if key not in parsed or parsed[key] in [None, "", []]:
+            parsed[key] = fallback
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+
     return render_template(
         "report.html",
-        name=name,
-        email=email,
-        phone=phone,
-        make=make,
-        model=model,
-        year=year,
-        code=code,
-        explanation=result["explanation"],
-        urgency=result["urgency"],
-        estimated_cost=result["estimated_cost"],
-        video_links=result["video_links"]
+        **customer,
+        **vehicle,
+        technical_explanation=parsed["technical_explanation"],
+        layman_explanation=parsed["layman_explanation"],
+        urgency_percent=parsed["urgency_percent"],
+        urgency_label=parsed["urgency_label"],
+        repair_cost_cad=parsed["repair_cost_cad"],
+        consequences=parsed["consequences"],
+        preventative_tips=parsed["preventative_tips"],
+        diy_potential=parsed["diy_potential"],
+        environmental_impact=parsed["environmental_impact"],
+        video_explanation_url=clean_url(parsed["video_explanation_url"]),
+        video_diy_url=clean_url(parsed["video_diy_url"]),
+        video_consequences_url=clean_url(parsed["video_consequences_url"]),
+        mechanics=parsed["mechanics"],
+        timestamp=timestamp
     )
 
-# Run the Flask app (for local testing or if not using a separate WSGI server).
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)
