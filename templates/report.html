@@ -1,36 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CodeREAD Diagnostic Report</title>
   <style>
     body {
-      background: #000;
+      background-color: #000;
       color: #fff;
       font-family: Arial, sans-serif;
       padding: 20px;
-      line-height: 1.5;
     }
     h1, h2 {
       color: #ff0;
       margin-top: 30px;
     }
-    .section {
-      margin-bottom: 25px;
-    }
     .gauge {
-      width: 100%;
       height: 20px;
-      background: #333;
+      width: 100%;
+      background: #222;
       border-radius: 10px;
       overflow: hidden;
       margin: 10px 0;
     }
     .gauge-fill {
       height: 100%;
-      background: linear-gradient(90deg, green, orange, red);
       width: {{ urgency_percent }}%;
+      background: linear-gradient(90deg, green, orange, red);
     }
     ul {
       padding-left: 18px;
@@ -43,95 +39,77 @@
       text-decoration: underline;
     }
     .footer {
-      margin-top: 40px;
-      font-size: 0.8em;
+      margin-top: 50px;
       text-align: center;
+      font-size: 0.85em;
       color: #888;
     }
   </style>
 </head>
 <body>
+
   <h1>CodeREAD Diagnostic Report</h1>
-  <div class="section"><strong>Generated:</strong> {{ generated_date }}</div>
+  <div><strong>Generated:</strong> {{ generated_date }}</div>
 
-  <div class="section">
-    <h2>Customer</h2>
-    <div><strong>Name:</strong> {{ customer_name }}</div>
-    <div><strong>Email:</strong> {{ customer_email }}</div>
-    {% if customer_phone %}
-      <div><strong>Phone:</strong> {{ customer_phone }}</div>
-    {% endif %}
-  </div>
+  <h2>Customer Info</h2>
+  <p><strong>Name:</strong> {{ customer_name }}</p>
+  <p><strong>Email:</strong> {{ customer_email }}</p>
+  {% if customer_phone %}
+    <p><strong>Phone:</strong> {{ customer_phone }}</p>
+  {% endif %}
 
-  <div class="section">
-    <h2>Vehicle</h2>
-    <div>{{ vehicle_year }} {{ vehicle_make }} {{ vehicle_model }}</div>
-    <div><strong>Code:</strong> {{ code }}</div>
-  </div>
+  <h2>Vehicle Info</h2>
+  <p><strong>Year:</strong> {{ vehicle_year }}</p>
+  <p><strong>Make:</strong> {{ vehicle_make }}</p>
+  <p><strong>Model:</strong> {{ vehicle_model }}</p>
+  <p><strong>Code:</strong> {{ code }}</p>
 
-  <div class="section">
-    <h2>Urgency</h2>
-    <div>{{ urgency_percent }}/100 – {{ urgency_label }}</div>
-    <div class="gauge"><div class="gauge-fill"></div></div>
-  </div>
+  <h2>Urgency</h2>
+  <p>{{ urgency_percent }}/100 – {{ urgency_label }}</p>
+  <div class="gauge"><div class="gauge-fill"></div></div>
 
-  <div class="section">
-    <h2>Issue Explanation</h2>
-    <p><strong>Technical:</strong> {{ technical_explanation }}</p>
-    <p><strong>Layman:</strong> {{ layman_explanation }}</p>
-  </div>
+  <h2>Issue Explanation</h2>
+  <p><strong>Technical:</strong><br>{{ technical_explanation }}</p>
+  <p><strong>Layman:</strong><br>{{ layman_explanation }}</p>
 
-  <div class="section">
-    <h2>Estimated Repair Cost</h2>
-    <p>{{ repair_cost_cad }} CAD</p>
-  </div>
+  <h2>Estimated Repair Cost</h2>
+  <p>{{ repair_cost_cad }} CAD</p>
 
-  <div class="section">
-    <h2>Consequences of Ignoring</h2>
-    <p>{{ consequences }}</p>
-  </div>
+  <h2>Consequences of Ignoring</h2>
+  <p>{{ consequences }}</p>
 
-  <div class="section">
-    <h2>Preventative Care Tips</h2>
-    <ul>
-      {% for tip in preventative_tips %}
-        <li>{{ tip }}</li>
-      {% endfor %}
-    </ul>
-  </div>
+  <h2>Preventative Care Tips</h2>
+  <ul>
+    {% for tip in preventative_tips %}
+      <li>{{ tip }}</li>
+    {% endfor %}
+  </ul>
 
-  <div class="section">
-    <h2>DIY Repair Potential</h2>
-    <p>{{ diy_potential }}</p>
-  </div>
+  <h2>DIY Repair Potential</h2>
+  <p>{{ diy_potential }}</p>
 
-  <div class="section">
-    <h2>Environmental Impact</h2>
-    <p>{{ environmental_impact }}</p>
-  </div>
+  <h2>Environmental Impact</h2>
+  <p>{{ environmental_impact }}</p>
 
-  <div class="section">
-    <h2>Video Resources</h2>
-    <ul>
-      {% for video in videos %}
-        <li>
-          <a href="{{ video.url }}" target="_blank">{{ video.title }}</a> – {{ video.description }}
-        </li>
-      {% endfor %}
-    </ul>
-  </div>
+  <h2>Video Resources</h2>
+  <ul>
+    {% for video in videos %}
+      <li>
+        <a href="{{ video.url }}" target="_blank">{{ video.title }}</a> – {{ video.description }}
+      </li>
+    {% endfor %}
+  </ul>
 
-  <div class="section">
-    <h2>Top Recommended Mechanics</h2>
-    <ul>
-      {% for mech in mechanics %}
-        <li>{{ mech.name }} – {{ mech.rating }} stars – <a href="tel:{{ mech.phone }}">{{ mech.phone }}</a></li>
-      {% endfor %}
-    </ul>
-  </div>
+  <h2>Top Recommended Mechanics</h2>
+  <ul>
+    {% for mech in mechanics %}
+      <li>{{ mech.name }} – {{ mech.rating }} stars – <a href="tel:{{ mech.phone }}">{{ mech.phone }}</a></li>
+    {% endfor %}
+  </ul>
 
   <div class="footer">
-    Generated by CodeREAD AI | <a href="https://read.codes" target="_blank">read.codes</a>
+    Generated by CodeREAD | <a href="https://read.codes" target="_blank">read.codes</a>
   </div>
+
 </body>
 </html>
