@@ -25,7 +25,8 @@ def extract_sections(raw_text):
         "DIY": "",
         "ENVIRONMENT": "",
         "VIDEOS": "",
-        "MECHANICS": ""
+        "MECHANICS": "",
+        "ANALYSIS": ""
     }
 
     current = None
@@ -95,6 +96,9 @@ Title | URL | Description
 
 MECHANICS:
 Name | Rating | Phone
+
+ANALYSIS:
+Explain the root cause, link symptoms and code together, and recommend next steps in plain terms.
 """
 
     try:
@@ -143,10 +147,10 @@ Name | Rating | Phone
                     "phone": m.split("|")[2].strip()
                 }
                 for m in parsed["MECHANICS"].splitlines() if "|" in m
-            ]
+            ],
+            "analysis": parsed["ANALYSIS"].strip()
         }
 
-        # Force fallback if essential fields are missing
         if not report["technical"] or not report["layman"] or report["urgency_percent"] == "0":
             raise ValueError("Empty or invalid GPT data — forcing fallback")
 
@@ -178,7 +182,8 @@ Name | Rating | Phone
                 {"name": "Clover Auto", "rating": "4.8", "phone": "519-555-1234"},
                 {"name": "Tecumseh Auto Repair", "rating": "4.6", "phone": "519-555-5678"},
                 {"name": "Auto Clinic Windsor", "rating": "4.7", "phone": "519-555-9999"}
-            ]
+            ],
+            "analysis": "Based on your vehicle info and the P0320 code, the most likely issue is a failed crankshaft position sensor or broken wiring. We recommend inspecting the sensor and connector for damage, and replacing the sensor if needed. If the issue persists, testing signal voltage and checking the ECM may be necessary."
         }
 
     return render_template("report.html",
@@ -195,7 +200,8 @@ Name | Rating | Phone
         diy_potential=report["diy"],
         environmental_impact=report["environment"],
         videos=report["videos"],
-        mechanics=report["mechanics"]
+        mechanics=report["mechanics"],
+        analysis=report["analysis"]
     )
 
 if __name__ == '__main__':
