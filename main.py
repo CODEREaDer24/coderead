@@ -14,6 +14,33 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 def form():
     return render_template("form.html")
 
+def extract_sections(raw_text):
+    sections = {
+        "TECHNICAL": "",
+        "LAYMAN": "",
+        "URGENCY": "",
+        "COST": "",
+        "CONSEQUENCES": "",
+        "TIPS": "",
+        "DIY": "",
+        "ENVIRONMENT": "",
+        "VIDEOS": "",
+        "MECHANICS": ""
+    }
+
+    current = None
+    for line in raw_text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if line.rstrip(":").upper() in sections:
+            current = line.rstrip(":").upper()
+            continue
+        if current:
+            sections[current] += line + "\n"
+
+    return sections
+
 @app.route('/report', methods=['POST'])
 def report():
     data = request.form.to_dict()
@@ -29,7 +56,6 @@ def report():
         "code": data.get("code", "")
     }
 
-    # Build GPT prompt (text output, not JSON)
     prompt = f"""
 You're an AI car diagnostic expert. Given this info:
 
@@ -71,35 +97,6 @@ MECHANICS:
 Name | Rating | Phone
 """
 
-    fallback_report = {
-        "technical": "This code means the crankshaft position sensor signal isn’t reaching the computer.",
-        "layman": "Your car doesn't know how fast the engine is spinning — sensor might be broken.",
-        "urgency_percent": "72",
-        "urgency_label": "Urgent",
-        "cost": "220",
-        "consequences": "Could stall, misfire, or not start at all.",
-        "tips": ["Check the crankshaft sensor", "Inspect wires and connectors"],
-        "diy": "Moderate if you have basic tools.",
-        "environment": "Could raise emissions due to poor timing.",
-        "videos": [
-            {
-                "title": "P0320 Sensor Explained",
-                "url": "https://www.youtube.com/watch?v=LSxBdj3kKYI",
-                "description": "Sensor function and failure modes"
-            },
-            {
-                "title": "Fix P0320 Code",
-                "url": "https://www.youtube.com/watch?v=9M1i6F4I6hU",
-                "description": "How to test and replace the crankshaft sensor"
-            }
-        ],
-        "mechanics": [
-            {"name": "Clover Auto", "rating": "4.8", "phone": "519-555-1234"},
-            {"name": "Tecumseh Auto Repair", "rating": "4.6", "phone": "519-555-5678"},
-            {"name": "Auto Clinic Windsor", "rating": "4.7", "phone": "519-555-9999"}
-        ]
-    }
-
     try:
         response = requests.post(
             "https://api.openai.com/v1/chat/completions",
@@ -117,51 +114,66 @@ Name | Rating | Phone
         )
         response.raise_for_status()
         content = response.json()['choices'][0]['message']['content']
-
-        # Parse fields from raw text
-        def get(section):
-            try:
-                lines = content.split(section + ":")[1].split("\n")
-                if section == "URGENCY":
-                    return lines[1].strip(), lines[2].strip()
-                if section == "VIDEOS":
-                    vids = []
-                    for line in lines[1:]:
-                        if "|" in line:
-                            title, url, desc = [x.strip() for x in line.split("|")]
-                            vids.append({"title": title, "url": url, "description": desc})
-                    return vids
-                if section == "MECHANICS":
-                    mechs = []
-                    for line in lines[1:]:
-                        if "|" in line:
-                            name, rating, phone = [x.strip() for x in line.split("|")]
-                            mechs.append({"name": name, "rating": rating, "phone": phone})
-                    return mechs
-                if section == "TIPS":
-                    return [x.strip("- ").strip() for x in lines if x.strip().startswith("-")]
-                return "\n".join(lines[1:]).strip()
-            except Exception as e:
-                logging.warning(f"Parse error for section {section}: {e}")
-                return ""
+        parsed = extract_sections(content)
 
         report = {
-            "technical": get("TECHNICAL"),
-            "layman": get("LAYMAN"),
-            "urgency_percent": get("URGENCY")[0],
-            "urgency_label": get("URGENCY")[1],
-            "cost": get("COST"),
-            "consequences": get("CONSEQUENCES"),
-            "tips": get("TIPS"),
-            "diy": get("DIY"),
-            "environment": get("ENVIRONMENT"),
-            "videos": get("VIDEOS"),
-            "mechanics": get("MECHANICS"),
+            "technical": parsed["TECHNICAL"].strip(),
+            "layman": parsed["LAYMAN"].strip(),
+            "urgency_percent": parsed["URGENCY"].splitlines()[0].strip(),
+            "urgency_label": parsed["URGENCY"].splitlines()[1].strip(),
+            "cost": parsed["COST"].strip(),
+            "consequences": parsed["CONSEQUENCES"].strip(),
+            "tips": [t.strip("- ").strip() for t in parsed["TIPS"].splitlines() if t.strip()],
+            "diy": parsed["DIY"].strip(),
+            "environment": parsed["ENVIRONMENT"].strip(),
+            "videos": [
+                {
+                    "title": v.split("|")[0].strip(),
+                    "url": v.split("|")[1].strip(),
+                    "description": v.split("|")[2].strip()
+                }
+                for v in parsed["VIDEOS"].splitlines() if "|" in v
+            ],
+            "mechanics": [
+                {
+                    "name": m.split("|")[0].strip(),
+                    "rating": m.split("|")[1].strip(),
+                    "phone": m.split("|")[2].strip()
+                }
+                for m in parsed["MECHANICS"].splitlines() if "|" in m
+            ]
         }
 
     except Exception as e:
         logging.error("GPT fallback triggered", exc_info=True)
-        report = fallback_report
+        report = {
+            "technical": "This code means the crankshaft position sensor signal isn’t reaching the computer.",
+            "layman": "Your car doesn't know how fast the engine is spinning — sensor might be broken.",
+            "urgency_percent": "72",
+            "urgency_label": "Urgent",
+            "cost": "220",
+            "consequences": "Could stall, misfire, or not start at all.",
+            "tips": ["Check the crankshaft sensor", "Inspect wires and connectors"],
+            "diy": "Moderate if you have basic tools.",
+            "environment": "Could raise emissions due to poor timing.",
+            "videos": [
+                {
+                    "title": "P0320 Sensor Explained",
+                    "url": "https://www.youtube.com/watch?v=LSxBdj3kKYI",
+                    "description": "Sensor function and failure modes"
+                },
+                {
+                    "title": "Fix P0320 Code",
+                    "url": "https://www.youtube.com/watch?v=9M1i6F4I6hU",
+                    "description": "How to test and replace the crankshaft sensor"
+                }
+            ],
+            "mechanics": [
+                {"name": "Clover Auto", "rating": "4.8", "phone": "519-555-1234"},
+                {"name": "Tecumseh Auto Repair", "rating": "4.6", "phone": "519-555-5678"},
+                {"name": "Auto Clinic Windsor", "rating": "4.7", "phone": "519-555-9999"}
+            ]
+        }
 
     return render_template("report.html",
         generated_date=datetime.now().strftime("%Y-%m-%d %H:%M"),
