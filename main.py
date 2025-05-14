@@ -1,104 +1,76 @@
 from flask import Flask, render_template, request
-import openai
-import os
-import re
+import logging
+import requests
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+def validate_url(url):
+    return url.startswith('https://') and not url.rstrip().endswith('.')
 
-@app.route("/", methods=["GET"])
-def form():
-    return render_template("form.html")
-
-@app.route("/report", methods=["POST"])
+@app.route('/report', methods=['POST'])
 def report():
-    # Form fields
-    name = request.form["name"]
-    email = request.form["email"]
-    phone = request.form["phone"]
-    address = request.form.get("address", "")  # Optional
-    vehicle_make = request.form["make"]
-    vehicle_model = request.form["model"]
-    vehicle_year = request.form["year"]
-    code = request.form["codes"]
+    data = request.form.to_dict()
+    # Map inputs
+    customer = {
+      'customer_name': data.get('name', 'N/A'),
+      'customer_email': data.get('email', 'N/A'),
+      'customer_phone': data.get('phone', 'N/A')
+    }
+    vehicle = {
+      'vehicle_make': data.get('make', '').capitalize(),
+      'vehicle_model': data.get('model', '').upper(),
+      'vehicle_year': data.get('year', ''),
+      'code': data.get('code', '')
+    }
 
-    # Build the prompt for AI
-    prompt = f"""
-    Generate a diagnostic report for OBD2 code {code}.
-    Return clear, plain English answers for each section:
-    1. Brief explanation of the code (technical + layman)
-    2. Urgency level from 1–100
-    3. Estimated repair cost in CAD
-    4. Consequences of ignoring the issue
-    5. Preventative care tips
-    6. DIY repair potential
-    7. Environmental impact
-    8. Provide 3 relevant YouTube links:
-       - code explanation
-       - DIY fix
-       - danger of ignoring it
-    Make it readable and avoid repeating the code label itself constantly.
-    """
+    # Call AI API (pseudo)
+    ai_response = requests.post('https://api.openai.com/v1/…', json={'code': vehicle['code']})
+    content = ai_response.json()
 
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7
-        )
+    # Pull AI fields safely
+    tech = content.get('technical_explanation', 'No data')
+    lay = content.get('layman_explanation', 'No data')
+    urgency = int(content.get('urgency_percent', 0))
+    label = content.get('urgency_label', '')
+    cost = content.get('repair_cost_cad', '0')
+    cons = content.get('consequences', 'None specified')
+    tips = content.get('preventative_tips', [])
+    diy = content.get('diy_potential', 'Not recommended')
+    env = int(content.get('environmental_impact', 0))
 
-        output = response.choices[0].message["content"]
+    # Video URLs with validation
+    videos = {
+      'video_explanation_url': content.get('video_explanation_url', ''),
+      'video_diy_url': content.get('video_diy_url', ''),
+      'video_consequences_url': content.get('video_consequences_url', '')
+    }
+    for k, url in videos.items():
+      if not validate_url(url):
+        logging.warning(f'Invalid URL for {k}: {url}')
+        videos[k] = '#'
 
-        def extract(label):
-            match = re.search(rf"{label}[\.\):\-]*\s*(.*?)(?=\n\d+\.|\n$)", output, re.DOTALL)
-            return match.group(1).strip() if match else "N/A"
+    # Mechanics list (ensure safety)
+    raw_mechs = content.get('mechanics', [])
+    mechanics = []
+    for m in raw_mechs:
+      if all(m.get(k) for k in ('name','rating','phone')):
+        mechanics.append(m)
 
-        # Extract report fields
-        explanation = extract("1")
-        urgency = extract("2")
-        cost = extract("3")
-        consequences = extract("4")
-        preventative = extract("5")
-        diy = extract("6")
-        environment = extract("7")
+    return render_template('report.html',
+      **customer, **vehicle,
+      technical_explanation=tech,
+      layman_explanation=lay,
+      urgency_percent=urgency,
+      urgency_label=label,
+      repair_cost_cad=cost,
+      consequences=cons,
+      preventative_tips=tips,
+      diy_potential=diy,
+      environmental_impact=env,
+      mechanics=mechanics,
+      **videos
+    )
 
-        # Get YouTube links
-        video_links = re.findall(r'(https?://[^\s]+)', output)
-        video_explanation = video_links[0] if len(video_links) > 0 else "#"
-        video_diy = video_links[1] if len(video_links) > 1 else "#"
-        video_consequences = video_links[2] if len(video_links) > 2 else "#"
-
-        # Static mechanic list (for Windsor, for now)
-        mechanic_1 = "Clover Auto – 4.7 stars – 519-555-1234"
-        mechanic_2 = "Tecumseh Auto Repair – 4.6 stars – 519-555-5678"
-        mechanic_3 = "Windsor Auto Pro – 4.8 stars – 519-555-9999"
-
-        return render_template("report.html",
-                               name=name,
-                               email=email,
-                               phone=phone,
-                               address=address,
-                               vehicle_make=vehicle_make,
-                               vehicle_model=vehicle_model,
-                               vehicle_year=vehicle_year,
-                               code=code,
-                               explanation=explanation,
-                               urgency=urgency,
-                               cost=cost,
-                               consequences=consequences,
-                               preventative=preventative,
-                               diy=diy,
-                               environment=environment,
-                               video_explanation=video_explanation,
-                               video_diy=video_diy,
-                               video_consequences=video_consequences,
-                               mechanic_1=mechanic_1,
-                               mechanic_2=mechanic_2,
-                               mechanic_3=mechanic_3)
-
-    except Exception as e:
-        return f"Error generating report: {str(e)}"
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
