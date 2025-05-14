@@ -69,10 +69,14 @@ Vehicle: {vehicle['vehicle_year']} {vehicle['vehicle_make']} {vehicle['vehicle_m
 
     try:
         resp = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-        content = resp.json().get("choices", [{}])[0].get("message", {}).get("content", "{}")
+        resp.raise_for_status()
+        result = resp.json()
+        content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+        if not content.strip().startswith("{"):
+            raise ValueError("OpenAI returned empty or invalid JSON")
         analysis = json.loads(content)
     except Exception as e:
-        logging.error("OpenAI API or JSON parsing failed", exc_info=True)
+        logging.error("Failed to parse OpenAI response", exc_info=True)
         analysis = {}
 
     urgency = int(analysis.get("urgency_percent", 0))
