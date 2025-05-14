@@ -2,143 +2,80 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CodeREAD Diagnostic Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeREAD – Diagnostic Report</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      background-color: #000;
-      color: #fff;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
     }
     .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
       padding: 20px;
-      max-width: 800px;
-      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    h1, h2 {
-      color: #ff0;
-      margin-bottom: 10px;
+    h1, h2, h3 {
+      color: #333;
+      margin-bottom: 0.5em;
     }
-    .section {
-      margin-bottom: 30px;
+    h1 {
+      text-align: center;
     }
-    .label {
-      font-weight: bold;
-      display: inline-block;
-      width: 150px;
+    p {
+      line-height: 1.6;
+      color: #444;
     }
-    .gauge {
-      width: 100%;
-      height: 20px;
-      background: #333;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-top: 8px;
+    strong {
+      color: #000;
     }
-    .gauge-fill {
-      height: 100%;
-      background: linear-gradient(90deg, green, orange, red);
-      width: {{ urgency_percent }}%;
+    ul {
+      margin-top: 0.5em;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 0.5em;
     }
     a {
-      color: #ff0;
+      color: #0066cc;
       text-decoration: none;
     }
     a:hover {
       text-decoration: underline;
     }
-    footer {
+    .back-link {
+      margin-top: 20px;
       text-align: center;
-      margin-top: 50px;
-      font-size: 0.8em;
-      opacity: 0.7;
+      display: block;
     }
-    ul { padding-left: 20px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>CodeREAD Diagnostic Report</h1>
+    <h1>Diagnostic Report</h1>
+    <p>Hello {{ name }}, here are the results for your vehicle:</p>
+    <h2>{{ year }} {{ make }} {{ model }} &mdash; Code {{ code }}</h2>
 
-    <div class="section">
-      <h2>Customer Info</h2>
-      <div><span class="label">Name:</span> {{ customer_name }}</div>
-      <div><span class="label">Email:</span> <a href="mailto:{{ customer_email }}">{{ customer_email }}</a></div>
-      <div><span class="label">Phone:</span> {{ customer_phone }}</div>
-    </div>
+    <p><strong>Explanation:</strong> {{ explanation }}</p>
+    <p><strong>Urgency:</strong> {{ urgency }}</p>
+    <p><strong>Estimated Cost:</strong> {{ estimated_cost }}</p>
 
-    <div class="section">
-      <h2>Vehicle Info</h2>
-      <div><span class="label">Make:</span> {{ vehicle_make }}</div>
-      <div><span class="label">Model:</span> {{ vehicle_model }}</div>
-      <div><span class="label">Year:</span> {{ vehicle_year }}</div>
-      <div><span class="label">Code:</span> {{ code }}</div>
-    </div>
-
-    <div class="section">
-      <h2>Urgency</h2>
-      <div><strong>{{ urgency_percent }}/100</strong> – {{ urgency_label }}</div>
-      <div class="gauge"><div class="gauge-fill"></div></div>
-    </div>
-
-    <div class="section">
-      <h2>Issue Explanation</h2>
-      <div><span class="label">Technical:</span> {{ technical_explanation }}</div>
-      <div><span class="label">Layman:</span> {{ layman_explanation }}</div>
-    </div>
-
-    <div class="section">
-      <h2>Estimated Repair Cost</h2>
-      <div>{{ repair_cost_cad }} CAD</div>
-    </div>
-
-    <div class="section">
-      <h2>Consequences of Ignoring</h2>
-      <div>{{ consequences }}</div>
-    </div>
-
-    <div class="section">
-      <h2>Preventative Care Tips</h2>
+    {% if video_links %}
+      <h3>Related Videos:</h3>
       <ul>
-        {% for tip in preventative_tips %}
-          <li>{{ tip }}</li>
+        {% for link in video_links %}
+          <li><a href="{{ link }}" target="_blank">{{ link }}</a></li>
         {% endfor %}
       </ul>
-    </div>
+    {% else %}
+      <p><em>No video resources available.</em></p>
+    {% endif %}
 
-    <div class="section">
-      <h2>DIY Repair Potential</h2>
-      <div>{{ diy_potential }}</div>
-    </div>
-
-    <div class="section">
-      <h2>Environmental Impact</h2>
-      <div>{{ environmental_impact }}/100</div>
-    </div>
-
-    <div class="section">
-      <h2>Video Resources</h2>
-      <ul>
-        <li><a href="{{ video_explanation_url }}">Code Explanation</a></li>
-        <li><a href="{{ video_diy_url }}">DIY Repair</a></li>
-        <li><a href="{{ video_consequences_url }}">Why This Matters</a></li>
-      </ul>
-    </div>
-
-    <div class="section">
-      <h2>Top Recommended Mechanics</h2>
-      <ul>
-        {% for mech in mechanics %}
-          <li>{{ mech.name }} – {{ mech.rating }} stars – <a href="tel:{{ mech.phone }}">{{ mech.phone }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <footer>
-      Generated by CodeREAD AI | <a href="https://read.codes/">read.codes</a>
-    </footer>
+    <a href="{{ url_for('index') }}" class="back-link">&#8592; Back to form</a>
   </div>
 </body>
 </html>
