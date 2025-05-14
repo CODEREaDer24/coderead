@@ -1,162 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>CodeREAD Diagnostic Report</title>
-    <style>
-        body {
-            background-color: #000;
-            color: #FFD700;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 900px;
-            margin: auto;
-            padding: 30px 20px;
-            background-color: #111;
-            border-radius: 10px;
-        }
-
-        h1 {
-            color: #FFD700;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .section {
-            margin-bottom: 25px;
-        }
-
-        .section h2 {
-            color: #FFA500;
-            border-bottom: 2px solid #FFD700;
-            padding-bottom: 5px;
-        }
-
-        .data {
-            font-weight: bold;
-            color: #FFEB3B;
-        }
-
-        .urgency-gauge {
-            width: 100%;
-            max-width: 400px;
-            margin: 20px auto;
-            display: block;
-        }
-
-        pre {
-            white-space: pre-wrap;
-            font-family: monospace;
-            background-color: #222;
-            padding: 10px;
-            border-radius: 5px;
-            color: #FFF;
-        }
-
-        a {
-            color: #00BFFF;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        ul {
-            list-style-type: square;
-            margin-left: 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeREAD Diagnostic Report</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    h1, h2 {
+      color: #ff0;
+      margin-top: 30px;
+    }
+    .section {
+      margin-bottom: 25px;
+    }
+    .gauge {
+      width: 100%;
+      height: 20px;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .gauge-fill {
+      height: 100%;
+      background: linear-gradient(90deg, green, orange, red);
+      width: {{ urgency_percent }}%;
+    }
+    ul {
+      padding-left: 18px;
+    }
+    a {
+      color: #0cf;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 0.8em;
+      text-align: center;
+      color: #888;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>CodeREAD Diagnostic Report</h1>
+  <h1>CodeREAD Diagnostic Report</h1>
+  <div class="section"><strong>Generated:</strong> {{ generated_date }}</div>
 
-        <div class="section">
-            <h2>Customer Info</h2>
-            <p><span class="data">Name:</span> {{ name }}</p>
-            <p><span class="data">Email:</span> {{ email }}</p>
-            {% if phone %}
-            <p><span class="data">Phone:</span> {{ phone }}</p>
-            {% endif %}
-        </div>
+  <div class="section">
+    <h2>Customer</h2>
+    <div><strong>Name:</strong> {{ customer_name }}</div>
+    <div><strong>Email:</strong> {{ customer_email }}</div>
+    {% if customer_phone %}
+      <div><strong>Phone:</strong> {{ customer_phone }}</div>
+    {% endif %}
+  </div>
 
-        <div class="section">
-            <h2>Vehicle Info</h2>
-            <p><span class="data">Make:</span> {{ make }}</p>
-            <p><span class="data">Model:</span> {{ model }}</p>
-            <p><span class="data">Year:</span> {{ year }}</p>
-            <p><span class="data">Diagnostic Code:</span> {{ code }}</p>
-        </div>
+  <div class="section">
+    <h2>Vehicle</h2>
+    <div>{{ vehicle_year }} {{ vehicle_make }} {{ vehicle_model }}</div>
+    <div><strong>Code:</strong> {{ code }}</div>
+  </div>
 
-        <div class="section">
-            <h2>Urgency Level</h2>
-            <img src="{{ urgency_gauge_url }}" alt="Urgency Gauge" class="urgency-gauge">
-            <p>{{ urgency_explanation }}</p>
-        </div>
+  <div class="section">
+    <h2>Urgency</h2>
+    <div>{{ urgency_percent }}/100 – {{ urgency_label }}</div>
+    <div class="gauge"><div class="gauge-fill"></div></div>
+  </div>
 
-        <div class="section">
-            <h2>Technical Explanation</h2>
-            <pre>{{ technical_explanation }}</pre>
-        </div>
+  <div class="section">
+    <h2>Issue Explanation</h2>
+    <p><strong>Technical:</strong> {{ technical_explanation }}</p>
+    <p><strong>Layman:</strong> {{ layman_explanation }}</p>
+  </div>
 
-        <div class="section">
-            <h2>Layman’s Explanation</h2>
-            <pre>{{ layman_explanation }}</pre>
-        </div>
+  <div class="section">
+    <h2>Estimated Repair Cost</h2>
+    <p>{{ repair_cost_cad }} CAD</p>
+  </div>
 
-        <div class="section">
-            <h2>Estimated Repair Cost</h2>
-            <p>${{ estimated_cost }} CAD</p>
-        </div>
+  <div class="section">
+    <h2>Consequences of Ignoring</h2>
+    <p>{{ consequences }}</p>
+  </div>
 
-        <div class="section">
-            <h2>Consequences of Ignoring</h2>
-            <pre>{{ consequences }}</pre>
-        </div>
+  <div class="section">
+    <h2>Preventative Care Tips</h2>
+    <ul>
+      {% for tip in preventative_tips %}
+        <li>{{ tip }}</li>
+      {% endfor %}
+    </ul>
+  </div>
 
-        <div class="section">
-            <h2>Preventative Care Tips</h2>
-            <pre>{{ prevention }}</pre>
-        </div>
+  <div class="section">
+    <h2>DIY Repair Potential</h2>
+    <p>{{ diy_potential }}</p>
+  </div>
 
-        <div class="section">
-            <h2>DIY Repair Potential</h2>
-            <pre>{{ diy }}</pre>
-        </div>
+  <div class="section">
+    <h2>Environmental Impact</h2>
+    <p>{{ environmental_impact }}</p>
+  </div>
 
-        <div class="section">
-            <h2>Environmental Impact</h2>
-            <pre>{{ environment }}</pre>
-        </div>
+  <div class="section">
+    <h2>Video Resources</h2>
+    <ul>
+      {% for video in videos %}
+        <li>
+          <a href="{{ video.url }}" target="_blank">{{ video.title }}</a> – {{ video.description }}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
 
-        <div class="section">
-            <h2>Interrelated Codes</h2>
-            <pre>{{ relationships }}</pre>
-        </div>
+  <div class="section">
+    <h2>Top Recommended Mechanics</h2>
+    <ul>
+      {% for mech in mechanics %}
+        <li>{{ mech.name }} – {{ mech.rating }} stars – <a href="tel:{{ mech.phone }}">{{ mech.phone }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
 
-        <div class="section">
-            <h2>Helpful Videos</h2>
-            <ul>
-                {% for video in videos %}
-                    <li><a href="{{ video.url }}" target="_blank">{{ video.title }}</a></li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>Recommended Mechanics</h2>
-            <ul>
-                {% for mechanic in mechanics %}
-                    <li><a href="{{ mechanic.url }}" target="_blank">{{ mechanic.name }} – {{ mechanic.rating }} stars</a></li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
+  <div class="footer">
+    Generated by CodeREAD AI | <a href="https://read.codes" target="_blank">read.codes</a>
+  </div>
 </body>
 </html>
