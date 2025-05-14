@@ -1,110 +1,184 @@
-import os
-import openai
+#!/usr/bin/env python3
 from flask import Flask, render_template, request
-from dotenv import load_dotenv
-
-load_dotenv()
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+import logging
+import requests
+import os
+from datetime import datetime
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 @app.route('/')
 def form():
-    return render_template('form.html')
+    return render_template("form.html")
 
 @app.route('/report', methods=['POST'])
 def report():
+    data = request.form.to_dict()
+    customer = {
+        "customer_name": data.get("name", "N/A"),
+        "customer_email": data.get("email", "N/A"),
+        "customer_phone": data.get("phone", "")
+    }
+    vehicle = {
+        "vehicle_make": data.get("make", ""),
+        "vehicle_model": data.get("model", ""),
+        "vehicle_year": data.get("year", ""),
+        "code": data.get("code", "")
+    }
+
+    # Build GPT prompt (text output, not JSON)
+    prompt = f"""
+You're an AI car diagnostic expert. Given this info:
+
+Vehicle: {vehicle['vehicle_year']} {vehicle['vehicle_make']} {vehicle['vehicle_model']}
+OBD2 Code: {vehicle['code']}
+
+Respond with clearly formatted report sections like this:
+
+TECHNICAL:
+...
+
+LAYMAN:
+...
+
+URGENCY:
+72
+Moderate
+
+COST:
+220
+
+CONSEQUENCES:
+...
+
+TIPS:
+- First preventative tip
+- Second preventative tip
+
+DIY:
+...
+
+ENVIRONMENT:
+...
+
+VIDEOS:
+Title | URL | Description
+
+MECHANICS:
+Name | Rating | Phone
+"""
+
+    fallback_report = {
+        "technical": "This code means the crankshaft position sensor signal isn’t reaching the computer.",
+        "layman": "Your car doesn't know how fast the engine is spinning — sensor might be broken.",
+        "urgency_percent": "72",
+        "urgency_label": "Urgent",
+        "cost": "220",
+        "consequences": "Could stall, misfire, or not start at all.",
+        "tips": ["Check the crankshaft sensor", "Inspect wires and connectors"],
+        "diy": "Moderate if you have basic tools.",
+        "environment": "Could raise emissions due to poor timing.",
+        "videos": [
+            {
+                "title": "P0320 Sensor Explained",
+                "url": "https://www.youtube.com/watch?v=LSxBdj3kKYI",
+                "description": "Sensor function and failure modes"
+            },
+            {
+                "title": "Fix P0320 Code",
+                "url": "https://www.youtube.com/watch?v=9M1i6F4I6hU",
+                "description": "How to test and replace the crankshaft sensor"
+            }
+        ],
+        "mechanics": [
+            {"name": "Clover Auto", "rating": "4.8", "phone": "519-555-1234"},
+            {"name": "Tecumseh Auto Repair", "rating": "4.6", "phone": "519-555-5678"},
+            {"name": "Auto Clinic Windsor", "rating": "4.7", "phone": "519-555-9999"}
+        ]
+    }
+
     try:
-        name = request.form.get('name')
-        email = request.form.get('email')
-        phone = request.form.get('phone')
-        make = request.form.get('make')
-        model = request.form.get('model')
-        year = request.form.get('year')
-        code = request.form.get('code')
-
-        prompt = f"""
-        Vehicle: {year} {make} {model}
-        Trouble Code: {code}
-
-        Provide:
-        1. Technical explanation
-        2. Layman's explanation
-        3. Urgency level (1–10) with reasoning
-        4. Estimated repair cost in CAD
-        5. Consequences of ignoring it
-        6. Preventative care tips
-        7. DIY repair potential
-        8. Environmental impact
-        9. Related OBD2 codes or common companion codes
-        """
-
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a master-level auto diagnostics technician with a clear, confident tone."},
-                {"role": "user", "content": prompt}
-            ]
+        response = requests.post(
+            "https://api.openai.com/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "gpt-4o-mini",
+                "messages": [
+                    {"role": "system", "content": "You are a vehicle diagnostics expert."},
+                    {"role": "user", "content": prompt}
+                ]
+            }
         )
+        response.raise_for_status()
+        content = response.json()['choices'][0]['message']['content']
 
-        content = response['choices'][0]['message']['content']
+        # Parse fields from raw text
+        def get(section):
+            try:
+                lines = content.split(section + ":")[1].split("\n")
+                if section == "URGENCY":
+                    return lines[1].strip(), lines[2].strip()
+                if section == "VIDEOS":
+                    vids = []
+                    for line in lines[1:]:
+                        if "|" in line:
+                            title, url, desc = [x.strip() for x in line.split("|")]
+                            vids.append({"title": title, "url": url, "description": desc})
+                    return vids
+                if section == "MECHANICS":
+                    mechs = []
+                    for line in lines[1:]:
+                        if "|" in line:
+                            name, rating, phone = [x.strip() for x in line.split("|")]
+                            mechs.append({"name": name, "rating": rating, "phone": phone})
+                    return mechs
+                if section == "TIPS":
+                    return [x.strip("- ").strip() for x in lines if x.strip().startswith("-")]
+                return "\n".join(lines[1:]).strip()
+            except Exception as e:
+                logging.warning(f"Parse error for section {section}: {e}")
+                return ""
 
-        def extract(label):
-            import re
-            match = re.search(f"{label}[:\\n\\r]+(.*?)(\\n\\n|$)", content, re.IGNORECASE | re.DOTALL)
-            return match.group(1).strip() if match else f"{label} not found."
-
-        # Real YouTube links (expand as needed)
-        youtube_links = {
-            "P0320": [
-                {
-                    "title": "P0320 Crankshaft Sensor Explained",
-                    "url": "https://www.youtube.com/watch?v=LSxBdj3kKYI"
-                },
-                {
-                    "title": "How to Diagnose & Fix P0320",
-                    "url": "https://www.youtube.com/watch?v=9M1i6F4I6hU"
-                }
-            ],
-            "default": [
-                {
-                    "title": f"OBD2 Code {code} Explanation",
-                    "url": f"https://www.youtube.com/results?search_query=OBD2+code+{code}+explanation"
-                }
-            ]
+        report = {
+            "technical": get("TECHNICAL"),
+            "layman": get("LAYMAN"),
+            "urgency_percent": get("URGENCY")[0],
+            "urgency_label": get("URGENCY")[1],
+            "cost": get("COST"),
+            "consequences": get("CONSEQUENCES"),
+            "tips": get("TIPS"),
+            "diy": get("DIY"),
+            "environment": get("ENVIRONMENT"),
+            "videos": get("VIDEOS"),
+            "mechanics": get("MECHANICS"),
         }
 
-        selected_videos = youtube_links.get(code.upper(), youtube_links["default"])
-
-        return render_template("report.html",
-            name=name,
-            email=email,
-            phone=phone,
-            make=make,
-            model=model,
-            year=year,
-            code=code,
-            urgency_gauge_url="/static/urgency_gauge_placeholder.png",
-            urgency_explanation=extract("Urgency"),
-            technical_explanation=extract("Technical explanation"),
-            layman_explanation=extract("Layman's explanation"),
-            estimated_cost=extract("Estimated repair cost").replace("$", "").replace("CAD", "").strip(),
-            consequences=extract("Consequences"),
-            prevention=extract("Preventative care"),
-            diy=extract("DIY"),
-            environment=extract("Environmental impact"),
-            relationships=extract("Related OBD2 codes"),
-            videos=selected_videos,
-            mechanics=[
-                {"name": "Clover Auto", "url": "https://www.cloverauto.ca", "rating": 4.8},
-                {"name": "Tecumseh Auto Repair", "url": "https://www.tecumsehautorepair.com", "rating": 4.6},
-                {"name": "Auto Clinic Windsor", "url": "https://www.google.com/search?q=auto+clinic+windsor", "rating": 4.7}
-            ]
-        )
-
     except Exception as e:
-        return f"OpenAI API Error: {str(e)}"
+        logging.error("GPT fallback triggered", exc_info=True)
+        report = fallback_report
+
+    return render_template("report.html",
+        generated_date=datetime.now().strftime("%Y-%m-%d %H:%M"),
+        **customer,
+        **vehicle,
+        urgency_percent=report["urgency_percent"],
+        urgency_label=report["urgency_label"],
+        technical_explanation=report["technical"],
+        layman_explanation=report["layman"],
+        repair_cost_cad=report["cost"],
+        consequences=report["consequences"],
+        preventative_tips=report["tips"],
+        diy_potential=report["diy"],
+        environmental_impact=report["environment"],
+        videos=report["videos"],
+        mechanics=report["mechanics"]
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
