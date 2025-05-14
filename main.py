@@ -42,15 +42,30 @@ def report():
     }
     payload = {
         "model": "gpt-4o",
+        "temperature": 0,
         "messages": [
-            {"role": "system", "content": "Return valid JSON with keys: technical_explanation, layman_explanation, urgency_percent, urgency_label, repair_cost_cad, consequences, preventative_tips (list), diy_potential, environmental_impact, video_explanation_url, video_diy_url, video_consequences_url, mechanics (list of {name,rating,phone})"},
-            {"role": "user", "content": f"OBD2 code {vehicle['code']} on a {vehicle['vehicle_year']} {vehicle['vehicle_make']} {vehicle['vehicle_model']}."}
+            {
+                "role": "system",
+                "content": (
+                    "You are a vehicle diagnostic assistant. Return only a valid JSON object. "
+                    "DO NOT include any extra explanation or text. Use these fields exactly: "
+                    "technical_explanation, layman_explanation, urgency_percent, urgency_label, "
+                    "repair_cost_cad, consequences, preventative_tips (list), diy_potential, "
+                    "environmental_impact, video_explanation_url, video_diy_url, "
+                    "video_consequences_url, mechanics (list of {name,rating,phone})."
+                )
+            },
+            {
+                "role": "user",
+                "content": f"OBD2 code {vehicle['code']} on a {vehicle['vehicle_year']} {vehicle['vehicle_make']} {vehicle['vehicle_model']}."
+            }
         ]
     }
 
     try:
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
         content = response.json().get('choices', [{}])[0].get('message', {}).get('content', '{}')
+        logging.info(f"GPT RAW RESPONSE: {content}")
         parsed = json.loads(content)
     except Exception as e:
         logging.error("Error processing OpenAI response", exc_info=True)
