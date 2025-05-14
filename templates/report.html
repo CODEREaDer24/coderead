@@ -1,82 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CodeREAD Report</title>
+  <meta charset="UTF-8">
+  <title>CodeREAD Diagnostic Report</title>
   <style>
-    :root {
-      --yellow: #ffcc00;
-      --black: #0d0d0d;
-      --gray: #1a1a1a;
-      --text: #e0e0e0;
-    }
-
     body {
-      background-color: var(--black);
-      color: var(--text);
-      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: #fff;
     }
-
     .container {
+      padding: 20px;
       max-width: 800px;
-      width: 100%;
-      background-color: var(--gray);
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 25px rgba(255, 204, 0, 0.25);
+      margin: auto;
     }
-
-    h1 {
-      color: var(--yellow);
-      text-align: center;
-      margin-bottom: 1rem;
+    h1, h2 {
+      color: #ff0;
     }
-
     .section {
-      margin-bottom: 1.5rem;
+      margin-bottom: 30px;
     }
-
-    .section h2 {
-      color: var(--yellow);
-      font-size: 1.1rem;
-      border-bottom: 1px solid #333;
-      padding-bottom: 0.3rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .value {
-      font-size: 1rem;
-      margin: 0.25rem 0;
-    }
-
-    .urgency {
-      font-size: 1.6rem;
+    .label {
       font-weight: bold;
-      color: #ffcc00;
-      text-align: center;
-      margin: 1.5rem 0;
+      display: block;
+      margin-bottom: 8px;
     }
-
-    .video-link a {
-      color: var(--yellow);
+    .gauge {
+      width: 100%;
+      height: 40px;
+      background: #333;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .gauge-fill {
+      height: 100%;
+      background: linear-gradient(90deg, green, orange, red);
+      width: {{ urgency_percent }}%;
+    }
+    a {
+      color: #ff0;
       text-decoration: none;
     }
-
-    .video-link a:hover {
+    a:hover {
       text-decoration: underline;
     }
-
-    .footer {
-      margin-top: 2rem;
+    footer {
       text-align: center;
-      font-size: 0.9rem;
-      color: #888;
+      margin-top: 50px;
+      font-size: 0.8em;
+      opacity: 0.7;
     }
   </style>
 </head>
@@ -86,70 +61,81 @@
 
     <div class="section">
       <h2>Customer Info</h2>
-      <div class="value"><strong>Name:</strong> {{ name }}</div>
-      <div class="value"><strong>Email:</strong> {{ email }}</div>
-      <div class="value"><strong>Phone:</strong> {{ phone }}</div>
+      <div><span class="label">Name:</span> {{ customer_name }}</div>
+      <div><span class="label">Email:</span> <a href="mailto:{{ customer_email }}">{{ customer_email }}</a></div>
+      <div><span class="label">Phone:</span> {{ customer_phone }}</div>
     </div>
 
     <div class="section">
       <h2>Vehicle Info</h2>
-      <div class="value"><strong>Make:</strong> {{ vehicle_make }}</div>
-      <div class="value"><strong>Model:</strong> {{ vehicle_model }}</div>
-      <div class="value"><strong>Year:</strong> {{ vehicle_year }}</div>
-      <div class="value"><strong>Code:</strong> {{ code }}</div>
+      <div><span class="label">Make:</span> {{ vehicle_make }}</div>
+      <div><span class="label">Model:</span> {{ vehicle_model }}</div>
+      <div><span class="label">Year:</span> {{ vehicle_year }}</div>
+      <div><span class="label">Code:</span> {{ code }}</div>
     </div>
 
-    <div class="urgency">
-      URGENCY LEVEL: {{ urgency }} / 100
+    <div class="section">
+      <h2>Urgency</h2>
+      <div><strong>{{ urgency_percent }}/100</strong> – {{ urgency_label }}</div>
+      <div class="gauge"><div class="gauge-fill"></div></div>
     </div>
 
     <div class="section">
       <h2>Issue Explanation</h2>
-      <div class="value">{{ explanation }}</div>
+      <div><span class="label">Technical:</span> {{ technical_explanation }}</div>
+      <div><span class="label">Layman:</span> {{ layman_explanation }}</div>
+    </div>
+
+    <div class="section">
+      <h2>Estimated Repair Cost</h2>
+      <div>{{ repair_cost_cad }} CAD</div>
     </div>
 
     <div class="section">
       <h2>Consequences of Ignoring</h2>
-      <div class="value">{{ consequences }}</div>
+      <div>{{ consequences }}</div>
     </div>
 
     <div class="section">
-      <h2>Estimated Repair Cost (CAD)</h2>
-      <div class="value">{{ cost }}</div>
-    </div>
-
-    <div class="section">
-      <h2>Preventative Tips</h2>
-      <div class="value">{{ preventative }}</div>
+      <h2>Preventative Care Tips</h2>
+      <ul>
+        {% for tip in preventative_tips %}
+          <li>{{ tip }}</li>
+        {% endfor %}
+      </ul>
     </div>
 
     <div class="section">
       <h2>DIY Repair Potential</h2>
-      <div class="value">{{ diy }}</div>
+      <div>{{ diy_potential }}</div>
     </div>
 
     <div class="section">
       <h2>Environmental Impact</h2>
-      <div class="value">{{ environment }}</div>
+      <div>{{ environmental_impact }}/100</div>
     </div>
 
     <div class="section">
       <h2>Video Resources</h2>
-      <div class="video-link"><a href="{{ video_explanation }}" target="_blank">Watch: Code Explanation</a></div>
-      <div class="video-link"><a href="{{ video_diy }}" target="_blank">Watch: DIY Repair</a></div>
-      <div class="video-link"><a href="{{ video_consequences }}" target="_blank">Watch: Why This Matters</a></div>
+      <ul>
+        <li><a href="{{ video_explanation_url }}">Code Explanation</a></li>
+        <li><a href="{{ video_diy_url }}">DIY Repair</a></li>
+        <li><a href="{{ video_consequences_url }}">Why This Matters</a></li>
+      </ul>
     </div>
 
     <div class="section">
       <h2>Top Recommended Mechanics</h2>
-      <div class="value">{{ mechanic_1 }}</div>
-      <div class="value">{{ mechanic_2 }}</div>
-      <div class="value">{{ mechanic_3 }}</div>
+      <ul>
+        {% for mech in mechanics %}
+          <li>{{ mech.name }} – {{ mech.rating }} stars – <a href="tel:{{ mech.phone }}">{{ mech.phone }}</a></li>
+        {% endfor %}
+      </ul>
     </div>
 
-    <div class="footer">
-      Generated by CodeREAD AI | <a href="https://read.codes" style="color: var(--yellow);">read.codes</a>
-    </div>
+    <footer>
+      Generated by CodeREAD AI | <a href="https://read.codes/">read.codes</a>
+    </footer>
   </div>
 </body>
 </html>
