@@ -116,11 +116,13 @@ Name | Rating | Phone
         content = response.json()['choices'][0]['message']['content']
         parsed = extract_sections(content)
 
+        urgency_lines = parsed["URGENCY"].splitlines()
+
         report = {
             "technical": parsed["TECHNICAL"].strip(),
             "layman": parsed["LAYMAN"].strip(),
-            "urgency_percent": parsed["URGENCY"].splitlines()[0].strip(),
-            "urgency_label": parsed["URGENCY"].splitlines()[1].strip(),
+            "urgency_percent": urgency_lines[0].strip() if len(urgency_lines) > 0 else "0",
+            "urgency_label": urgency_lines[1].strip() if len(urgency_lines) > 1 else "Unknown",
             "cost": parsed["COST"].strip(),
             "consequences": parsed["CONSEQUENCES"].strip(),
             "tips": [t.strip("- ").strip() for t in parsed["TIPS"].splitlines() if t.strip()],
