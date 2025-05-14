@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
 from flask import Flask, render_template, request
 import logging
 import requests
-import json
 import os
+import json
 from datetime import datetime
 
 app = Flask(__name__)
@@ -10,107 +11,110 @@ logging.basicConfig(level=logging.INFO)
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-def clean_url(url):
-    if not isinstance(url, str):
-        return '#'
-    url = url.strip().split()[0].rstrip('.')
-    return url if url.startswith('http') else '#'
+def validate_url(url):
+    return url.startswith("https://") and "youtube.com" in url
 
-@app.route("/", methods=["GET"])
-def index():
-    return render_template("index.html")
-
-@app.route("/report", methods=["POST"])
+@app.route('/report', methods=['POST'])
 def report():
     data = request.form.to_dict()
 
     customer = {
-        'customer_name': data.get('name', 'N/A'),
-        'customer_email': data.get('email', 'N/A'),
-        'customer_phone': data.get('phone', 'N/A')
+        "customer_name": data.get("name", "N/A"),
+        "customer_email": data.get("email", "N/A"),
+        "customer_phone": data.get("phone", "")
     }
     vehicle = {
-        'vehicle_make': data.get('make', '').capitalize(),
-        'vehicle_model': data.get('model', '').upper(),
-        'vehicle_year': data.get('year', ''),
-        'code': data.get('code', '').upper()
+        "vehicle_make": data.get("make", "").capitalize(),
+        "vehicle_model": data.get("model", "").upper(),
+        "vehicle_year": data.get("year", ""),
+        "code": data.get("code", "").upper()
     }
 
+    prompt = f"""
+You are an AI assistant for an automotive diagnostics app.
+
+Return JSON with:
+- technical_explanation
+- layman_explanation
+- urgency_percent
+- urgency_label
+- repair_cost_cad
+- consequences
+- preventative_tips (list)
+- diy_potential
+- environmental_impact (score or sentence)
+- videos (list of title, url, description)
+- mechanics (list of name, rating, phone)
+
+OBD2 Code: {vehicle['code']}
+Vehicle: {vehicle['vehicle_year']} {vehicle['vehicle_make']} {vehicle['vehicle_model']}
+"""
+
     headers = {
-        'Authorization': f'Bearer {OPENAI_API_KEY}',
-        'Content-Type': 'application/json'
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json"
     }
+
     payload = {
-        "model": "gpt-4o",
-        "temperature": 0,
+        "model": "gpt-4o-mini",
         "messages": [
-            {
-                "role": "system",
-                "content": (
-                    "You are a vehicle diagnostic assistant. Return only a valid JSON object. "
-                    "DO NOT include any extra explanation or text. Use these fields exactly: "
-                    "technical_explanation, layman_explanation, urgency_percent, urgency_label, "
-                    "repair_cost_cad, consequences, preventative_tips (list), diy_potential, "
-                    "environmental_impact, video_explanation_url, video_diy_url, "
-                    "video_consequences_url, mechanics (list of {name,rating,phone})."
-                )
-            },
-            {
-                "role": "user",
-                "content": f"OBD2 code {vehicle['code']} on a {vehicle['vehicle_year']} {vehicle['vehicle_make']} {vehicle['vehicle_model']}."
-            }
+            {"role": "system", "content": "You are a JSON-generating diagnostics AI."},
+            {"role": "user", "content": prompt}
         ]
     }
 
     try:
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-        content = response.json().get('choices', [{}])[0].get('message', {}).get('content', '{}')
-        logging.info(f"GPT RAW RESPONSE: {content}")
-        parsed = json.loads(content)
+        resp = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
+        content = resp.json().get("choices", [{}])[0].get("message", {}).get("content", "{}")
+        analysis = json.loads(content)
     except Exception as e:
-        logging.error("Error processing OpenAI response", exc_info=True)
-        parsed = {}
+        logging.error("OpenAI API or JSON parsing failed", exc_info=True)
+        analysis = {}
 
-    defaults = {
-        "technical_explanation": "Not available.",
-        "layman_explanation": "Not available.",
-        "urgency_percent": 0,
-        "urgency_label": "Unknown",
-        "repair_cost_cad": "N/A",
-        "consequences": "N/A",
-        "preventative_tips": [],
-        "diy_potential": "N/A",
-        "environmental_impact": 0,
-        "video_explanation_url": "#",
-        "video_diy_url": "#",
-        "video_consequences_url": "#",
-        "mechanics": []
-    }
-    for key, fallback in defaults.items():
-        if key not in parsed or parsed[key] in [None, "", []]:
-            parsed[key] = fallback
+    urgency = int(analysis.get("urgency_percent", 0))
+    label = analysis.get("urgency_label", "Unknown")
+    tech = analysis.get("technical_explanation", "No data")
+    lay = analysis.get("layman_explanation", "No data")
+    cost = analysis.get("repair_cost_cad", "0")
+    cons = analysis.get("consequences", "None specified")
+    tips = analysis.get("preventative_tips", [])
+    diy = analysis.get("diy_potential", "Not recommended")
+    env = analysis.get("environmental_impact", "Not assessed")
 
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    videos = []
+    for video in analysis.get("videos", []):
+        if validate_url(video.get("url", "")):
+            videos.append({
+                "title": video.get("title", "Video"),
+                "url": video.get("url"),
+                "description": video.get("description", "")
+            })
 
-    return render_template(
-        "report.html",
+    fallback_mechanics = [
+        {"name": "Clover Auto", "rating": "4.7", "phone": "519-555-1234"},
+        {"name": "Tecumseh Auto Repair", "rating": "4.6", "phone": "519-555-5678"}
+    ]
+    gpt_mechanics = analysis.get("mechanics", [])
+    mechanics = fallback_mechanics + [
+        m for m in gpt_mechanics if m.get("name") not in [fm["name"] for fm in fallback_mechanics]
+    ]
+
+    return render_template("report.html",
+        generated_date=datetime.now().strftime("%Y-%m-%d %H:%M"),
         **customer,
         **vehicle,
-        technical_explanation=parsed["technical_explanation"],
-        layman_explanation=parsed["layman_explanation"],
-        urgency_percent=parsed["urgency_percent"],
-        urgency_label=parsed["urgency_label"],
-        repair_cost_cad=parsed["repair_cost_cad"],
-        consequences=parsed["consequences"],
-        preventative_tips=parsed["preventative_tips"],
-        diy_potential=parsed["diy_potential"],
-        environmental_impact=parsed["environmental_impact"],
-        video_explanation_url=clean_url(parsed["video_explanation_url"]),
-        video_diy_url=clean_url(parsed["video_diy_url"]),
-        video_consequences_url=clean_url(parsed["video_consequences_url"]),
-        mechanics=parsed["mechanics"],
-        timestamp=timestamp
+        urgency_percent=urgency,
+        urgency_label=label,
+        technical_explanation=tech,
+        layman_explanation=lay,
+        repair_cost_cad=cost,
+        consequences=cons,
+        preventative_tips=tips,
+        diy_potential=diy,
+        environmental_impact=env,
+        videos=videos,
+        mechanics=mechanics
     )
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
