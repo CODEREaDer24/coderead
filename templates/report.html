@@ -1,96 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CodeREAD Diagnostic Form</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #0d0d0d;
-      color: #ffffff;
-      padding: 30px;
-    }
-    h1 {
-      color: #ff0;
-      text-align: center;
-    }
-    form {
-      max-width: 600px;
-      margin: 30px auto;
-      background-color: #1a1a1a;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #000;
-    }
-    .form-section {
-      margin-bottom: 30px;
-    }
-    .form-section h2 {
-      color: #ff0;
-      border-bottom: 1px solid #333;
-      margin-bottom: 15px;
-      padding-bottom: 5px;
-      font-size: 1.2rem;
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      color: #ccc;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      background-color: #000;
-      color: #fff;
-      border: 1px solid #555;
-      border-radius: 5px;
-      font-size: 1rem;
-    }
-    input:focus {
-      outline: 2px solid #ff0;
-    }
-    button {
-      width: 100%;
-      background-color: #ff0;
-      color: #000;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #e6e600;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>CodeREAD Diagnostic Report</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #FFD700;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: auto;
+            padding: 30px 20px;
+            background-color: #111;
+            border-radius: 10px;
+        }
+
+        h1 {
+            color: #FFD700;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            color: #FFA500;
+            border-bottom: 2px solid #FFD700;
+            padding-bottom: 5px;
+        }
+
+        .data {
+            font-weight: bold;
+            color: #FFEB3B;
+        }
+
+        .urgency-gauge {
+            width: 100%;
+            margin: 20px auto;
+            display: block;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            font-family: monospace;
+            background-color: #222;
+            padding: 10px;
+            border-radius: 5px;
+            color: #FFF;
+        }
+
+        a {
+            color: #00BFFF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .divider {
+            border-top: 1px solid #FFD700;
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
-  <h1>CodeREAD Diagnostic Input</h1>
-  <form action="/report" method="POST">
-    <div class="form-section">
-      <h2>Customer Info</h2>
-      <label for="name">Full Name *</label>
-      <input type="text" name="name" id="name" required />
-      <label for="email">Email *</label>
-      <input type="email" name="email" id="email" required />
-      <label for="phone">Phone (optional)</label>
-      <input type="tel" name="phone" id="phone" />
+    <div class="container">
+        <h1>CodeREAD Diagnostic Report</h1>
+
+        <div class="section">
+            <h2>Customer Info</h2>
+            <p><span class="data">Name:</span> {{ name }}</p>
+            <p><span class="data">Email:</span> {{ email }}</p>
+            {% if phone %}
+            <p><span class="data">Phone:</span> {{ phone }}</p>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <h2>Vehicle Info</h2>
+            <p><span class="data">Make:</span> {{ make }}</p>
+            <p><span class="data">Model:</span> {{ model }}</p>
+            <p><span class="data">Year:</span> {{ year }}</p>
+            <p><span class="data">Diagnostic Code:</span> {{ code }}</p>
+        </div>
+
+        <div class="section">
+            <h2>Urgency Level</h2>
+            <img src="{{ urgency_gauge_url }}" alt="Urgency Gauge" class="urgency-gauge">
+            <p>{{ urgency_explanation }}</p>
+        </div>
+
+        <div class="section">
+            <h2>Technical Explanation</h2>
+            <pre>{{ technical_explanation }}</pre>
+        </div>
+
+        <div class="section">
+            <h2>Layman’s Explanation</h2>
+            <pre>{{ layman_explanation }}</pre>
+        </div>
+
+        <div class="section">
+            <h2>Estimated Repair Cost</h2>
+            <p>${{ estimated_cost }} CAD</p>
+        </div>
+
+        <div class="section">
+            <h2>Consequences of Ignoring</h2>
+            <pre>{{ consequences }}</pre>
+        </div>
+
+        <div class="section">
+            <h2>Preventative Care Tips</h2>
+            <pre>{{ prevention }}</pre>
+        </div>
+
+        <div class="section">
+            <h2>DIY Repair Potential</h2>
+            <pre>{{ diy }}</pre>
+        </div>
+
+        <div class="section">
+            <h2>Environmental Impact</h2>
+            <pre>{{ environment }}</pre>
+        </div>
+
+        <div class="section">
+            <h2>Interrelated Codes</h2>
+            <pre>{{ relationships }}</pre>
+        </div>
+
+        <div class="section">
+            <h2>Helpful Videos</h2>
+            <ul>
+                {% for video in videos %}
+                    <li><a href="{{ video.url }}" target="_blank">{{ video.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Recommended Mechanics</h2>
+            <ul>
+                {% for mechanic in mechanics %}
+                    <li><a href="{{ mechanic.url }}" target="_blank">{{ mechanic.name }} – {{ mechanic.rating }} stars</a></li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    <div class="form-section">
-      <h2>Vehicle Info</h2>
-      <label for="make">Vehicle Make *</label>
-      <input type="text" name="make" id="make" required />
-      <label for="model">Vehicle Model *</label>
-      <input type="text" name="model" id="model" required />
-      <label for="year">Vehicle Year *</label>
-      <input type="number" name="year" id="year" required />
-      <label for="code">OBD2 Code *</label>
-      <input type="text" name="code" id="code" required />
-    </div>
-    <button type="submit">Generate Report</button>
-  </form>
 </body>
 </html>
