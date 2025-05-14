@@ -14,6 +14,10 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 def validate_url(url):
     return url.startswith("https://") and "youtube.com" in url
 
+@app.route('/')
+def form():
+    return render_template("form.html")
+
 @app.route('/report', methods=['POST'])
 def report():
     data = request.form.to_dict()
