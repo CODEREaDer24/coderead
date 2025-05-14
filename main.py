@@ -146,6 +146,10 @@ Name | Rating | Phone
             ]
         }
 
+        # Force fallback if essential fields are missing
+        if not report["technical"] or not report["layman"] or report["urgency_percent"] == "0":
+            raise ValueError("Empty or invalid GPT data — forcing fallback")
+
     except Exception as e:
         logging.error("GPT fallback triggered", exc_info=True)
         report = {
