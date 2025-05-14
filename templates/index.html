@@ -1,58 +1,91 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>CodeREAD Diagnostic Report</title>
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#cc0000">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeREAD – Vehicle Code Diagnostic</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
       background: #fff;
-      color: #333;
-      padding: 40px;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     h1 {
-      color: #cc0000;
       text-align: center;
-      margin-bottom: 40px;
+      color: #333;
+      margin-bottom: 0.5em;
     }
-    .section {
-      margin-bottom: 30px;
+    p.description {
+      text-align: center;
+      color: #555;
+      margin-bottom: 1.5em;
     }
-    .label {
+    label {
+      display: block;
+      margin: 0.5em 0 0.2em;
       font-weight: bold;
-      margin-bottom: 5px;
     }
-    .value {
-      margin-left: 10px;
+    input {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
-    .analysis {
-      background: #f4f4f4;
-      border-left: 4px solid #cc0000;
-      padding: 20px;
-      white-space: pre-wrap;
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: #0066cc;
+      color: #fff;
+      font-size: 1em;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005bb5;
     }
   </style>
 </head>
 <body>
-  <h1>CodeREAD Vehicle Diagnostic Report</h1>
+  <div class="container">
+    <h1>CodeREAD Diagnostic Form</h1>
+    <p class="description">Enter your vehicle details and trouble code to get a diagnostic report.</p>
+    <form action="{{ url_for('report') }}" method="post">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required />
 
-  <div class="section"><span class="label">Customer Name:</span><span class="value">{{ name }}</span></div>
-  <div class="section"><span class="label">Vehicle:</span><span class="value">{{ vehicle }}</span></div>
-  <div class="section"><span class="label">OBD2 Code:</span><span class="value">{{ code }}</span></div>
-  <div class="section"><span class="label">Email:</span><span class="value">{{ email }}</span></div>
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required />
 
-  <div class="section">
-    <div class="label">AI Diagnostic Analysis:</div>
-    <div class="analysis">{{ analysis }}</div>
+      <label for="phone">Phone</label>
+      <input type="tel" id="phone" name="phone" required />
+
+      <label for="make">Vehicle Make</label>
+      <input type="text" id="make" name="make" required />
+
+      <label for="model">Vehicle Model</label>
+      <input type="text" id="model" name="model" required />
+
+      <label for="year">Vehicle Year</label>
+      <input type="number" id="year" name="year" min="1886" max="2030" required />
+
+      <label for="code">Diagnostic Code</label>
+      <input type="text" id="code" name="code" placeholder="e.g. P0420" required />
+
+      <button type="submit">Get Report</button>
+    </form>
   </div>
-
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/static/sw.js')
-        .then(reg => console.log("Service Worker registered:", reg))
-        .catch(err => console.error("Service Worker error:", err));
-    }
-  </script>
 </body>
 </html>
