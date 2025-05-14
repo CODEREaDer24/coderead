@@ -31,16 +31,6 @@
       border-radius: 10px;
       box-shadow: 0 0 10px #000;
     }
-    .form-section {
-      margin-bottom: 30px;
-    }
-    .form-section h2 {
-      color: #ff0;
-      border-bottom: 1px solid #333;
-      margin-bottom: 15px;
-      padding-bottom: 5px;
-      font-size: 1.2rem;
-    }
     label {
       display: block;
       margin-bottom: 6px;
@@ -90,32 +80,26 @@
   {% endif %}
 
   <form action="/report" method="POST">
-    <div class="form-section">
-      <h2>Customer Info</h2>
-      <label for="name">Full Name *</label>
-      <input type="text" name="name" id="name" required />
+    <label for="name">Full Name *</label>
+    <input type="text" name="name" id="name" required />
 
-      <label for="email">Email *</label>
-      <input type="email" name="email" id="email" required />
+    <label for="email">Email *</label>
+    <input type="email" name="email" id="email" required />
 
-      <label for="phone">Phone (optional)</label>
-      <input type="tel" name="phone" id="phone" />
-    </div>
+    <label for="phone">Phone (optional)</label>
+    <input type="tel" name="phone" id="phone" />
 
-    <div class="form-section">
-      <h2>Vehicle Info</h2>
-      <label for="make">Vehicle Make *</label>
-      <input type="text" name="make" id="make" required />
+    <label for="make">Vehicle Make *</label>
+    <input type="text" name="make" id="make" required />
 
-      <label for="model">Vehicle Model *</label>
-      <input type="text" name="model" id="model" required />
+    <label for="model">Vehicle Model *</label>
+    <input type="text" name="model" id="model" required />
 
-      <label for="year">Vehicle Year *</label>
-      <input type="number" name="year" id="year" required />
+    <label for="year">Vehicle Year *</label>
+    <input type="number" name="year" id="year" required />
 
-      <label for="code">OBD2 Code *</label>
-      <input type="text" name="code" id="code" required />
-    </div>
+    <label for="code">OBD2 Code *</label>
+    <input type="text" name="code" id="code" required />
 
     <button type="submit">Generate Report</button>
     <button type="button" class="autofill" onclick="fillDemoData()">Autofill Sample Data</button>
