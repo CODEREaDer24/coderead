@@ -61,36 +61,63 @@
       font-weight: bold;
       font-size: 1rem;
       cursor: pointer;
+      margin-top: 10px;
     }
     button:hover {
       background-color: #e6e600;
+    }
+    .autofill {
+      background-color: #333;
+      color: #fff;
+      margin-bottom: 15px;
     }
   </style>
 </head>
 <body>
   <h1>CodeREAD Diagnostic Input</h1>
+  
   <form action="/report" method="POST">
     <div class="form-section">
       <h2>Customer Info</h2>
       <label for="name">Full Name *</label>
       <input type="text" name="name" id="name" required />
+
       <label for="email">Email *</label>
       <input type="email" name="email" id="email" required />
+
       <label for="phone">Phone (optional)</label>
       <input type="tel" name="phone" id="phone" />
     </div>
+
     <div class="form-section">
       <h2>Vehicle Info</h2>
       <label for="make">Vehicle Make *</label>
       <input type="text" name="make" id="make" required />
+
       <label for="model">Vehicle Model *</label>
       <input type="text" name="model" id="model" required />
+
       <label for="year">Vehicle Year *</label>
       <input type="number" name="year" id="year" required />
+
       <label for="code">OBD2 Code *</label>
       <input type="text" name="code" id="code" required />
     </div>
+
     <button type="submit">Generate Report</button>
+    <button type="button" class="autofill" onclick="fillDemoData()">Autofill Sample Data</button>
   </form>
+
+  <script>
+    function fillDemoData() {
+      document.getElementById("name").value = "Mike Moody";
+      document.getElementById("email").value = "test@coderead.ca";
+      document.getElementById("phone").value = "5191234567";
+      document.getElementById("make").value = "Ford";
+      document.getElementById("model").value = "F150";
+      document.getElementById("year").value = "2010";
+      document.getElementById("code").value = "P0320";
+    }
+  </script>
 </body>
 </html>
