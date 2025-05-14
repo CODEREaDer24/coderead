@@ -1,4 +1,4 @@
-DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -7,103 +7,97 @@ DOCTYPE html>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 20px;
+      background-color: #0d0d0d;
+      color: #ffffff;
+      padding: 30px;
     }
     h1 {
       color: #ff0;
       text-align: center;
     }
     form {
-      max-width: 800px;
-      margin: auto;
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #1a1a1a;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
     }
-    fieldset {
-      border: 1px solid #444;
-      margin-bottom: 20px;
-      padding: 15px;
-      border-radius: 6px;
+    .form-section {
+      margin-bottom: 30px;
     }
-    legend {
+    .form-section h2 {
       color: #ff0;
-      font-weight: bold;
-      padding: 0 10px;
-    }
-    .form-group {
-      display: flex;
-      flex-wrap: wrap;
+      border-bottom: 1px solid #333;
       margin-bottom: 15px;
+      padding-bottom: 5px;
+      font-size: 1.2rem;
     }
-    .form-group label {
-      flex: 1 1 200px;
-      margin-right: 10px;
-      margin-bottom: 5px;
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #ccc;
     }
-    .form-group input {
-      flex: 2 1 300px;
-      padding: 8px;
-      background: #000;
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      background-color: #000;
       color: #fff;
       border: 1px solid #555;
-      border-radius: 4px;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    input:focus {
+      outline: 2px solid #ff0;
     }
     button {
-      background: #ff0;
+      width: 100%;
+      background-color: #ff0;
       color: #000;
+      padding: 12px;
       border: none;
-      padding: 10px 20px;
+      border-radius: 6px;
       font-weight: bold;
-      border-radius: 4px;
+      font-size: 1rem;
       cursor: pointer;
-      display: block;
-      margin: 20px auto 0;
     }
     button:hover {
-      background: #e6e600;
+      background-color: #e6e600;
     }
   </style>
 </head>
 <body>
   <h1>CodeREAD Diagnostic Input</h1>
   <form action="/report" method="POST">
-    <fieldset>
-      <legend>Customer Info</legend>
-      <div class="form-group">
-        <label for="name">Full Name *</label>
-        <input type="text" name="name" id="name" required />
-      </div>
-      <div class="form-group">
-        <label for="email">Email *</label>
-        <input type="email" name="email" id="email" required />
-      </div>
-      <div class="form-group">
-        <label for="phone">Phone *</label>
-        <input type="tel" name="phone" id="phone" required />
-      </div>
-    </fieldset>
+    <div class="form-section">
+      <h2>Customer Info</h2>
+      <label for="name">Full Name *</label>
+      <input type="text" name="name" id="name" required />
 
-    <fieldset>
-      <legend>Vehicle Info</legend>
-      <div class="form-group">
-        <label for="make">Make *</label>
-        <input type="text" name="make" id="make" required />
-      </div>
-      <div class="form-group">
-        <label for="model">Model *</label>
-        <input type="text" name="model" id="model" required />
-      </div>
-      <div class="form-group">
-        <label for="year">Year *</label>
-        <input type="number" name="year" id="year" required />
-      </div>
-      <div class="form-group">
-        <label for="code">OBD2 Code *</label>
-        <input type="text" name="code" id="code" required />
-      </div>
-    </fieldset>
+      <label for="email">Email *</label>
+      <input type="email" name="email" id="email" required />
+
+      <label for="phone">Phone (optional)</label>
+      <input type="tel" name="phone" id="phone" />
+    </div>
+
+    <div class="form-section">
+      <h2>Vehicle Info</h2>
+      <label for="make">Vehicle Make *</label>
+      <input type="text" name="make" id="make" required />
+
+      <label for="model">Vehicle Model *</label>
+      <input type="text" name="model" id="model" required />
+
+      <label for="year">Vehicle Year *</label>
+      <input type="number" name="year" id="year" required />
+
+      <label for="code">OBD2 Code *</label>
+      <input type="text" name="code" id="code" required />
+    </div>
 
     <button type="submit">Generate Report</button>
+  </form>
+</body>
+</html>
