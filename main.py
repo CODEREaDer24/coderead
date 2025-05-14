@@ -77,7 +77,7 @@ Vehicle: {vehicle['vehicle_year']} {vehicle['vehicle_make']} {vehicle['vehicle_m
         analysis = json.loads(content)
     except Exception as e:
         logging.error("Failed to parse OpenAI response", exc_info=True)
-        analysis = {}
+        return render_template("form.html", error="OpenAI failed to generate a response. Please check your API key or try again later.")
 
     urgency = int(analysis.get("urgency_percent", 0))
     label = analysis.get("urgency_label", "Unknown")
