@@ -45,9 +45,9 @@ Only include accurate and complete information.
 Customer Name: {customer_name}
 """
 
-        # Call OpenAI
+        # Call OpenAI (downgraded to gpt-3.5-turbo)
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             timeout=20
