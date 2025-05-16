@@ -1,120 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CodeREAD Diagnostic Form</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #0d0d0d;
-      color: #ffffff;
-      padding: 30px;
-    }
-    h1 {
-      color: #ff0;
-      text-align: center;
-    }
-    .error-box {
-      background: #660000;
-      padding: 12px;
-      color: #fff;
-      text-align: center;
-      border-radius: 6px;
-      margin-bottom: 20px;
-    }
-    form {
-      max-width: 600px;
-      margin: 30px auto;
-      background-color: #1a1a1a;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #000;
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      color: #ccc;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      background-color: #000;
-      color: #fff;
-      border: 1px solid #555;
-      border-radius: 5px;
-      font-size: 1rem;
-    }
-    input:focus {
-      outline: 2px solid #ff0;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    button[type="submit"] {
-      background-color: #ff0;
-      color: #000;
-    }
-    button.autofill {
-      background-color: #444;
-      color: #fff;
-    }
-    button:hover {
-      opacity: 0.9;
-    }
-  </style>
+    <title>CodeREAD Diagnostic Form</title>
+    <style>
+        body {
+            background-color: #111;
+            color: #fdd835;
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+        }
+        input, select, button {
+            display: block;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            width: 100%;
+            max-width: 400px;
+        }
+    </style>
 </head>
 <body>
-  <h1>CodeREAD Diagnostic Input</h1>
-
-  {% if error %}
-    <div class="error-box">{{ error }}</div>
-  {% endif %}
-
-  <form action="/report" method="POST">
-    <label for="name">Full Name *</label>
-    <input type="text" name="name" id="name" required />
-
-    <label for="email">Email *</label>
-    <input type="email" name="email" id="email" required />
-
-    <label for="phone">Phone (optional)</label>
-    <input type="tel" name="phone" id="phone" />
-
-    <label for="make">Vehicle Make *</label>
-    <input type="text" name="make" id="make" required />
-
-    <label for="model">Vehicle Model *</label>
-    <input type="text" name="model" id="model" required />
-
-    <label for="year">Vehicle Year *</label>
-    <input type="number" name="year" id="year" required />
-
-    <label for="code">OBD2 Code *</label>
-    <input type="text" name="code" id="code" required />
-
-    <button type="submit">Generate Report</button>
-    <button type="button" class="autofill" onclick="fillDemoData()">Autofill Sample Data</button>
-  </form>
-
-  <script>
-    function fillDemoData() {
-      document.getElementById("name").value = "Mike Moody";
-      document.getElementById("email").value = "test@coderead.ca";
-      document.getElementById("phone").value = "5191234567";
-      document.getElementById("make").value = "Ford";
-      document.getElementById("model").value = "F150";
-      document.getElementById("year").value = "2010";
-      document.getElementById("code").value = "P0320";
-    }
-  </script>
+    <h1>Submit Your Vehicle Info</h1>
+    <form method="POST" action="/report">
+        <input type="text" name="name" placeholder="Customer Name" required>
+        <input type="text" name="make" placeholder="Vehicle Make" required>
+        <input type="text" name="model" placeholder="Vehicle Model" required>
+        <input type="text" name="year" placeholder="Vehicle Year" required>
+        <input type="text" name="code" placeholder="OBD2 Diagnostic Code (e.g., P0420)" required>
+        <button type="submit">Generate Report</button>
+    </form>
 </body>
 </html>
