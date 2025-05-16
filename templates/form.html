@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CodeREAD Diagnostic Form</title>
+    <title>CodeREAD Multi-Code Diagnostic Generator</title>
+    <meta charset="UTF-8">
     <style>
         body {
             background-color: #111;
@@ -9,24 +10,39 @@
             font-family: Arial, sans-serif;
             padding: 2rem;
         }
-        input, select, button {
+        input, textarea, button {
             display: block;
             margin: 1rem 0;
-            padding: 0.5rem;
+            padding: 0.75rem;
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
+            background-color: #222;
+            border: 1px solid #fdd835;
+            color: #fdd835;
+        }
+        button {
+            background-color: #fdd835;
+            color: #111;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <h1>Submit Your Vehicle Info</h1>
-    <form method="POST" action="/report">
-        <input type="text" name="name" placeholder="Customer Name" required>
-        <input type="text" name="make" placeholder="Vehicle Make" required>
-        <input type="text" name="model" placeholder="Vehicle Model" required>
-        <input type="text" name="year" placeholder="Vehicle Year" required>
-        <input type="text" name="code" placeholder="OBD2 Diagnostic Code (e.g., P0420)" required>
+    <h1>CodeREAD Multi-Code Diagnostic</h1>
+
+    <form id="reportForm" method="POST" action="/report">
+        <input type="text" name="name" value="Mike Moody" required>
+        <input type="text" name="make" value="Ford" required>
+        <input type="text" name="model" value="F150" required>
+        <input type="text" name="year" value="2010" required>
+        <textarea name="codes" required placeholder="Enter one or more codes (e.g., P0420, P0301, P0171)">P0420, P0171</textarea>
         <button type="submit">Generate Report</button>
     </form>
+
+    <script>
+        // Auto-submit if you want fast generation:
+        // window.onload = () => document.getElementById('reportForm').submit();
+    </script>
 </body>
 </html>
