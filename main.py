@@ -10,13 +10,13 @@ from email.message import EmailMessage
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Email credentials (use environment vars on Render)
+# Email credentials (Render environment vars or .env)
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 logging.basicConfig(level=logging.INFO)
 
-# Store last report for download
+# Globals for latest report
 last_report_text = ""
 last_diagnostic_code = ""
 last_pdf_path = ""
@@ -40,10 +40,14 @@ def report():
         codes = [c.strip().upper() for c in codes_raw.split(',') if c.strip()]
         last_diagnostic_code = codes[0] if codes else 'P0000'
 
+        print("DEBUG -- Name:", name)
+        print("DEBUG -- Email:", last_email)
+        print("DEBUG -- Codes:", codes)
+
         if not codes:
             raise ValueError("No valid codes provided")
 
-        # Prompt GPT
+        # GPT Prompt
         prompt = f"""
 You are CodeREAD, an expert AI diagnostic assistant. The customer provided:
 Vehicle: {year} {make} {model}
@@ -64,16 +68,27 @@ For each code, provide:
 Then summarize how these codes might be related.
 """
 
+        print("DEBUG -- Prompt sent to GPT:", prompt)
+
+        # --- Uncomment for live GPT ---
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7
         )
-
         gpt_output = response['choices'][0]['message']['content'].strip()
+
+        # --- Uncomment for testing without GPT ---
+        # gpt_output = f"""This is a TEST CodeREAD report for {year} {make} {model} with code(s) {', '.join(codes)}."""
+
+        print("DEBUG -- GPT Output:", gpt_output)
+
+        if not gpt_output:
+            raise ValueError("GPT returned empty response")
+
         last_report_text = gpt_output
 
-        # Build PDF with branding
+        # Create PDF
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", 'B', 16)
@@ -82,14 +97,13 @@ Then summarize how these codes might be related.
         pdf.set_font("Arial", '', 12)
         pdf.set_text_color(255, 255, 255)
         pdf.set_fill_color(30, 30, 30)
-        pdf.set_draw_color(253, 216, 53)
 
         lines = gpt_output.split('\n')
         for line in lines:
             if line.strip():
-                pdf.multi_cell(0, 10, line, border=0)
+                pdf.multi_cell(0, 10, line)
 
-        # Helpful links section
+        # Helpful Links
         pdf.ln(5)
         pdf.set_font("Arial", 'B', 14)
         pdf.set_text_color(253, 216, 53)
@@ -107,20 +121,19 @@ Then summarize how these codes might be related.
         for label, url in links:
             pdf.cell(0, 10, label, ln=True, link=url)
 
-        # Save PDF
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
         pdf.output(temp_file.name)
         last_pdf_path = temp_file.name
 
-        # Email the report
         if EMAIL_SENDER and EMAIL_PASSWORD:
             send_email_with_pdf(name, last_email, temp_file.name)
 
         return render_template('report.html', report=gpt_output, diagnostic_code=code, error=None)
 
     except Exception as e:
-        logging.error("Error in report generation: %s", str(e))
-        return render_template('report.html', report=None, error="Something went wrong while generating the report.")
+        error_msg = f"Error generating report: {str(e)}"
+        logging.error(error_msg)
+        return render_template('report.html', report=None, error=error_msg)
 
 @app.route('/download-pdf')
 def download_pdf():
@@ -134,7 +147,7 @@ def send_email_with_pdf(name, to_email, pdf_path):
         msg['Subject'] = f"Your CodeREAD Diagnostic Report"
         msg['From'] = EMAIL_SENDER
         msg['To'] = to_email
-        msg.set_content(f"Hi {name},\n\nYour CodeREAD diagnostic report is attached as a PDF.\n\nThanks,\nThe CodeREAD Team")
+        msg.set_content(f"Hi {name},\n\nYour CodeREAD diagnostic report is attached.\n\n- CodeREAD")
 
         with open(pdf_path, 'rb') as f:
             msg.add_attachment(f.read(), maintype='application', subtype='pdf', filename="CodeREAD_Report.pdf")
