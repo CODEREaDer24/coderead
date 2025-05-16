@@ -1,198 +1,133 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CodeREAD Diagnostic Generator</title>
+    <title>CodeREAD Report</title>
     <meta charset="UTF-8">
     <style>
         body {
             background-color: #0d0d0d;
             color: #fdd835;
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             padding: 2rem;
+            white-space: pre-wrap;
         }
 
         h1 {
             font-size: 2.5rem;
-            color: #fdd835;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
         }
 
-        .subtitle {
-            font-size: 1.1rem;
-            color: #ccc;
-            margin-bottom: 2rem;
-        }
-
-        .about {
+        .report-section {
             background-color: #1a1a1a;
             padding: 1.5rem;
             border: 1px solid #fdd835;
             border-radius: 8px;
             margin-bottom: 2rem;
-            line-height: 1.5;
         }
 
-        form input, form textarea, form button {
-            display: block;
-            margin: 1rem 0;
-            padding: 0.75rem;
-            width: 100%;
-            max-width: 500px;
-            background-color: #1a1a1a;
-            border: 1px solid #fdd835;
-            color: #fdd835;
-            font-size: 1rem;
+        .error {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 1rem;
         }
 
-        button {
+        a.button {
+            display: inline-block;
+            padding: 0.75rem 1.25rem;
             background-color: #fdd835;
             color: #0d0d0d;
+            text-decoration: none;
             font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
+            border-radius: 6px;
+            margin-top: 2rem;
         }
 
-        button:hover {
+        a.button:hover {
             background-color: #ffe95a;
-        }
-
-        .autofill-btn {
-            margin-top: -0.5rem;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-            background-color: transparent;
-            border: none;
-            color: #fdd835;
-            text-decoration: underline;
-            cursor: pointer;
         }
 
         .urgency-gauge {
-            margin-top: 2rem;
-            padding: 1rem;
+            margin: 2rem 0;
             text-align: center;
-            font-size: 0.95rem;
-            color: #aaa;
         }
 
-        .appointment {
-            margin-top: 3rem;
-            text-align: left;
+        .urgency-gauge svg {
+            max-width: 400px;
         }
 
-        .appointment a, .appointment button {
-            background-color: #fdd835;
-            color: #0d0d0d;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-block;
-            border: none;
-        }
-
-        .appointment a:hover, .appointment button:hover {
-            background-color: #ffe95a;
-        }
-
-        #modal {
-            display: none;
-            position: fixed;
-            z-index: 999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-        }
-
-        #modal iframe {
-            width: 80%;
-            height: 80%;
-            border: none;
-            margin: 5% auto;
-            display: block;
-        }
-
-        #modal .close {
-            position: absolute;
-            top: 20px;
-            right: 40px;
-            font-size: 2rem;
+        .report-links a {
             color: #fdd835;
-            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .report-links a:hover {
+            color: #ffe95a;
+        }
+
+        .mechanics {
+            margin-top: 2rem;
+        }
+
+        .mechanics h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mechanics ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .mechanics li {
+            margin-bottom: 0.75rem;
         }
     </style>
 </head>
 <body>
-    <h1>CodeREAD</h1>
-    <div class="subtitle">AI-powered check engine diagnostics in seconds</div>
+    <h1>CodeREAD Diagnostic Report</h1>
 
-    <div class="about">
-        CodeREAD lets you instantly understand what your check engine light means — no scams, no guesswork.
-        Just enter your vehicle info and codes, and get a full AI-generated diagnostic report with urgency levels,
-        estimated repair costs, DIY tips, and more. Know before you go.
-    </div>
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% elif report %}
+        <div class="report-section">{{ report|safe }}</div>
 
-    <form id="reportForm" method="POST" action="/report">
-        <input type="text" name="name" id="name" placeholder="Customer Name" required>
-        <input type="email" name="email" id="email" placeholder="Customer Email" required>
-        <input type="text" name="make" id="make" placeholder="Vehicle Make (e.g., Ford)" required>
-        <input type="text" name="model" id="model" placeholder="Vehicle Model (e.g., F150)" required>
-        <input type="text" name="year" id="year" placeholder="Vehicle Year (e.g., 2010)" required>
-        <textarea name="codes" id="codes" placeholder="Enter one or more codes (e.g., P0420, P0301, P0171)" required></textarea>
+        <div class="urgency-gauge">
+            <svg viewBox="0 0 200 100" width="100%" height="100">
+                <defs>
+                    <linearGradient id="urgencyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:green;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:orange;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:red;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <path d="M10,100 A90,90 0 0,1 190,100" fill="none" stroke="url(#urgencyGradient)" stroke-width="20" />
+                <text x="10" y="95" font-size="12" fill="#fdd835">1</text>
+                <text x="95" y="50" font-size="12" fill="#fdd835" text-anchor="middle">5</text>
+                <text x="185" y="95" font-size="12" fill="#fdd835" text-anchor="end">10</text>
+            </svg>
+        </div>
 
-        <button type="submit">Generate Diagnostic Report</button>
-        <button type="button" class="autofill-btn" onclick="autofill()">Auto-fill Example</button>
-    </form>
+        <div class="report-links">
+            <h3>Helpful Links</h3>
+            <ul>
+                <li><a href="https://www.youtube.com/results?search_query=how+to+fix+{{ diagnostic_code }}" target="_blank">Watch how to fix {{ diagnostic_code }}</a></li>
+                <li><a href="https://www.amazon.ca/s?k={{ diagnostic_code }}+car+part" target="_blank">Find Parts for {{ diagnostic_code }} on Amazon</a></li>
+                <li><a href="/download-pdf" class="button">Download PDF</a></li>
+            </ul>
+        </div>
 
-    <div class="urgency-gauge">
-        <p>Urgency Scale (1–10): This is how CodeREAD tells you how urgent the issue is.</p>
-        <svg viewBox="0 0 200 100" width="100%" height="100">
-            <defs>
-                <linearGradient id="urgencyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:green;stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:orange;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:red;stop-opacity:1" />
-                </linearGradient>
-            </defs>
-            <path d="M10,100 A90,90 0 0,1 190,100" fill="none" stroke="url(#urgencyGradient)" stroke-width="20" />
-            <text x="10" y="95" font-size="12" fill="#fdd835">1</text>
-            <text x="95" y="50" font-size="12" fill="#fdd835" text-anchor="middle">5</text>
-            <text x="185" y="95" font-size="12" fill="#fdd835" text-anchor="end">10</text>
-        </svg>
-    </div>
+        <div class="mechanics">
+            <h3>Recommended Windsor Mechanics</h3>
+            <ul>
+                <li><strong>Clover Auto</strong> – 519-979-1834</li>
+                <li><strong>Tecumseh Auto Repair</strong> – 519-956-9190</li>
+                <li><strong>Beverly Tire & Auto</strong> – (519) 944-2424</li>
+                <li><strong>Windsor Tirecraft</strong> – 3800 Webster Dr</li>
+            </ul>
+        </div>
+    {% else %}
+        <p>No report data available.</p>
+    {% endif %}
 
-    <div class="appointment">
-        <p>Want to speak to someone or schedule a follow-up?</p>
-        <button onclick="openModal()">Book an Appointment</button>
-    </div>
-
-    <div id="modal">
-        <div class="close" onclick="closeModal()">×</div>
-        <iframe src="https://calendly.com/your-coderead-booking-link"></iframe>
-    </div>
-
-    <script>
-        function autofill() {
-            document.getElementById('name').value = "Mike Moody";
-            document.getElementById('email').value = "mike@example.com";
-            document.getElementById('make').value = "Ford";
-            document.getElementById('model').value = "F150";
-            document.getElementById('year').value = "2010";
-            document.getElementById('codes').value = "P0420, P0171";
-        }
-
-        function openModal() {
-            document.getElementById('modal').style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-
-        // Optional: Auto-submit when loaded
-        // window.onload = () => document.getElementById('reportForm').submit();
-    </script>
+    <a class="button" href="/">Return to Diagnostic Form</a>
 </body>
 </html>
