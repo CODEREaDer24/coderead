@@ -12,11 +12,27 @@
         }
 
         h1 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+            color: #fdd835;
+            margin-bottom: 0.5rem;
         }
 
-        input, textarea, button {
+        .subtitle {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 2rem;
+        }
+
+        .about {
+            background-color: #1a1a1a;
+            padding: 1.5rem;
+            border: 1px solid #fdd835;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        form input, form textarea, form button {
             display: block;
             margin: 1rem 0;
             padding: 0.75rem;
@@ -59,39 +75,55 @@
             font-size: 0.95rem;
             color: #aaa;
         }
+
+        .appointment {
+            margin-top: 3rem;
+            text-align: left;
+        }
+
+        .appointment a, .appointment button {
+            background-color: #fdd835;
+            color: #0d0d0d;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            border: none;
+        }
+
+        .appointment a:hover, .appointment button:hover {
+            background-color: #ffe95a;
+        }
+
+        #modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+        }
+
+        #modal iframe {
+            width: 80%;
+            height: 80%;
+            border: none;
+            margin: 5% auto;
+            display: block;
+        }
+
+        #modal .close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            font-size: 2rem;
+            color: #fdd835;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <h1>CodeREAD Check Engine Diagnosis</h1>
-
-    <form id="reportForm" method="POST" action="/report">
-        <input type="text" name="name" id="name" placeholder="Customer Name" required>
-        <input type="email" name="email" id="email" placeholder="Customer Email" required>
-        <input type="text" name="make" id="make" placeholder="Vehicle Make (e.g., Ford)" required>
-        <input type="text" name="model" id="model" placeholder="Vehicle Model (e.g., F150)" required>
-        <input type="text" name="year" id="year" placeholder="Vehicle Year (e.g., 2010)" required>
-        <textarea name="codes" id="codes" placeholder="Enter one or more codes (e.g., P0420, P0301, P0171)" required></textarea>
-
-        <button type="submit">Generate Diagnostic Report</button>
-        <button type="button" class="autofill-btn" onclick="autofill()">Auto-fill Example</button>
-    </form>
-
-    <div class="urgency-gauge">
-        Urgency Scale (1–10) will be displayed in your final report.
-    </div>
-
-    <script>
-        function autofill() {
-            document.getElementById('name').value = "Mike Moody";
-            document.getElementById('email').value = "mike@example.com";
-            document.getElementById('make').value = "Ford";
-            document.getElementById('model').value = "F150";
-            document.getElementById('year').value = "2010";
-            document.getElementById('codes').value = "P0420, P0171";
-        }
-
-        // Uncomment to auto-submit on page load
-        // window.onload = () => document.getElementById('reportForm').submit();
-    </script>
-</body>
-</html>
+    <
