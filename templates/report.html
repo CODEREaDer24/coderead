@@ -1,6 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+<head<!DOCTYPE html>
+<html>
 <head>
+    <title>CodeREAD Report</title>
+    <style>
+        body {
+            background-color: #111;
+            color: #fdd835;
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>CodeREAD Diagnostic Report</h1>
+    
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% elif report %}
+        <p>{{ report }}</p>
+    {% else %}
+        <p>No report data available.</p>
+    {% endif %}
+
+    <a href="/" style="color: #fdd835;">Go Back</a>
+</body>
+</html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CodeREAD Diagnostic Report</title>
