@@ -1,47 +1,96 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CodeREAD Multi-Code Diagnostic Generator</title>
+    <title>CodeREAD Diagnostic Generator</title>
     <meta charset="UTF-8">
     <style>
         body {
-            background-color: #111;
+            background-color: #0d0d0d;
             color: #fdd835;
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             padding: 2rem;
         }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
         input, textarea, button {
             display: block;
             margin: 1rem 0;
             padding: 0.75rem;
             width: 100%;
             max-width: 500px;
-            background-color: #222;
+            background-color: #1a1a1a;
             border: 1px solid #fdd835;
             color: #fdd835;
+            font-size: 1rem;
         }
+
         button {
             background-color: #fdd835;
-            color: #111;
+            color: #0d0d0d;
             font-weight: bold;
             cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #ffe95a;
+        }
+
+        .autofill-btn {
+            margin-top: -0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            background-color: transparent;
+            border: none;
+            color: #fdd835;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .urgency-gauge {
+            margin-top: 2rem;
+            border: 1px dashed #fdd835;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #aaa;
         }
     </style>
 </head>
 <body>
-    <h1>CodeREAD Multi-Code Diagnostic</h1>
+    <h1>CodeREAD Check Engine Diagnosis</h1>
 
     <form id="reportForm" method="POST" action="/report">
-        <input type="text" name="name" value="Mike Moody" required>
-        <input type="text" name="make" value="Ford" required>
-        <input type="text" name="model" value="F150" required>
-        <input type="text" name="year" value="2010" required>
-        <textarea name="codes" required placeholder="Enter one or more codes (e.g., P0420, P0301, P0171)">P0420, P0171</textarea>
-        <button type="submit">Generate Report</button>
+        <input type="text" name="name" id="name" placeholder="Customer Name" required>
+        <input type="email" name="email" id="email" placeholder="Customer Email" required>
+        <input type="text" name="make" id="make" placeholder="Vehicle Make (e.g., Ford)" required>
+        <input type="text" name="model" id="model" placeholder="Vehicle Model (e.g., F150)" required>
+        <input type="text" name="year" id="year" placeholder="Vehicle Year (e.g., 2010)" required>
+        <textarea name="codes" id="codes" placeholder="Enter one or more codes (e.g., P0420, P0301, P0171)" required></textarea>
+
+        <button type="submit">Generate Diagnostic Report</button>
+        <button type="button" class="autofill-btn" onclick="autofill()">Auto-fill Example</button>
     </form>
 
+    <div class="urgency-gauge">
+        Urgency Scale (1–10) will be displayed in your final report.
+    </div>
+
     <script>
-        // Auto-submit if you want fast generation:
+        function autofill() {
+            document.getElementById('name').value = "Mike Moody";
+            document.getElementById('email').value = "mike@example.com";
+            document.getElementById('make').value = "Ford";
+            document.getElementById('model').value = "F150";
+            document.getElementById('year').value = "2010";
+            document.getElementById('codes').value = "P0420, P0171";
+        }
+
+        // Uncomment to auto-submit on page load
         // window.onload = () => document.getElementById('reportForm').submit();
     </script>
 </body>
