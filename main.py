@@ -2,13 +2,14 @@ import os
 import tempfile
 import openai
 import logging
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, redirect, url_for
 from fpdf import FPDF
 
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 last_pdf_path = ""
+last_report_text = ""
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,7 +19,7 @@ def index():
 
 @app.route('/report', methods=['POST'])
 def report():
-    global last_pdf_path
+    global last_pdf_path, last_report_text
 
     name = request.form['name']
     email = request.form['email']
@@ -65,45 +66,46 @@ Then provide 3 Windsor-based mechanic shop recommendations with contact info.
             temperature=0.7
         )
         report_text = response['choices'][0]['message']['content']
-    except Exception as e:
-        logging.error(f"GPT error: {e}")
-        return "Error generating report. Please try again later."
+        last_report_text = report_text  # store for preview
 
-    cleaned_text = report_text.encode('ascii', 'ignore').decode('ascii')
+        # Save cleaned version as PDF
+        cleaned_text = report_text.encode('ascii', 'ignore').decode('ascii')
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.set_font("Arial", size=12)
 
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_font("Arial", size=12)
+        pdf.set_fill_color(0, 0, 0)
+        pdf.set_text_color(255, 255, 0)
+        pdf.cell(200, 10, txt="CodeREAD Diagnostic Report", ln=True, align='C', fill=True)
+        pdf.ln(5)
 
-    pdf.set_fill_color(0, 0, 0)
-    pdf.set_text_color(255, 255, 0)
-    pdf.cell(200, 10, txt="CodeREAD Diagnostic Report", ln=True, align='C', fill=True)
-    pdf.ln(5)
-
-    pdf.set_text_color(255, 255, 255)
-    intro = f"""
+        pdf.set_text_color(255, 255, 255)
+        intro = f"""
 Customer: {name}
 Email: {email}
 Phone: {phone}
 Address: {address}
 Vehicle: {vehicle_year} {vehicle_make} {vehicle_model}
 Diagnostic Code(s): {diagnostic_codes}
-
 """
-    pdf.multi_cell(0, 10, intro)
-    pdf.ln(2)
-    pdf.multi_cell(0, 10, cleaned_text)
+        pdf.multi_cell(0, 10, intro)
+        pdf.ln(2)
+        pdf.multi_cell(0, 10, cleaned_text)
 
-    _, tmp_path = tempfile.mkstemp(suffix=".pdf")
-    pdf.output(tmp_path)
+        _, tmp_path = tempfile.mkstemp(suffix=".pdf")
+        pdf.output(tmp_path)
+        last_pdf_path = tmp_path
 
-    last_pdf_path = tmp_path
-    return send_file(tmp_path, as_attachment=True, download_name="CodeREAD_Report.pdf")
+    except Exception as e:
+        logging.error(f"GPT error: {e}")
+        return "Error generating report. Please try again later."
+
+    return render_template("report.html", report_text=report_text)
 
 @app.route('/download')
 def download():
     global last_pdf_path
     if last_pdf_path and os.path.exists(last_pdf_path):
-        return send_file(last_pdf_path, as_attachment=True)
-    return "No report available for download."
+        return send_file(last_pdf_path, as_attachment=True, download_name="CodeREAD_Report.pdf")
+    return "No PDF found."
