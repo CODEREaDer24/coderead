@@ -1,4 +1,39 @@
 import os
+import tempfile
+import openai
+import logging
+from flask import Flask, render_template, request, send_file
+from fpdf import FPDF
+
+app = Flask(__name__)
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+last_pdf_path = ""
+last_report_text = ""
+
+logging.basicConfig(level=logging.INFO)
+
+@app.route('/')
+def index():
+    return render_template('form.html')
+
+@app.route('/report', methods=['POST'])
+def report():
+    global last_pdf_path, last_report_text
+
+    name = request.form['name']
+    email = request.form['email']
+    phone = request.form['phone']
+    address = request.form['address']
+    vehicle_make = request.form['vehicle_make']
+    vehicle_model = request.form['vehicle_model']
+    vehicle_year = request.form['vehicle_year']
+    diagnostic_codes = request.form['diagnostic_codes']
+
+    prompt = f"""
+You are CodeREAD AI. Create a full diagnostic report for the following customer:
+
+Customer: {name}
 Email: {email}
 Phone: {phone}
 Address: {address}
@@ -7,8 +42,8 @@ Diagnostic Code(s): {diagnostic_codes}
 
 For each code, include:
 - Technical Explanation
-- Layman’s Explanation
-- Urgency (1–10)
+- Layman's Explanation
+- Urgency (1-10)
 - Estimated Repair Cost (CAD)
 - Consequences of Not Fixing
 - Preventative Tips
@@ -31,9 +66,8 @@ Then provide 3 Windsor-based mechanic shop recommendations with contact info.
             temperature=0.7
         )
         report_text = response['choices'][0]['message']['content']
-        last_report_text = report_text  # store for preview
+        last_report_text = report_text
 
-        # Save cleaned version as PDF
         cleaned_text = report_text.encode('ascii', 'ignore').decode('ascii')
         pdf = FPDF()
         pdf.add_page()
