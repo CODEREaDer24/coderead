@@ -1,39 +1,4 @@
-import os
-import tempfile
-import openai
-import logging
-from flask import Flask, render_template, request, send_file, redirect, url_for
-from fpdf import FPDF
-
-app = Flask(__name__)
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-last_pdf_path = ""
-last_report_text = ""
-
-logging.basicConfig(level=logging.INFO)
-
-@app.route('/')
-def index():
-    return render_template('form.html')
-
-@app.route('/report', methods=['POST'])
-def report():
-    global last_pdf_path, last_report_text
-
-    name = request.form['name']
-    email = request.form['email']
-    phone = request.form['phone']
-    address = request.form['address']
-    vehicle_make = request.form['vehicle_make']
-    vehicle_model = request.form['vehicle_model']
-    vehicle_year = request.form['vehicle_year']
-    diagnostic_codes = request.form['diagnostic_codes']
-
-    prompt = f"""
-You are CodeREAD AI. Create a full diagnostic report for the following customer:
-
-Customer: {name}
+ import
 Email: {email}
 Phone: {phone}
 Address: {address}
