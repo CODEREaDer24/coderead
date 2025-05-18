@@ -8,7 +8,6 @@ from fpdf import FPDF
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Store the latest report data for download
 last_pdf_path = ""
 
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +20,6 @@ def index():
 def report():
     global last_pdf_path
 
-    # Grab form inputs
     name = request.form['name']
     email = request.form['email']
     phone = request.form['phone']
@@ -31,7 +29,6 @@ def report():
     vehicle_year = request.form['vehicle_year']
     diagnostic_codes = request.form['diagnostic_codes']
 
-    # Prompt OpenAI for a full analysis
     prompt = f"""
 You are CodeREAD AI. Create a full diagnostic report for the following customer:
 
@@ -72,20 +69,17 @@ Then provide 3 Windsor-based mechanic shop recommendations with contact info.
         logging.error(f"GPT error: {e}")
         return "Error generating report. Please try again later."
 
-    # Create PDF from report
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.set_font("Arial", size=12)
 
-    # Add yellow-on-black CodeREAD style
-    pdf.set_fill_color(0, 0, 0)  # black background
-    pdf.set_text_color(255, 255, 0)  # yellow text
+    pdf.set_fill_color(0, 0, 0)
+    pdf.set_text_color(255, 255, 0)
     pdf.cell(200, 10, txt="CodeREAD Diagnostic Report", ln=True, align='C', fill=True)
     pdf.ln(5)
 
-    # Add form data + AI response
-    pdf.set_text_color(255, 255, 255)  # white text for body
+    pdf.set_text_color(255, 255, 255)
     intro = f"""
 Customer: {name}
 Email: {email}
@@ -99,7 +93,6 @@ Diagnostic Code(s): {diagnostic_codes}
     pdf.ln(2)
     pdf.multi_cell(0, 10, report_text)
 
-    # Save PDF to temp path
     tmp_fd, tmp_path = tempfile.mkstemp(suffix=".pdf")
     with os.fdopen(tmp_fd, 'wb') as f:
         pdf.output(f)
