@@ -69,6 +69,9 @@ Then provide 3 Windsor-based mechanic shop recommendations with contact info.
         logging.error(f"GPT error: {e}")
         return "Error generating report. Please try again later."
 
+    # Strip fancy Unicode characters for PDF compatibility
+    cleaned_text = report_text.encode('ascii', 'ignore').decode('ascii')
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -91,7 +94,7 @@ Diagnostic Code(s): {diagnostic_codes}
 """
     pdf.multi_cell(0, 10, intro)
     pdf.ln(2)
-    pdf.multi_cell(0, 10, report_text)
+    pdf.multi_cell(0, 10, cleaned_text)
 
     tmp_fd, tmp_path = tempfile.mkstemp(suffix=".pdf")
     with os.fdopen(tmp_fd, 'wb') as f:
