@@ -1,47 +1,93 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CodeREAD Report</title>
+    <title>CodeREAD Diagnostic Report</title>
     <style>
         body {
             background-color: #000;
             color: #fff;
-            font-family: Arial, sans-serif;
-            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            padding: 30px;
         }
-        .report-box {
-            background-color: #1c1c1c;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        h1 {
+        .header {
             text-align: center;
             color: #FFD700;
+            margin-bottom: 30px;
         }
-        .section {
+        .report-section {
+            background-color: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 10px #FFD70055;
+        }
+        .urgency {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        .section-title {
+            color: #FFD700;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .code-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00FFFF;
+        }
+        .gauge-bar {
+            background: linear-gradient(to right, green, orange, red);
+            height: 15px;
+            width: 100%;
+            border-radius: 5px;
             margin-bottom: 15px;
         }
-        .gauge {
-            background: linear-gradient(to right, green, orange, red);
-            width: 100%;
-            height: 20px;
-            border-radius: 5px;
-            margin: 5px 0 15px 0;
+        .field {
+            margin-top: 10px;
+        }
+        .label {
+            color: #999;
+            font-weight: bold;
+        }
+        .value {
+            color: #fff;
+            margin-left: 5px;
+        }
+        .mechanic-box {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
         }
         a {
             color: #FFD700;
-        }
-        pre {
-            white-space: pre-wrap;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <h1>Your CodeREAD Diagnostic Report</h1>
-    <div class="report-box">
-        <pre>{{ report_text }}</pre>
+    <div class="header">
+        <h1>CodeREAD AI Diagnostic Report</h1>
+        <p><em>Polished by Chad G. Petit</em></p>
     </div>
-    <a href="/download" style="display: block; text-align: center;">Download PDF Report</a>
+
+    <div class="report-section">
+        {{ report_text | safe }}
+    </div>
+
+    <div class="report-section">
+        <h2 class="section-title">Top Mechanic Recommendations</h2>
+        <div class="mechanic-box">
+            <p><strong>Clover Auto:</strong> 519-979-1834</p>
+            <p><strong>Tecumseh Auto:</strong> 519-956-9190</p>
+            <p><strong>DLH Auto Service:</strong> 519-555-1212</p>
+        </div>
+    </div>
+
+    <div class="report-section" style="text-align:center;">
+        <a href="/download">Download PDF Version</a>
+    </div>
 </body>
 </html>
