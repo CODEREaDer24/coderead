@@ -4,146 +4,44 @@
     <title>CodeREAD Report</title>
     <style>
         body {
-            background-color: black;
-            color: yellow;
+            background-color: #000;
+            color: #fff;
             font-family: Arial, sans-serif;
-            padding: 30px;
-            max-width: 900px;
-            margin: auto;
-        }
-
-        h1 {
-            color: yellow;
-            text-align: center;
-        }
-
-        pre {
-            background-color: #222;
             padding: 20px;
-            white-space: pre-wrap;
-            color: white;
-            border-radius: 10px;
         }
-
-        .btn {
-            background-color: yellow;
-            color: black;
-            font-weight: bold;
-            padding: 10px 20px;
-            text-decoration: none;
+        .report-box {
+            background-color: #1c1c1c;
             border-radius: 8px;
-            display: inline-block;
-            margin: 20px auto;
-            text-align: center;
+            padding: 20px;
+            margin-bottom: 20px;
         }
-
-        .btn:hover {
-            background-color: #ffd700;
+        h1 {
+            text-align: center;
+            color: #FFD700;
+        }
+        .section {
+            margin-bottom: 15px;
+        }
+        .gauge {
+            background: linear-gradient(to right, green, orange, red);
+            width: 100%;
+            height: 20px;
+            border-radius: 5px;
+            margin: 5px 0 15px 0;
+        }
+        a {
+            color: #FFD700;
+        }
+        pre {
+            white-space: pre-wrap;
         }
     </style>
 </head>
 <body>
     <h1>Your CodeREAD Diagnostic Report</h1>
-    <pre>{{ report_text }}</pre>
-    <div style="text-align:center;">
-        <a href="/download" class="btn">Download PDF</a>
+    <div class="report-box">
+        <pre>{{ report_text }}</pre>
     </div>
-</body>
-</html>
-            background-color: #fdd835;
-            color: #0d0d0d;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 6px;
-            margin-top: 2rem;
-        }
-
-        a.button:hover {
-            background-color: #ffe95a;
-        }
-
-        .urgency-gauge {
-            margin: 2rem 0;
-            text-align: center;
-        }
-
-        .urgency-gauge svg {
-            max-width: 400px;
-        }
-
-        .report-links a {
-            color: #fdd835;
-            text-decoration: underline;
-        }
-
-        .report-links a:hover {
-            color: #ffe95a;
-        }
-
-        .mechanics {
-            margin-top: 2rem;
-        }
-
-        .mechanics h3 {
-            margin-bottom: 0.5rem;
-        }
-
-        .mechanics ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .mechanics li {
-            margin-bottom: 0.75rem;
-        }
-    </style>
-</head>
-<body>
-    <h1>CodeREAD Diagnostic Report</h1>
-
-    {% if error %}
-        <div class="error">{{ error }}</div>
-    {% elif report %}
-        <div class="report-section">{{ report|safe }}</div>
-
-        <div class="urgency-gauge">
-            <svg viewBox="0 0 200 100" width="100%" height="100">
-                <defs>
-                    <linearGradient id="urgencyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:green;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:orange;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:red;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <path d="M10,100 A90,90 0 0,1 190,100" fill="none" stroke="url(#urgencyGradient)" stroke-width="20" />
-                <text x="10" y="95" font-size="12" fill="#fdd835">1</text>
-                <text x="95" y="50" font-size="12" fill="#fdd835" text-anchor="middle">5</text>
-                <text x="185" y="95" font-size="12" fill="#fdd835" text-anchor="end">10</text>
-            </svg>
-        </div>
-
-        <div class="report-links">
-            <h3>Helpful Links</h3>
-            <ul>
-                <li><a href="https://www.youtube.com/results?search_query=how+to+fix+{{ diagnostic_code }}" target="_blank">Watch how to fix {{ diagnostic_code }}</a></li>
-                <li><a href="https://www.amazon.ca/s?k={{ diagnostic_code }}+car+part" target="_blank">Find Parts for {{ diagnostic_code }} on Amazon</a></li>
-                <li><a href="/download-pdf" class="button">Download PDF</a></li>
-            </ul>
-        </div>
-
-        <div class="mechanics">
-            <h3>Recommended Windsor Mechanics</h3>
-            <ul>
-                <li><strong>Clover Auto</strong> – 519-979-1834</li>
-                <li><strong>Tecumseh Auto Repair</strong> – 519-956-9190</li>
-                <li><strong>Beverly Tire & Auto</strong> – (519) 944-2424</li>
-                <li><strong>Windsor Tirecraft</strong> – 3800 Webster Dr</li>
-            </ul>
-        </div>
-    {% else %}
-        <p>No report data available.</p>
-    {% endif %}
-
-    <a class="button" href="/">Return to Diagnostic Form</a>
+    <a href="/download" style="display: block; text-align: center;">Download PDF Report</a>
 </body>
 </html>
