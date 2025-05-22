@@ -50,7 +50,6 @@ Return full report with:
     except Exception as e:
         gpt_text = f"Error: {str(e)}"
 
-    # Create PDF copy
     class PDF(FPDF):
         def header(self):
             self.set_font("Helvetica", "B", 16)
