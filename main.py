@@ -9,6 +9,9 @@ load_dotenv()
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+def safe_text(text):
+    return text.encode("latin-1", "replace").decode("latin-1")
+
 class PDF(FPDF):
     def header(self):
         self.set_font("Helvetica", "B", 16)
@@ -18,14 +21,14 @@ class PDF(FPDF):
     def section(self, title, content, link=None):
         self.set_font("Helvetica", "B", 14)
         self.set_text_color(255, 204, 0)
-        self.cell(0, 10, title, ln=True)
+        self.cell(0, 10, safe_text(title), ln=True)
         self.set_font("Helvetica", "", 12)
         self.set_text_color(255, 255, 255)
         if link:
             self.set_text_color(74, 168, 255)
-            self.cell(0, 10, content, ln=True, link=link)
+            self.cell(0, 10, safe_text(content), ln=True, link=link)
         else:
-            self.multi_cell(0, 10, content)
+            self.multi_cell(0, 10, safe_text(content))
 
 @app.route('/')
 def form():
@@ -40,7 +43,6 @@ def report():
     vehicle = request.form['vehicle']
     code = request.form['code'].strip().upper()
 
-    # Prompt for GPT
     prompt = f"""You are CodeREAD AI. Break down OBD2 trouble code {code} for a {vehicle}. 
 Return full report with: 
 - Layman's Explanation 
@@ -66,7 +68,6 @@ Return full report with:
     except Exception as e:
         result = f"Error: {str(e)}"
 
-    # Generate PDF
     pdf = PDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
