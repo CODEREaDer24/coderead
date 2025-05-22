@@ -6,23 +6,49 @@
   <style>
     body {
       background-color: #111;
-      color: #f2f2f2;
+      color: #eee;
       font-family: 'Segoe UI', sans-serif;
       padding: 40px;
       max-width: 900px;
       margin: auto;
     }
-    h1 {
+    h1, h2 {
       color: #ffcc00;
+      margin-bottom: 10px;
     }
-    pre {
-      white-space: pre-wrap;
-      background-color: #1e1e1e;
-      padding: 20px;
+    .section {
+      background: #1c1c1c;
       border-left: 5px solid #ffcc00;
-      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 25px;
+      border-radius: 8px;
     }
-    a.download {
+    .urgency-bar {
+      background: linear-gradient(to right, green, yellow, orange, red);
+      height: 8px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .urgency-indicator {
+      position: absolute;
+      top: -6px;
+      height: 20px;
+      width: 2px;
+      background: white;
+    }
+    .label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    a {
+      color: #4aa8ff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .download-btn {
       display: inline-block;
       background-color: #ffcc00;
       color: #111;
@@ -32,18 +58,79 @@
       font-weight: bold;
       text-decoration: none;
     }
+    .header-block {
+      margin-bottom: 30px;
+    }
   </style>
 </head>
 <body>
-  <h1>CodeREAD Report for {{ vehicle }}</h1>
-  <p><strong>Name:</strong> {{ name }}</p>
-  <p><strong>Email:</strong> {{ email }}</p>
-  <p><strong>Phone:</strong> {{ phone }}</p>
-  <p><strong>Address:</strong> {{ address }}</p>
-  <p><strong>Code:</strong> {{ code }}</p>
 
-  <pre>{{ result }}</pre>
+  <div class="header-block">
+    <h1>CodeREAD Diagnostic Report</h1>
+    <p><strong>Vehicle:</strong> {{ vehicle }}</p>
+    <p><strong>Name:</strong> {{ name }}<br>
+       <strong>Email:</strong> {{ email }}<br>
+       <strong>Phone:</strong> {{ phone }}<br>
+       <strong>Address:</strong> {{ address }}<br>
+       <strong>Code:</strong> {{ code }}</p>
+  </div>
 
-  <a class="download" href="/download?path={{ pdf_path }}">Download PDF Copy</a>
+  <div class="section">
+    <h2>⚠️ Urgency Level</h2>
+    <div class="urgency-bar">
+      <div class="urgency-indicator" style="left:85%;"></div>
+    </div>
+    <p><strong>Urgency:</strong> 8.5/10 — There's a serious risk of stalling or ignition failure. This should be addressed within 24–48 hours.</p>
+  </div>
+
+  <div class="section">
+    <h2>🤖 CodeREAD AI Recommendation</h2>
+    <p>If you're not comfortable performing DIY repairs, book a service now. This code suggests your F150 could stall or fail to start. You may only need a new sensor — don’t wait for it to become a tow truck call.</p>
+  </div>
+
+  <div class="section">
+    <h2>🧾 Full Report Breakdown</h2>
+
+    <p><span class="label">Layman's Explanation:</span><br>
+    The code P0320 in your Ford F150 means the engine might be misfiring. This can cause poor mileage and rough driving.</p>
+
+    <p><span class="label">Technical Explanation:</span><br>
+    P0320 indicates a malfunction in the ignition/distributor engine speed input circuit. Possible causes include faulty crankshaft or camshaft position sensors, bad wiring, or a failing PCM.</p>
+
+    <p><span class="label">Estimated Repair Cost (CAD):</span><br>
+    $150 – $400</p>
+
+    <p><span class="label">Consequences if Ignored:</span><br>
+    Poor fuel efficiency, rough idle, stalling, or failure to start. This code can leave you stranded.</p>
+
+    <p><span class="label">Preventative Tips:</span><br>
+    Regular diagnostics. Replace crank/cam sensors as needed and inspect wiring for damage.</p>
+
+    <p><span class="label">DIY Potential:</span><br>
+    Medium – If you're comfortable with engine components and electrical systems, you can tackle this with basic tools.</p>
+
+    <p><span class="label">Environmental Impact:</span><br>
+    A misfire wastes fuel and increases emissions. Bad for your wallet and the planet.</p>
+
+    <p><span class="label">Code Explanation Video:</span><br>
+    <a href="https://www.youtube.com/watch?v=UlZDMp1IVZk" target="_blank">Watch P0320 Code Explanation</a></p>
+
+    <p><span class="label">DIY Repair Video:</span><br>
+    <a href="https://www.youtube.com/watch?v=-Pb2k54RQT4" target="_blank">Watch DIY Fix for P0320</a></p>
+
+    <p><span class="label">Recommended Parts:</span><br>
+    <a href="https://www.amazon.ca/Motorcraft-DY1164-Crankshaft-Position-Sensor/dp/B005FE53EC" target="_blank">Motorcraft Crankshaft Sensor</a><br>
+    <a href="https://www.amazon.ca/Motorcraft-DY1269-Shaft-Position-Sensor/dp/B005FQ3PFA" target="_blank">Motorcraft Camshaft Sensor</a></p>
+  </div>
+
+  <div class="section">
+    <h2>🏪 Recommended Mechanics – Windsor, ON</h2>
+    <p><strong><a href="https://demariosautoclinic.com" target="_blank">Demario's Auto Clinic</a></strong> – 519-915-0947</p>
+    <p><strong><a href="https://macdonaldsauto.com" target="_blank">MacDonald's Auto Repair</a></strong> – 519-969-6320</p>
+    <p><strong><a href="https://www.justinsautorepair.ca" target="_blank">Justin's Auto Repair</a></strong> – 519-945-1057</p>
+  </div>
+
+  <a class="download-btn" href="/download?path={{ pdf_path }}">Download PDF Copy</a>
+
 </body>
 </html>
