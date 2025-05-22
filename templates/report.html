@@ -1,93 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CodeREAD Diagnostic Report</title>
-    <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Arial', sans-serif;
-            padding: 30px;
-        }
-        .header {
-            text-align: center;
-            color: #FFD700;
-            margin-bottom: 30px;
-        }
-        .report-section {
-            background-color: #1e1e1e;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 0 10px #FFD70055;
-        }
-        .urgency {
-            font-size: 18px;
-            font-weight: bold;
-            color: #FFD700;
-        }
-        .section-title {
-            color: #FFD700;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-        .code-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #00FFFF;
-        }
-        .gauge-bar {
-            background: linear-gradient(to right, green, orange, red);
-            height: 15px;
-            width: 100%;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-        .field {
-            margin-top: 10px;
-        }
-        .label {
-            color: #999;
-            font-weight: bold;
-        }
-        .value {
-            color: #fff;
-            margin-left: 5px;
-        }
-        .mechanic-box {
-            background-color: #2a2a2a;
-            border: 1px solid #444;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        a {
-            color: #FFD700;
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>CodeREAD Diagnostic Report</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: 'Segoe UI', sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+    h1 {
+      color: #ffcc00;
+      border-bottom: 2px solid #ffcc00;
+      padding-bottom: 10px;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #1a1a1a;
+      border-left: 5px solid #ffcc00;
+      border-radius: 8px;
+    }
+    .section h2 {
+      color: #ffcc00;
+    }
+    a {
+      color: #4aa8ff;
+      text-decoration: none;
+    }
+    .urgency-bar {
+      height: 8px;
+      background: linear-gradient(to right, green, yellow, orange, red);
+      border-radius: 4px;
+      margin-bottom: 10px;
+      width: 100%;
+      position: relative;
+    }
+    .urgency-indicator {
+      position: absolute;
+      top: -4px;
+      width: 2px;
+      height: 16px;
+      background: white;
+    }
+    .tag {
+      background-color: #ffcc00;
+      color: #111;
+      display: inline-block;
+      padding: 5px 10px;
+      font-weight: bold;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <h1>CodeREAD AI Diagnostic Report</h1>
-        <p><em>Polished by Chad G. Petit</em></p>
-    </div>
 
-    <div class="report-section">
-        {{ report_text | safe }}
-    </div>
+  <h1>CodeREAD Diagnostic Report</h1>
 
-    <div class="report-section">
-        <h2 class="section-title">Top Mechanic Recommendations</h2>
-        <div class="mechanic-box">
-            <p><strong>Clover Auto:</strong> 519-979-1834</p>
-            <p><strong>Tecumseh Auto:</strong> 519-956-9190</p>
-            <p><strong>DLH Auto Service:</strong> 519-555-1212</p>
-        </div>
+  <div class="section">
+    <span class="tag">⚠️ URGENCY SCALE</span>
+    <div class="urgency-bar">
+      <div class="urgency-indicator" style="left:70%;"></div>
     </div>
+    <p><strong>Urgency:</strong> 7/10 – This needs attention soon. Driving is still possible, but performance and safety are compromised.</p>
+  </div>
 
-    <div class="report-section" style="text-align:center;">
-        <a href="/download">Download PDF Version</a>
-    </div>
+  <div class="section">
+    <span class="tag">🤖 CodeREAD AI Recommendation</span>
+    <p>This misfire will only get worse. If it's a spark plug or coil, replacing it now prevents bigger bills later. You're safe to drive short distances, but schedule repair within 48 hours. Ignoring it could lead to catalytic converter failure (>$1000).</p>
+  </div>
+
+  <div class="section">
+    <h2>Diagnostic Code: P0302 – Cylinder 2 Misfire</h2>
+    <p><strong>Layman's Explanation:</strong> One part of your engine isn't firing right, making your ride rough and inefficient.</p>
+    <p><strong>Technical:</strong> Cylinder 2 is not completing combustion due to a fault in spark, fuel, or compression.</p>
+    <p><strong>Estimated Repair Cost:</strong> $200–$500 CAD</p>
+    <p><strong>Consequences:</strong> Lower mileage, engine wear, possible catalytic damage.</p>
+    <p><strong>Preventative Tips:</strong> Change plugs on schedule. Check coils when replacing plugs.</p>
+    <p><strong>DIY Potential:</strong> Moderate – you’ll need a socket, torque wrench, and basic confidence.</p>
+    <p><strong>Environmental Impact:</strong> Raw fuel = high emissions. It’ll hurt your carbon score.</p>
+    <p><strong>Code Explanation Video:</strong> 
+      <a href="https://www.youtube.com/watch?v=QUmqz-4uiEw" target="_blank">Watch here</a></p>
+    <p><strong>DIY Repair Video:</strong> 
+      <a href="https://www.youtube.com/watch?v=c_J93ksRa0o" target="_blank">Watch here</a></p>
+    <p><strong>Recommended Parts:</strong> 
+      <a href="https://jbhauto.co.nz/products/ngk-laser-iridium-spark-plugs-ilfr5t11-toyota-camry-2-5-asv50-sedan-2011-on?variant=31949024362598&_gsid=FFsBbgZBcdF1" target="_blank">NGK Iridium Spark Plug</a></p>
+  </div>
+
+  <div class="section">
+    <h2>Diagnostic Code: P0455 – EVAP System Leak</h2>
+    <p><strong>Layman's Explanation:</strong> Your car's vapor system is leaking — probably your gas cap.</p>
+    <p><strong>Technical:</strong> A large leak in the evaporative emissions control system was detected.</p>
+    <p><strong>Estimated Repair Cost:</strong> $50–$200 CAD</p>
+    <p><strong>Consequences:</strong> Failed emissions test, vapor loss, minor MPG hit.</p>
+    <p><strong>Preventative Tips:</strong> Always click your cap until it clicks. Check for dry/cracked seals.</p>
+    <p><strong>DIY Potential:</strong> Very High – try replacing the gas cap first.</p>
+    <p><strong>Environmental Impact:</strong> Vapor leaks are silent but deadly to the air.</p>
+    <p><strong>Code Explanation Video:</strong> 
+      <a href="https://www.youtube.com/watch?v=_i-jFy3i2ps" target="_blank">Watch here</a></p>
+    <p><strong>DIY Repair Video:</strong> 
+      <a href="https://www.youtube.com/watch?v=78ncFk7YT9U" target="_blank">Watch here</a></p>
+    <p><strong>Recommended Parts:</strong> 
+      <a href="https://chatgpt.com/?hints=search&q=Toyota+Genuine+Gas+Cap+77300-33070" target="_blank">Toyota OEM Gas Cap</a></p>
+  </div>
+
+  <div class="section">
+    <h2>Top-Rated Windsor Mechanics</h2>
+    <p><strong><a href="https://demariosautoclinic.com" target="_blank">Demario's Auto Clinic</a></strong> – 519-915-0947</p>
+    <p><strong><a href="https://macdonaldsauto.com" target="_blank">MacDonald's Auto Repair</a></strong> – 519-969-6320</p>
+    <p><strong><a href="https://www.justinsautorepair.ca" target="_blank">Justin's Auto Repair</a></strong> – 519-945-1057</p>
+  </div>
+
 </body>
 </html>
