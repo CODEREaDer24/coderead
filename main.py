@@ -1,101 +1,82 @@
 import os
-import tempfile
 import openai
 from flask import Flask, render_template, request, send_file
 from fpdf import FPDF
-import unicodedata
+import tempfile
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-last_pdf_path = ""
-last_report_text = ""
+class PDF(FPDF):
+    def header(self):
+        self.set_font("Helvetica", "B", 16)
+        self.set_text_color(255, 204, 0)
+        self.cell(0, 10, "CodeREAD Diagnostic Report", ln=True, align="C")
 
-def clean(text):
-    return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
+    def section(self, title, content, link=None):
+        self.set_font("Helvetica", "B", 14)
+        self.set_text_color(255, 204, 0)
+        self.cell(0, 10, title, ln=True)
+        self.set_font("Helvetica", "", 12)
+        self.set_text_color(255, 255, 255)
+        if link:
+            self.set_text_color(74, 168, 255)
+            self.cell(0, 10, content, ln=True, link=link)
+        else:
+            self.multi_cell(0, 10, content)
 
 @app.route('/')
-def index():
+def form():
     return render_template('form.html')
 
 @app.route('/report', methods=['POST'])
 def report():
-    global last_pdf_path, last_report_text
+    name = request.form['name']
+    email = request.form['email']
+    phone = request.form['phone']
+    address = request.form['address']
+    vehicle = request.form['vehicle']
+    code = request.form['code'].strip().upper()
 
-    name = clean(request.form['name'])
-    email = clean(request.form['email'])
-    phone = clean(request.form['phone'])
-    address = clean(request.form.get('address', 'N/A'))
-    vehicle_make = clean(request.form['vehicle_make'])
-    vehicle_model = clean(request.form['vehicle_model'])
-    vehicle_year = clean(request.form['vehicle_year'])
-    diagnostic_codes = clean(request.form['diagnostic_codes'])
-
-    prompt = f"""
-You are CodeREAD AI. Create a formatted diagnostic report for:
-
-Name: {name}
-Email: {email}
-Phone: {phone}
-Address: {address}
-Vehicle: {vehicle_year} {vehicle_make} {vehicle_model}
-Codes: {diagnostic_codes}
-
-For each code include:
-- Urgency (1–10, show this first)
-- Technical Explanation
-- Layman's Explanation
-- Estimated Repair Cost (CAD)
-- Consequences of Not Fixing
-- Preventative Tips
-- DIY Potential
-- Environmental Impact
-- Video link
-- CodeREAD AI Recommendation
-- Then restate name, phone, and address under each code
-- Recommend 3 Windsor mechanics with name + phone
-"""
+    # Prompt for GPT
+    prompt = f"""You are CodeREAD AI. Break down OBD2 trouble code {code} for a {vehicle}. 
+Return full report with: 
+- Layman's Explanation 
+- Technical Explanation 
+- Urgency (1–10) 
+- Estimated CAD Repair Cost 
+- Consequences if Ignored 
+- Preventative Tips 
+- DIY Potential 
+- Environmental Impact 
+- Code Explanation YouTube Link 
+- DIY Repair YouTube Link 
+- Recommended Amazon Parts Link 
+- CodeREAD AI Final Recommendation"""
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are a car diagnostics expert writing CodeREAD reports in clear HTML."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7
+            messages=[{"role": "user", "content": prompt}],
+            timeout=30
         )
-        report_text = response['choices'][0]['message']['content']
-        last_report_text = report_text
-
-        # PDF logic
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_auto_page_break(auto=True, margin=15)
-        pdf.set_font("Arial", size=11)
-        cleaned_text = clean(report_text)
-
-        pdf.set_fill_color(0, 0, 0)
-        pdf.set_text_color(255, 255, 0)
-        pdf.set_font("Arial", 'B', 14)
-        pdf.cell(0, 10, "CodeREAD Diagnostic Report", ln=True, align='C', fill=True)
-        pdf.ln(5)
-
-        pdf.set_text_color(0, 0, 0)
-        pdf.set_font("Arial", '', 11)
-        pdf.multi_cell(0, 8, cleaned_text)
-
-        _, path = tempfile.mkstemp(suffix=".pdf")
-        pdf.output(path)
-        last_pdf_path = path
-
-        return render_template("report.html", report_text=report_text)
-
+        result = response.choices[0].message.content
     except Exception as e:
-        return f"Error: {e}"
+        result = f"Error: {str(e)}"
 
-@app.route('/download')
-def download():
-    if last_pdf_path and os.path.exists(last_pdf_path):
-        return send_file(last_pdf_path, as_attachment=True, download_name="CodeREAD_Report.pdf")
-    return "No PDF found."
+    # Generate PDF
+    pdf = PDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_fill_color(26, 26, 26)
+    pdf.section("Customer Info", f"{name} | {email} | {phone} | {address} | {vehicle}")
+    pdf.section(f"Trouble Code: {code}", result)
+
+    temp_path = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf').name
+    pdf.output(temp_path)
+    return send_file(temp_path, as_attachment=True, download_name=f"{code}_CodeREAD_Report.pdf")
+
+if __name__ == '__main__':
+    app.run(debug=True)
