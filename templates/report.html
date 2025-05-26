@@ -2,135 +2,115 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Your CodeREAD Diagnostic Report</title>
+  <title>CodeREAD Diagnostic Report</title>
   <style>
     body {
-      background-color: black;
-      color: yellow;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 40px;
+      background-color: #000;
+      color: #FFD700;
+      font-family: Arial, sans-serif;
+      padding: 20px;
       line-height: 1.6;
     }
-
     h1, h2 {
-      color: yellow;
-      text-align: center;
+      color: #FFD700;
+      border-bottom: 1px solid #FFD700;
+      padding-bottom: 5px;
     }
-
+    .urgency-bar {
+      margin: 20px 0;
+      height: 25px;
+      background: linear-gradient(to right, green, yellow, orange, red);
+      border: 2px solid #FFD700;
+      border-radius: 10px;
+      position: relative;
+    }
+    .urgency-pointer {
+      position: absolute;
+      top: -10px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid #FFD700;
+    }
     .section {
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
-
-    .highlight {
-      color: red;
-      font-weight: bold;
-    }
-
-    .speedometer {
-      width: 200px;
-      margin: 20px auto;
-    }
-
     a {
-      color: yellow;
+      color: #FFD700;
       text-decoration: underline;
     }
-
-    #brand-footer {
-      margin-top: 50px;
-      text-align: center;
-    }
-
-    .coderead-logo {
-      font-size: 24px;
-      font-weight: bold;
-      color: yellow;
-      letter-spacing: 1px;
-    }
-
-    .coderead-logo span {
-      color: red;
-    }
-
-    .mechanic-link {
-      display: block;
-      margin-top: 5px;
-    }
-
-    .youtube-video {
-      display: block;
-      margin-top: 5px;
+    .mechanic {
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
+
   <h1>CodeREAD Diagnostic Report</h1>
 
   <div class="section">
     <strong>Name:</strong> {{ name }}<br>
-    <strong>Email:</strong> {{ email }}<br>
     <strong>Phone:</strong> {{ phone }}<br>
-    {% if address %}<strong>Address:</strong> {{ address }}<br>{% endif %}
-    <strong>Vehicle:</strong> {{ vehicle }}<br>
-    <strong>Diagnostic Code:</strong> <span class="highlight">{{ code }}</span>
+    <strong>Email:</strong> {{ email }}<br>
+    <strong>Vehicle:</strong> {{ year }} {{ make }} {{ model }}<br>
+    <strong>Code(s):</strong> {{ codes }}
   </div>
 
+  <h2>Urgency Scale</h2>
+  <div class="urgency-bar">
+    <div class="urgency-pointer" style="left: {{ urgency_percent }}%;"></div>
+  </div>
+  <p><strong>Urgency Level:</strong> {{ urgency_level }}/10 — {{ urgency_label }}</p>
+
+  <h2>CodeREAD AI Analysis / Recommendation</h2>
+  <div class="section">{{ ai_recommendation }}</div>
+
+  <h2>Layman’s Explanation</h2>
+  <div class="section">{{ layman_explanation }}</div>
+
+  <h2>Technical Explanation</h2>
+  <div class="section">{{ technical_explanation }}</div>
+
+  <h2>Estimated Repair Cost</h2>
+  <div class="section">{{ repair_cost }}</div>
+
+  <h2>Consequences of Ignoring</h2>
+  <div class="section">{{ consequences }}</div>
+
+  <h2>Preventative Care Tips</h2>
+  <div class="section">{{ preventative_tips }}</div>
+
+  <h2>DIY Repair Potential</h2>
+  <div class="section">{{ diy_potential }}</div>
+
+  <h2>Environmental Impact</h2>
+  <div class="section">{{ environmental_impact }}</div>
+
+  <h2>Related Videos</h2>
   <div class="section">
-    <h2>Urgency Level</h2>
-    <img src="{{ urgency_gauge_url }}" alt="Urgency Gauge" class="speedometer">
-    <p><strong>Urgency:</strong> {{ urgency }}/10</p>
+    <a href="{{ video_explainer }}" target="_blank">Code Explanation</a><br>
+    <a href="{{ video_diy }}" target="_blank">DIY Repair Guide</a>
   </div>
 
+  <h2>Recommended Mechanics</h2>
   <div class="section">
-    <h2>Layman’s Explanation</h2>
-    <p>{{ explanation }}</p>
+    <div class="mechanic">
+      <strong>Clover Auto</strong><br>
+      519-979-1834<br>
+      Windsor, ON
+    </div>
+    <div class="mechanic">
+      <strong>Tecumseh Auto</strong><br>
+      519-956-9190<br>
+      Windsor, ON
+    </div>
+    <div class="mechanic">
+      <strong>DLH Auto Service</strong><br>
+      2378 Central Ave, Windsor, ON N8W 4J2<br>
+      519-555-2222
+    </div>
   </div>
 
-  <div class="section">
-    <h2>Repair Cost Estimate</h2>
-    <p>{{ repair_cost }}</p>
-  </div>
-
-  <div class="section">
-    <h2>Consequences of Ignoring This Issue</h2>
-    <p>{{ consequences }}</p>
-  </div>
-
-  <div class="section">
-    <h2>Environmental Impact</h2>
-    <p>{{ environment }}</p>
-  </div>
-
-  <div class="section">
-    <h2>Preventative Care Tips</h2>
-    <p>{{ prevention }}</p>
-  </div>
-
-  <div class="section">
-    <h2>DIY Potential</h2>
-    <p>{{ diy }}</p>
-    <a class="youtube-video" href="{{ diy_video_url }}" target="_blank">Watch DIY Video</a>
-  </div>
-
-  <div class="section">
-    <h2>Parts Recommendation</h2>
-    <a href="{{ parts_link }}" target="_blank">View Recommended Part</a>
-  </div>
-
-  <div class="section">
-    <h2>Recommended Mechanics (Windsor, ON)</h2>
-    {% for mechanic in mechanics %}
-      <div class="mechanic-link">
-        <strong>{{ mechanic.name }}</strong>  
-        <br>{{ mechanic.address }}  
-        <br><a href="tel:{{ mechanic.phone }}">{{ mechanic.phone }}</a>
-      </div>
-    {% endfor %}
-  </div>
-
-  <div id="brand-footer">
-    <div class="coderead-logo">Code<span>READ</span></div>
-    <p>Visit <a href="https://www.read.codes" target="_blank">www.read.codes</a> for more.</p>
-  </div>
 </body>
 </html>
