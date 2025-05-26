@@ -93,7 +93,7 @@
 </head>
 <body>
   <h1>CodeREAD Report Generator</h1>
-  <form action="/report" method="post">
+  <form id="coderead-form" action="/report" method="post">
     <input type="text" name="name" placeholder="Chad G. Petite" required>
     <input type="email" name="email" placeholder="driver@read.codes" required>
     <input type="text" name="phone" placeholder="555-GET-FIXD" required>
@@ -101,7 +101,7 @@
     <input type="text" name="vehicle" placeholder="2015 Toyota Camry" required>
     <input type="text" name="code" placeholder="P0420" required>
     <button type="button" onclick="autofillForm()">Auto-Generate Sample Data</button>
-    <button type="submit">Generate CodeREAD Report</button>
+    <button type="button" id="submitButton">Generate CodeREAD Report</button>
   </form>
 
   <div id="brand-footer">
@@ -138,7 +138,7 @@
       "Finalizing your CodeREAD Report..."
     ];
 
-    document.querySelector('form').addEventListener('submit', function () {
+    document.getElementById("submitButton").addEventListener("click", function () {
       const loader = document.getElementById("loading-screen");
       const text = document.getElementById("loading-text");
       loader.style.display = "flex";
@@ -151,6 +151,16 @@
           index++;
         }
       }, 1000);
+
+      // Actually submit the form AFTER showing loader
+      document.getElementById("coderead-form").submit();
+    });
+
+    // BLOCK ENTER key from submitting the form
+    document.getElementById("coderead-form").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+      }
     });
   </script>
 </body>
