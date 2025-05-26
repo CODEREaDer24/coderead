@@ -2,135 +2,135 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CodeREAD Diagnostic Report</title>
+  <title>Your CodeREAD Diagnostic Report</title>
   <style>
     body {
-      background-color: #111;
-      color: #eee;
-      font-family: 'Segoe UI', sans-serif;
+      background-color: black;
+      color: yellow;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       padding: 40px;
-      max-width: 900px;
-      margin: auto;
+      line-height: 1.6;
     }
+
     h1, h2 {
-      color: #ffcc00;
-      margin-bottom: 10px;
+      color: yellow;
+      text-align: center;
     }
+
     .section {
-      background: #1c1c1c;
-      border-left: 5px solid #ffcc00;
-      padding: 20px;
       margin-bottom: 25px;
-      border-radius: 8px;
     }
-    .urgency-bar {
-      background: linear-gradient(to right, green, yellow, orange, red);
-      height: 8px;
-      border-radius: 5px;
-      margin-bottom: 10px;
-      position: relative;
-    }
-    .urgency-indicator {
-      position: absolute;
-      top: -6px;
-      height: 20px;
-      width: 2px;
-      background: white;
-    }
-    .label {
+
+    .highlight {
+      color: red;
       font-weight: bold;
-      margin-top: 10px;
     }
+
+    .speedometer {
+      width: 200px;
+      margin: 20px auto;
+    }
+
     a {
-      color: #4aa8ff;
-      text-decoration: none;
-    }
-    a:hover {
+      color: yellow;
       text-decoration: underline;
     }
-    .download-btn {
-      display: inline-block;
-      background-color: #ffcc00;
-      color: #111;
-      padding: 10px 20px;
-      margin-top: 20px;
-      border-radius: 5px;
-      font-weight: bold;
-      text-decoration: none;
+
+    #brand-footer {
+      margin-top: 50px;
+      text-align: center;
     }
-    .header-block {
-      margin-bottom: 30px;
+
+    .coderead-logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: yellow;
+      letter-spacing: 1px;
+    }
+
+    .coderead-logo span {
+      color: red;
+    }
+
+    .mechanic-link {
+      display: block;
+      margin-top: 5px;
+    }
+
+    .youtube-video {
+      display: block;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
+  <h1>CodeREAD Diagnostic Report</h1>
 
-  <div class="header-block">
-    <h1>CodeREAD Diagnostic Report</h1>
-    <p><strong>Vehicle:</strong> {{ vehicle }}</p>
-    <p><strong>Name:</strong> {{ name }}<br>
-       <strong>Email:</strong> {{ email }}<br>
-       <strong>Phone:</strong> {{ phone }}<br>
-       <strong>Address:</strong> {{ address }}<br>
-       <strong>Code:</strong> {{ code }}</p>
+  <div class="section">
+    <strong>Name:</strong> {{ name }}<br>
+    <strong>Email:</strong> {{ email }}<br>
+    <strong>Phone:</strong> {{ phone }}<br>
+    {% if address %}<strong>Address:</strong> {{ address }}<br>{% endif %}
+    <strong>Vehicle:</strong> {{ vehicle }}<br>
+    <strong>Diagnostic Code:</strong> <span class="highlight">{{ code }}</span>
   </div>
 
   <div class="section">
-    <h2>⚠️ Urgency Level</h2>
-    <div class="urgency-bar">
-      <div class="urgency-indicator" style="left:85%;"></div>
-    </div>
-    <p><strong>Urgency:</strong> 8.5/10 — There's a serious risk of stalling or ignition failure. This should be addressed within 24–48 hours.</p>
+    <h2>Urgency Level</h2>
+    <img src="{{ urgency_gauge_url }}" alt="Urgency Gauge" class="speedometer">
+    <p><strong>Urgency:</strong> {{ urgency }}/10</p>
   </div>
 
   <div class="section">
-    <h2>🤖 CodeREAD AI Recommendation</h2>
-    <p>If you're not comfortable performing DIY repairs, book a service now. This code suggests your F150 could stall or fail to start. You may only need a new sensor — don’t wait for it to become a tow truck call.</p>
+    <h2>Layman’s Explanation</h2>
+    <p>{{ explanation }}</p>
   </div>
 
   <div class="section">
-    <h2>🧾 Full Report Breakdown</h2>
-
-    <p><span class="label">Layman's Explanation:</span><br>
-    The code P0320 in your Ford F150 means the engine might be misfiring. This can cause poor mileage and rough driving.</p>
-
-    <p><span class="label">Technical Explanation:</span><br>
-    P0320 indicates a malfunction in the ignition/distributor engine speed input circuit. Possible causes include faulty crankshaft or camshaft position sensors, bad wiring, or a failing PCM.</p>
-
-    <p><span class="label">Estimated Repair Cost (CAD):</span><br>
-    $150 – $400</p>
-
-    <p><span class="label">Consequences if Ignored:</span><br>
-    Poor fuel efficiency, rough idle, stalling, or failure to start. This code can leave you stranded.</p>
-
-    <p><span class="label">Preventative Tips:</span><br>
-    Regular diagnostics. Replace crank/cam sensors as needed and inspect wiring for damage.</p>
-
-    <p><span class="label">DIY Potential:</span><br>
-    Medium – If you're comfortable with engine components and electrical systems, you can tackle this with basic tools.</p>
-
-    <p><span class="label">Environmental Impact:</span><br>
-    A misfire wastes fuel and increases emissions. Bad for your wallet and the planet.</p>
-
-    <p><span class="label">Code Explanation Video:</span><br>
-    <a href="https://www.youtube.com/watch?v=UlZDMp1IVZk" target="_blank">Watch P0320 Code Explanation</a></p>
-
-    <p><span class="label">DIY Repair Video:</span><br>
-    <a href="https://www.youtube.com/watch?v=-Pb2k54RQT4" target="_blank">Watch DIY Fix for P0320</a></p>
-
-    <p><span class="label">Recommended Parts:</span><br>
-    <a href="https://www.amazon.ca/Motorcraft-DY1164-Crankshaft-Position-Sensor/dp/B005FE53EC" target="_blank">Motorcraft Crankshaft Sensor</a><br>
-    <a href="https://www.amazon.ca/Motorcraft-DY1269-Shaft-Position-Sensor/dp/B005FQ3PFA" target="_blank">Motorcraft Camshaft Sensor</a></p>
+    <h2>Repair Cost Estimate</h2>
+    <p>{{ repair_cost }}</p>
   </div>
 
   <div class="section">
-    <h2>🏪 Recommended Mechanics – Windsor, ON</h2>
-    <p><strong><a href="https://demariosautoclinic.com" target="_blank">Demario's Auto Clinic</a></strong> – 519-915-0947</p>
-    <p><strong><a href="https://macdonaldsauto.com" target="_blank">MacDonald's Auto Repair</a></strong> – 519-969-6320</p>
-    <p><strong><a href="https://www.justinsautorepair.ca" target="_blank">Justin's Auto Repair</a></strong> – 519-945-1057</p>
+    <h2>Consequences of Ignoring This Issue</h2>
+    <p>{{ consequences }}</p>
   </div>
 
-  <a class="download-btn" href="/download?path={{ pdf_path }}">Download PDF Copy</a>
+  <div class="section">
+    <h2>Environmental Impact</h2>
+    <p>{{ environment }}</p>
+  </div>
 
+  <div class="section">
+    <h2>Preventative Care Tips</h2>
+    <p>{{ prevention }}</p>
+  </div>
+
+  <div class="section">
+    <h2>DIY Potential</h2>
+    <p>{{ diy }}</p>
+    <a class="youtube-video" href="{{ diy_video_url }}" target="_blank">Watch DIY Video</a>
+  </div>
+
+  <div class="section">
+    <h2>Parts Recommendation</h2>
+    <a href="{{ parts_link }}" target="_blank">View Recommended Part</a>
+  </div>
+
+  <div class="section">
+    <h2>Recommended Mechanics (Windsor, ON)</h2>
+    {% for mechanic in mechanics %}
+      <div class="mechanic-link">
+        <strong>{{ mechanic.name }}</strong>  
+        <br>{{ mechanic.address }}  
+        <br><a href="tel:{{ mechanic.phone }}">{{ mechanic.phone }}</a>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div id="brand-footer">
+    <div class="coderead-logo">Code<span>READ</span></div>
+    <p>Visit <a href="https://www.read.codes" target="_blank">www.read.codes</a> for more.</p>
+  </div>
 </body>
 </html>
