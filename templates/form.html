@@ -13,22 +13,34 @@
     }
 
     form {
-      max-width: 500px;
+      max-width: 600px;
       margin: 0 auto;
+      background: #111;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px yellow;
     }
 
-    input, textarea, button {
+    label {
       display: block;
+      text-align: left;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #FFD700;
+    }
+
+    input, textarea, select, button {
       width: 100%;
-      margin: 10px 0;
       padding: 12px;
+      margin-top: 5px;
       border: none;
       border-radius: 4px;
-      font-size: 1rem;
+      font-size: 16px;
     }
 
-    input::placeholder {
-      color: gray;
+    input, textarea, select {
+      background-color: #222;
+      color: yellow;
     }
 
     button {
@@ -36,129 +48,50 @@
       color: black;
       font-weight: bold;
       cursor: pointer;
-    }
-
-    #loading-screen {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: black;
-      color: yellow;
-      font-size: 1.3rem;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .spinner {
       margin-top: 20px;
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255, 255, 255, 0.2);
-      border-top: 4px solid yellow;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    button:hover {
+      background-color: #ffcc00;
     }
 
-    #brand-footer {
-      margin-top: 60px;
-      text-align: center;
-    }
-
-    #brand-footer a {
-      color: yellow;
-      text-decoration: underline;
-    }
-
-    .coderead-logo {
-      font-size: 24px;
-      font-weight: bold;
-      color: yellow;
-      letter-spacing: 1px;
-    }
-
-    .coderead-logo span {
-      color: red;
+    #logo {
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
-  <h1>CodeREAD Report Generator</h1>
-  <form id="coderead-form" action="/report" method="post">
-    <input type="text" name="name" placeholder="Chad G. Petite" required>
-    <input type="email" name="email" placeholder="driver@read.codes" required>
-    <input type="text" name="phone" placeholder="555-GET-FIXD" required>
-    <input type="text" name="address" placeholder="123 Roadside Blvd">
-    <input type="text" name="vehicle" placeholder="2015 Toyota Camry" required>
-    <input type="text" name="code" placeholder="P0420" required>
 
-    <button type="button" onclick="autofillForm()">Auto-Generate Sample Data</button>
-    <button type="submit" id="submitButton">Generate CodeREAD Report</button>
+  <h1>CodeREAD Diagnostic Form</h1>
+
+  <form action="/generate_report" method="post">
+    <label for="name">Customer Name</label>
+    <input type="text" id="name" name="name" placeholder="e.g. Jane Doe" required>
+
+    <label for="email">Customer Email</label>
+    <input type="email" id="email" name="email" placeholder="e.g. jane@example.com" required>
+
+    <label for="phone">Customer Phone Number</label>
+    <input type="text" id="phone" name="phone" placeholder="e.g. 519-555-1234" required>
+
+    <label for="vehicle_make">Vehicle Make</label>
+    <input type="text" id="vehicle_make" name="vehicle_make" placeholder="e.g. Ford" required>
+
+    <label for="vehicle_model">Vehicle Model</label>
+    <input type="text" id="vehicle_model" name="vehicle_model" placeholder="e.g. F-150" required>
+
+    <label for="vehicle_year">Vehicle Year</label>
+    <input type="text" id="vehicle_year" name="vehicle_year" placeholder="e.g. 2016" required>
+
+    <label for="codes">OBD2 Diagnostic Codes</label>
+    <textarea id="codes" name="codes" rows="4" placeholder="e.g. P0451, P2270" required></textarea>
+
+    <button type="submit">Generate Diagnostic Report</button>
   </form>
 
-  <div id="brand-footer">
-    <div class="coderead-logo">Code<span>READ</span></div>
-    <p>Visit <a href="https://www.read.codes" target="_blank">www.read.codes</a> for more.</p>
+  <div id="logo">
+    <img src="/static/coderead_logo.png" alt="CodeREAD Logo" style="margin-top: 30px; width: 180px;">
   </div>
 
-  <div id="loading-screen">
-    <p id="loading-text">Starting diagnostics...</p>
-    <div class="spinner"></div>
-  </div>
-
-  <script>
-    function autofillForm() {
-      document.querySelector('input[name="name"]').value = "Chad G. Petite";
-      document.querySelector('input[name="email"]').value = "driver@read.codes";
-      document.querySelector('input[name="phone"]').value = "555-GET-FIXD";
-      document.querySelector('input[name="address"]').value = "123 Roadside Blvd";
-      document.querySelector('input[name="vehicle"]').value = "2015 Toyota Camry";
-      document.querySelector('input[name="code"]').value = "P0420";
-    }
-
-    const steps = [
-      "Analyzing diagnostic code...",
-      "Assessing urgency scale...",
-      "Calculating estimated repair costs...",
-      "Forecasting potential consequences...",
-      "Checking environmental impact...",
-      "Scouting preventative care tips...",
-      "Evaluating DIY potential...",
-      "Finding real YouTube tutorials...",
-      "Locating matching parts online...",
-      "Pulling top-rated mechanics near you...",
-      "Finalizing your CodeREAD Report..."
-    ];
-
-    document.getElementById("coderead-form").addEventListener("submit", function (e) {
-      const loader = document.getElementById("loading-screen");
-      const text = document.getElementById("loading-text");
-      loader.style.display = "flex";
-      let index = 0;
-      const interval = setInterval(() => {
-        if (index >= steps.length) {
-          clearInterval(interval);
-        } else {
-          text.textContent = steps[index];
-          index++;
-        }
-      }, 1000);
-    });
-
-    // Block Enter key to avoid accidental form submits
-    document.getElementById("coderead-form").addEventListener("keydown", function (e) {
-      if (e.key === "Enter") e.preventDefault();
-    });
-  </script>
 </body>
 </html>
