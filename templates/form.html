@@ -1,96 +1,99 @@
-<! html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>CodeREAD Report Generator</title>
+  <title>CodeREAD Diagnostic Form</title>
   <style>
     body {
-      background-color: black;
-      color: yellow;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
+      background-color: #000;
+      color: #FFD700;
+      font-family: Arial, sans-serif;
       text-align: center;
     }
-
-    form {DOCTYPE      max-width: 600px;
-      margin: 0 auto;
-      background: #111;
+    form {
+      background-color: #111;
+      border: 1px solid #FFD700;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px yellow;
+      margin: 20px auto;
+      max-width: 600px;
+      border-radius: 10px;
     }
-
     label {
       display: block;
+      margin-top: 10px;
       text-align: left;
-      margin-top: 15px;
-      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border: 1px solid #FFD700;
+      border-radius: 4px;
+      background-color: #222;
       color: #FFD700;
     }
-
-    input, textarea, select, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 5px;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-
-    input, textarea, select {
-      background-color: #222;
-      color: yellow;
-    }
-
     button {
-      background-color: yellow;
-      color: black;
-      font-weight: bold;
+      background-color: #FFD700;
+      color: #000;
+      padding: 10px 20px;
+      margin: 15px 10px 0 0;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
-      margin-top: 20px;
     }
-
-    button:hover {
-      background-color: #ffcc00;
+    .footer-logo {
+      margin-top: 30px;
     }
-
-    #logo {
-      margin-top: 40px;
+    .footer-logo img {
+      width: 200px;
     }
   </style>
 </head>
 <body>
 
-  <h1>CodeREAD Diagnostic Form</h1>
+  <h1>CodeREAD Diagnostic Report Generator</h1>
 
-  <form action="/generate_report" method="post">
-    <label for="name">Customer Name</label>
-    <input type="text" id="name" name="name" placeholder="e.g. Jane Doe" required>
+  <form action="/report" method="post" id="diagnosticForm">
+    <label for="name">Name *</label>
+    <input type="text" id="name" name="name" placeholder="Jane Driver" required>
 
-    <label for="email">Customer Email</label>
-    <input type="email" id="email" name="email" placeholder="e.g. jane@example.com" required>
+    <label for="phone">Phone *</label>
+    <input type="tel" id="phone" name="phone" placeholder="519-555-1234" required>
 
-    <label for="phone">Customer Phone Number</label>
-    <input type="text" id="phone" name="phone" placeholder="e.g. 519-555-1234" required>
+    <label for="email">Email *</label>
+    <input type="email" id="email" name="email" placeholder="you@yourmail.com" required>
 
-    <label for="vehicle_make">Vehicle Make</label>
-    <input type="text" id="vehicle_make" name="vehicle_make" placeholder="e.g. Ford" required>
+    <label for="make">Vehicle Make *</label>
+    <input type="text" id="make" name="make" placeholder="Toyota" required>
 
-    <label for="vehicle_model">Vehicle Model</label>
-    <input type="text" id="vehicle_model" name="vehicle_model" placeholder="e.g. F-150" required>
+    <label for="model">Vehicle Model *</label>
+    <input type="text" id="model" name="model" placeholder="Camry" required>
 
-    <label for="vehicle_year">Vehicle Year</label>
-    <input type="text" id="vehicle_year" name="vehicle_year" placeholder="e.g. 2016" required>
+    <label for="year">Year *</label>
+    <input type="text" id="year" name="year" placeholder="2014" required>
 
-    <label for="codes">OBD2 Diagnostic Codes</label>
-    <textarea id="codes" name="codes" rows="4" placeholder="e.g. P0451, P2270" required></textarea>
+    <label for="codes">Diagnostic Code(s) *</label>
+    <textarea id="codes" name="codes" rows="3" placeholder="e.g. P0451, P2270" required></textarea>
 
-    <button type="submit">Generate Diagnostic Report</button>
+    <button type="submit">Generate Report</button>
+    <button type="button" onclick="autoFill()">Auto-Fill Example</button>
   </form>
 
-  <div id="logo">
-    <img src="/static/coderead_logo.png" alt="CodeREAD Logo" style="margin-top: 30px; width: 180px;">
+  <div class="footer-logo">
+    <img src="https://read.codes/logo-yellow.png" alt="CodeREAD Logo">
   </div>
+
+  <script>
+    function autoFill() {
+      document.getElementById("name").value = "Jane Doe";
+      document.getElementById("phone").value = "519-555-9999";
+      document.getElementById("email").value = "jane.doe@example.com";
+      document.getElementById("make").value = "Ford";
+      document.getElementById("model").value = "F150";
+      document.getElementById("year").value = "2016";
+      document.getElementById("codes").value = "P0451, P0460, P2270, P069E";
+    }
+  </script>
 
 </body>
 </html>
