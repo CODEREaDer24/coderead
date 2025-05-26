@@ -7,14 +7,15 @@
     body {
       background-color: #000;
       color: #FFD700;
-      font-family: Arial, sans-serif;
-      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      padding: 30px;
       line-height: 1.6;
     }
     h1, h2 {
       color: #FFD700;
       border-bottom: 1px solid #FFD700;
       padding-bottom: 5px;
+      margin-top: 30px;
     }
     .urgency-bar {
       margin: 20px 0;
@@ -26,7 +27,7 @@
     }
     .urgency-pointer {
       position: absolute;
-      top: -10px;
+      top: -12px;
       width: 0;
       height: 0;
       border-left: 10px solid transparent;
@@ -41,6 +42,10 @@
       text-decoration: underline;
     }
     .mechanic {
+      margin-bottom: 15px;
+    }
+    .header {
+      font-size: 1.2em;
       margin-bottom: 10px;
     }
   </style>
@@ -49,12 +54,12 @@
 
   <h1>CodeREAD Diagnostic Report</h1>
 
-  <div class="section">
+  <div class="section header">
     <strong>Name:</strong> {{ name }}<br>
     <strong>Phone:</strong> {{ phone }}<br>
     <strong>Email:</strong> {{ email }}<br>
     <strong>Vehicle:</strong> {{ year }} {{ make }} {{ model }}<br>
-    <strong>Code(s):</strong> {{ codes }}
+    <strong>Code(s) Detected:</strong> {{ codes }}
   </div>
 
   <h2>Urgency Scale</h2>
@@ -63,7 +68,7 @@
   </div>
   <p><strong>Urgency Level:</strong> {{ urgency_level }}/10 — {{ urgency_label }}</p>
 
-  <h2>CodeREAD AI Analysis / Recommendation</h2>
+  <h2>CodeREAD AI Recommendation</h2>
   <div class="section">{{ ai_recommendation }}</div>
 
   <h2>Layman’s Explanation</h2>
@@ -87,28 +92,26 @@
   <h2>Environmental Impact</h2>
   <div class="section">{{ environmental_impact }}</div>
 
-  <h2>Related Videos</h2>
+  <h2>Watch & Learn</h2>
   <div class="section">
-    <a href="{{ video_explainer }}" target="_blank">Code Explanation</a><br>
-    <a href="{{ video_diy }}" target="_blank">DIY Repair Guide</a>
+    <a href="{{ video_explainer }}" target="_blank">Video: Code Explanation</a><br>
+    <a href="{{ video_diy }}" target="_blank">Video: DIY Repair Guide</a>
   </div>
 
-  <h2>Recommended Mechanics</h2>
+  <h2>Recommended Mechanics in Windsor</h2>
   <div class="section">
     <div class="mechanic">
       <strong>Clover Auto</strong><br>
-      519-979-1834<br>
-      Windsor, ON
+      <a href="tel:5199791834">519-979-1834</a>
     </div>
     <div class="mechanic">
       <strong>Tecumseh Auto</strong><br>
-      519-956-9190<br>
-      Windsor, ON
+      <a href="tel:5199569190">519-956-9190</a>
     </div>
     <div class="mechanic">
       <strong>DLH Auto Service</strong><br>
-      2378 Central Ave, Windsor, ON N8W 4J2<br>
-      519-555-2222
+      2378 Central Ave<br>
+      <a href="tel:5195552222">519-555-2222</a>
     </div>
   </div>
 
