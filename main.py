@@ -1,95 +1,103 @@
 import os
 import openai
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request
 from dotenv import load_dotenv
-from fpdf import FPDF
-import tempfile
 
 load_dotenv()
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def safe_text(text):
-    return text.encode("latin-1", "replace").decode("latin-1")
+@app.route("/")
+def index():
+    return render_template("form.html")
 
-@app.route('/')
-def form():
-    return render_template('form.html')
-
-@app.route('/report', methods=['POST'])
+@app.route("/report", methods=["POST"])
 def report():
-    name = request.form['name']
-    email = request.form['email']
-    phone = request.form['phone']
-    address = request.form['address']
-    vehicle = request.form['vehicle']
-    code = request.form['code'].strip().upper()
+    name = request.form["name"]
+    email = request.form["email"]
+    phone = request.form["phone"]
+    address = request.form.get("address", "")
+    vehicle = request.form["vehicle"]
+    code = request.form["code"]
 
-    prompt = f"""You are CodeREAD AI. Break down OBD2 trouble code {code} for a {vehicle}.
-Return full report with:
-- Layman's Explanation
-- Technical Explanation
-- Urgency (1–10)
-- Estimated CAD Repair Cost
-- Consequences if Ignored
-- Preventative Tips
-- DIY Potential
-- Environmental Impact
-- Code Explanation YouTube Link
-- DIY Repair YouTube Link
-- Recommended Amazon Parts Link
-- CodeREAD AI Final Recommendation"""
+    prompt = f"""You are CodeREAD, an expert auto technician. Create a diagnostic breakdown for OBD-II trouble code {code} using the format below:
+
+1. Layman’s Explanation:
+2. Urgency Scale (1–10):
+3. Estimated Repair Cost (CAD):
+4. Consequences of Ignoring:
+5. Environmental Impact:
+6. Preventative Care Tips:
+7. DIY Potential:
+8. YouTube Video (link):
+9. Parts Link (Amazon or equivalent):
+"""
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
-            messages=[{"role": "user", "content": prompt}],
-            timeout=30
+            messages=[{"role": "user", "content": prompt}]
         )
-        gpt_text = response.choices[0].message.content
+        output = response["choices"][0]["message"]["content"]
+
+        # Parse the response
+        def extract(field, content):
+            for line in content.split("\n"):
+                if line.strip().lower().startswith(field.lower()):
+                    return line.split(":", 1)[-1].strip()
+            return "N/A"
+
+        explanation = extract("Layman", output)
+        urgency = extract("Urgency", output)
+        repair_cost = extract("Repair", output)
+        consequences = extract("Consequences", output)
+        environment = extract("Environmental", output)
+        prevention = extract("Preventative", output)
+        diy = extract("DIY", output)
+        diy_video_url = extract("YouTube", output)
+        parts_link = extract("Parts", output)
+
+        urgency_numeric = int(''.join(filter(str.isdigit, urgency)) or "5")
+        urgency_gauge_url = f"/static/gauge_{urgency_numeric}.png"
+
     except Exception as e:
-        gpt_text = f"Error: {str(e)}"
+        explanation = "Report unavailable."
+        urgency = "5"
+        repair_cost = "N/A"
+        consequences = "N/A"
+        environment = "N/A"
+        prevention = "N/A"
+        diy = "N/A"
+        diy_video_url = ""
+        parts_link = ""
+        urgency_gauge_url = "/static/gauge_5.png"
 
-    class PDF(FPDF):
-        def header(self):
-            self.set_font("Helvetica", "B", 16)
-            self.set_text_color(255, 204, 0)
-            self.cell(0, 10, "CodeREAD Diagnostic Report", ln=True, align="C")
+    mechanics = [
+        {"name": "Clover Auto", "address": "1190 County Rd 42, Windsor, ON", "phone": "519-979-1834"},
+        {"name": "Tecumseh Auto", "address": "5285 Tecumseh Rd E, Windsor, ON", "phone": "519-956-9190"},
+        {"name": "DLH Auto Service", "address": "2378 Central Ave, Windsor, ON", "phone": "519-944-6516"},
+        {"name": "Demario’s Auto Clinic", "address": "2366 Dougall Ave, Windsor, ON", "phone": "519-969-7922"},
+        {"name": "Kipping Tire & Automotive", "address": "1197 Ouellette Ave, Windsor, ON", "phone": "519-254-9511"},
+    ]
 
-        def section(self, title, content):
-            self.set_font("Helvetica", "B", 14)
-            self.set_text_color(255, 204, 0)
-            self.cell(0, 10, safe_text(title), ln=True)
-            self.set_font("Helvetica", "", 12)
-            self.set_text_color(255, 255, 255)
-            self.multi_cell(0, 10, safe_text(content))
+    return render_template("report.html",
+                           name=name,
+                           email=email,
+                           phone=phone,
+                           address=address,
+                           vehicle=vehicle,
+                           code=code,
+                           urgency=urgency_numeric,
+                           explanation=explanation,
+                           repair_cost=repair_cost,
+                           consequences=consequences,
+                           environment=environment,
+                           prevention=prevention,
+                           diy=diy,
+                           diy_video_url=diy_video_url,
+                           parts_link=parts_link,
+                           urgency_gauge_url=urgency_gauge_url,
+                           mechanics=mechanics)
 
-    pdf = PDF()
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.set_fill_color(26, 26, 26)
-    pdf.section("Customer Info", f"{name} | {email} | {phone} | {address} | {vehicle}")
-    pdf.section(f"Trouble Code: {code}", gpt_text)
-
-    temp_pdf_path = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf').name
-    pdf.output(temp_pdf_path)
-
-    return render_template(
-        'report.html',
-        name=name,
-        email=email,
-        phone=phone,
-        address=address,
-        vehicle=vehicle,
-        code=code,
-        result=gpt_text,
-        pdf_path=temp_pdf_path
-    )
-
-@app.route('/download')
-def download():
-    path = request.args.get('path')
-    return send_file(path, as_attachment=True, download_name="CodeREAD_Report.pdf")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
