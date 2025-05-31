@@ -36,10 +36,13 @@
       background-color: #FFD700;
       color: #000;
       padding: 10px 20px;
-      margin: 15px 10px 0 0;
+      margin: 15px 10px 0 10px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+    }
+    button:hover {
+      background-color: #e6c200;
     }
     .footer-logo {
       margin-top: 30px;
@@ -53,27 +56,27 @@
 
   <h1>CodeREAD Diagnostic Report Generator</h1>
 
-  <form action="/report" method="post" id="diagnosticForm">
+  <form action="/report" method="post" id="diagnosticForm" novalidate>
     <label for="name">Name *</label>
-    <input type="text" id="name" name="name" placeholder="Jane Driver" required>
+    <input type="text" id="name" name="name" placeholder="Jane Driver" title="Your full name" required>
 
     <label for="phone">Phone *</label>
-    <input type="tel" id="phone" name="phone" placeholder="519-555-1234" required>
+    <input type="tel" id="phone" name="phone" placeholder="519-555-1234" title="Enter your phone number" required>
 
     <label for="email">Email *</label>
-    <input type="email" id="email" name="email" placeholder="you@yourmail.com" required>
+    <input type="email" id="email" name="email" placeholder="you@yourmail.com" title="Your email address" required>
 
     <label for="make">Vehicle Make *</label>
-    <input type="text" id="make" name="make" placeholder="Toyota" required>
+    <input type="text" id="make" name="make" placeholder="Toyota" title="Vehicle manufacturer" required>
 
     <label for="model">Vehicle Model *</label>
-    <input type="text" id="model" name="model" placeholder="Camry" required>
+    <input type="text" id="model" name="model" placeholder="Camry" title="Vehicle model name" required>
 
     <label for="year">Year *</label>
-    <input type="text" id="year" name="year" placeholder="2014" required>
+    <input type="text" id="year" name="year" placeholder="2014" title="Model year" required>
 
     <label for="codes">Diagnostic Code(s) *</label>
-    <textarea id="codes" name="codes" rows="3" placeholder="e.g. P0451, P2270" required></textarea>
+    <textarea id="codes" name="codes" rows="3" placeholder="e.g. P0451, P2270" title="One or more OBD-II codes" required></textarea>
 
     <button type="submit">Generate Report</button>
     <button type="button" onclick="autoFill()">Auto-Fill Example</button>
