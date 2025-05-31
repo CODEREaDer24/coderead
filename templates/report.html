@@ -33,6 +33,7 @@
       border-left: 10px solid transparent;
       border-right: 10px solid transparent;
       border-bottom: 10px solid #FFD700;
+      transform: translateX(-50%);
     }
     .section {
       margin-bottom: 20px;
@@ -55,47 +56,51 @@
   <h1>CodeREAD Diagnostic Report</h1>
 
   <div class="section header">
-    <strong>Name:</strong> {{ name }}<br>
-    <strong>Phone:</strong> {{ phone }}<br>
-    <strong>Email:</strong> {{ email }}<br>
-    <strong>Vehicle:</strong> {{ year }} {{ make }} {{ model }}<br>
-    <strong>Code(s) Detected:</strong> {{ codes }}
+    <strong>Name:</strong> {{ name or 'N/A' }}<br>
+    <strong>Phone:</strong> {{ phone or 'N/A' }}<br>
+    <strong>Email:</strong> {{ email or 'N/A' }}<br>
+    <strong>Vehicle:</strong> {{ year or 'N/A' }} {{ make or '' }} {{ model or '' }}<br>
+    <strong>Code(s) Detected:</strong> {{ codes or 'N/A' }}
   </div>
 
   <h2>Urgency Scale</h2>
   <div class="urgency-bar">
-    <div class="urgency-pointer" style="left: {{ urgency_percent }}%;"></div>
+    <div class="urgency-pointer" style="left: {{ urgency_percent | default(50, true) }}%;"></div>
   </div>
-  <p><strong>Urgency Level:</strong> {{ urgency_level }}/10 — {{ urgency_label }}</p>
+  <p><strong>Urgency Level:</strong> {{ urgency_level or 'N/A' }}/10 — {{ urgency_label or 'N/A' }}</p>
 
   <h2>CodeREAD AI Recommendation</h2>
-  <div class="section">{{ ai_recommendation }}</div>
+  <div class="section">{{ ai_recommendation or 'No recommendation available.' }}</div>
 
   <h2>Layman’s Explanation</h2>
-  <div class="section">{{ layman_explanation }}</div>
+  <div class="section">{{ layman_explanation or 'Explanation not available.' }}</div>
 
   <h2>Technical Explanation</h2>
-  <div class="section">{{ technical_explanation }}</div>
+  <div class="section">{{ technical_explanation or 'Technical data not provided.' }}</div>
 
   <h2>Estimated Repair Cost</h2>
-  <div class="section">{{ repair_cost }}</div>
+  <div class="section">{{ repair_cost or 'Unavailable' }}</div>
 
   <h2>Consequences of Ignoring</h2>
-  <div class="section">{{ consequences }}</div>
+  <div class="section">{{ consequences or 'Not specified.' }}</div>
 
   <h2>Preventative Care Tips</h2>
-  <div class="section">{{ preventative_tips }}</div>
+  <div class="section">{{ preventative_tips or 'No tips provided.' }}</div>
 
   <h2>DIY Repair Potential</h2>
-  <div class="section">{{ diy_potential }}</div>
+  <div class="section">{{ diy_potential or 'Unspecified' }}</div>
 
   <h2>Environmental Impact</h2>
-  <div class="section">{{ environmental_impact }}</div>
+  <div class="section">{{ environmental_impact or 'Unknown' }}</div>
 
   <h2>Watch & Learn</h2>
   <div class="section">
-    <a href="{{ video_explainer }}" target="_blank">Video: Code Explanation</a><br>
-    <a href="{{ video_diy }}" target="_blank">Video: DIY Repair Guide</a>
+    <a href="{{ video_explainer or 'https://www.youtube.com/results?search_query=obd2+code+{{ codes }}' }}" target="_blank">
+      Video: Code Explanation
+    </a><br>
+    <a href="{{ video_diy or 'https://www.youtube.com/results?search_query=how+to+fix+obd2+code+{{ codes }}' }}" target="_blank">
+      Video: DIY Repair Guide
+    </a>
   </div>
 
   <h2>Recommended Mechanics in Windsor</h2>
@@ -111,7 +116,7 @@
     <div class="mechanic">
       <strong>DLH Auto Service</strong><br>
       2378 Central Ave<br>
-      <a href="tel:5195552222">519-555-2222</a>
+      <a href="tel:5199449011">519-944-9011</a>
     </div>
   </div>
 
