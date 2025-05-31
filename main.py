@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import openai
 import os
+import re
 
 app = Flask(__name__)
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -23,15 +24,14 @@ def report():
     year = request.form.get('year', 'Unknown')
     codes = request.form.get('codes', '')
 
-    print(f"Received codes: {codes}")
-
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are CodeREAD AI, an expert automotive diagnostic assistant."},
                 {"role": "user", "content": f"""Analyze the following OBD-II codes: {codes}.
-Respond with the following in plain text:
+Respond with the following in plain text (no formatting, just label and value):
+
 LAYMAN_EXPLANATION:
 TECHNICAL_EXPLANATION:
 URGENCY_LEVEL:
@@ -48,13 +48,11 @@ VIDEO_DIY:
         )
 
         parsed = response['choices'][0]['message']['content']
-        print("AI response:\n", parsed)
+        print("\n--- RAW AI OUTPUT ---\n", parsed)
 
         def extract(tag):
-            try:
-                return parsed.split(f"{tag}:")[1].split("\n", 1)[0].strip()
-            except:
-                return "Data not available"
+            match = re.search(rf"{tag}:\s*(.+?)(?=\n[A-Z_]+:|\Z)", parsed, re.DOTALL)
+            return match.group(1).strip() if match else "Data not available"
 
         urgency_raw = extract("URGENCY_LEVEL")
         urgency = int(urgency_raw) if urgency_raw.isdigit() else 5
@@ -62,12 +60,18 @@ VIDEO_DIY:
         urgency_label = "Immediate – See Mechanic" if urgency > 7 else "Fine for Now" if urgency <= 3 else "Can Wait Until Next Visit"
 
         return render_template('report.html',
-            name=name, phone=phone, email=email, make=make, model=model, year=year, codes=codes,
-            layman_explanation=extract("LAYMAN_EXPLANATION"),
-            technical_explanation=extract("TECHNICAL_EXPLANATION"),
+            name=name,
+            phone=phone,
+            email=email,
+            make=make,
+            model=model,
+            year=year,
+            codes=codes,
             urgency_level=urgency,
             urgency_percent=urgency_percent,
             urgency_label=urgency_label,
+            layman_explanation=extract("LAYMAN_EXPLANATION"),
+            technical_explanation=extract("TECHNICAL_EXPLANATION"),
             repair_cost=extract("REPAIR_COST"),
             consequences=extract("CONSEQUENCES"),
             preventative_tips=extract("PREVENTATIVE_TIPS"),
@@ -79,15 +83,21 @@ VIDEO_DIY:
         )
 
     except Exception as e:
-        print("Error during report generation:", str(e))
+        print("Error generating report:", str(e))
         return render_template('report.html',
-            name=name, phone=phone, email=email, make=make, model=model, year=year, codes=codes,
-            layman_explanation="Could not generate explanation.",
-            technical_explanation="N/A",
+            name=name,
+            phone=phone,
+            email=email,
+            make=make,
+            model=model,
+            year=year,
+            codes=codes,
             urgency_level=5,
             urgency_percent=50,
             urgency_label="Unknown",
-            repair_cost="Unknown",
+            layman_explanation="Could not generate explanation.",
+            technical_explanation="N/A",
+            repair_cost="Unavailable",
             consequences="Unknown",
             preventative_tips="Unknown",
             diy_potential="Unknown",
