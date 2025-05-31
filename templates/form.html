@@ -9,12 +9,14 @@
       color: #FFD700;
       font-family: Arial, sans-serif;
       text-align: center;
+      margin: 0;
+      padding: 0;
     }
     form {
       background-color: #111;
       border: 1px solid #FFD700;
       padding: 20px;
-      margin: 20px auto;
+      margin: 40px auto;
       max-width: 600px;
       border-radius: 10px;
     }
@@ -23,7 +25,7 @@
       margin-top: 10px;
       text-align: left;
     }
-    input, textarea, select {
+    input, textarea {
       width: 100%;
       padding: 8px;
       margin-top: 4px;
@@ -50,6 +52,25 @@
     .footer-logo img {
       width: 200px;
     }
+
+    /* LOADER OVERLAY */
+    #loaderOverlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      color: red;
+      z-index: 9999;
+      text-align: center;
+      padding-top: 20%;
+      font-size: 2em;
+      font-family: Arial, sans-serif;
+    }
+
+    #loaderOverlay svg {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -58,25 +79,25 @@
 
   <form action="/report" method="post" id="diagnosticForm" novalidate>
     <label for="name">Name *</label>
-    <input type="text" id="name" name="name" placeholder="Jane Driver" title="Your full name" required>
+    <input type="text" id="name" name="name" placeholder="Jane Driver" required>
 
     <label for="phone">Phone *</label>
-    <input type="tel" id="phone" name="phone" placeholder="519-555-1234" title="Enter your phone number" required>
+    <input type="tel" id="phone" name="phone" placeholder="519-555-1234" required>
 
     <label for="email">Email *</label>
-    <input type="email" id="email" name="email" placeholder="you@yourmail.com" title="Your email address" required>
+    <input type="email" id="email" name="email" placeholder="you@yourmail.com" required>
 
     <label for="make">Vehicle Make *</label>
-    <input type="text" id="make" name="make" placeholder="Toyota" title="Vehicle manufacturer" required>
+    <input type="text" id="make" name="make" placeholder="Toyota" required>
 
     <label for="model">Vehicle Model *</label>
-    <input type="text" id="model" name="model" placeholder="Camry" title="Vehicle model name" required>
+    <input type="text" id="model" name="model" placeholder="Camry" required>
 
     <label for="year">Year *</label>
-    <input type="text" id="year" name="year" placeholder="2014" title="Model year" required>
+    <input type="text" id="year" name="year" placeholder="2014" required>
 
     <label for="codes">Diagnostic Code(s) *</label>
-    <textarea id="codes" name="codes" rows="3" placeholder="e.g. P0451, P2270" title="One or more OBD-II codes" required></textarea>
+    <textarea id="codes" name="codes" rows="3" placeholder="e.g. P0451, P2270" required></textarea>
 
     <button type="submit">Generate Report</button>
     <button type="button" onclick="autoFill()">Auto-Fill Example</button>
@@ -84,6 +105,21 @@
 
   <div class="footer-logo">
     <img src="https://read.codes/logo-yellow.png" alt="CodeREAD Logo">
+  </div>
+
+  <!-- LOADING ANIMATION OVERLAY -->
+  <div id="loaderOverlay">
+    <div>
+      <div style="font-size: 2.5em; font-weight: bold;">Generating CodeREAD Report...</div>
+      <div>
+        <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="35" stroke="red" stroke-width="10" stroke-dasharray="180" stroke-linecap="round">
+            <animateTransform attributeName="transform" type="rotate" dur="1s" repeatCount="indefinite" from="0 50 50" to="360 50 50" />
+          </circle>
+        </svg>
+      </div>
+      <div style="margin-top:10px;">www.read.codes</div>
+    </div>
   </div>
 
   <script>
@@ -96,6 +132,10 @@
       document.getElementById("year").value = "2016";
       document.getElementById("codes").value = "P0451, P0460, P2270, P069E";
     }
+
+    document.getElementById("diagnosticForm").addEventListener("submit", function () {
+      document.getElementById("loaderOverlay").style.display = "block";
+    });
   </script>
 
 </body>
