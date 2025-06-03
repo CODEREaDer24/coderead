@@ -1,4 +1,44 @@
+<<!-- CodeREAD Form (form.html) -->
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeREAD Diagnostic Form</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="loader" class="hidden">
+    <h2>Generating CodeREAD Report... <a href="https://www.read.codes">www.read.codes</a></h2>
+  </div>
+  <div class="form-container">
+    <img src="/static/coderead-logo.png" alt="CodeREAD Logo" class="logo">
+    <form id="codeForm" action="/report" method="post">
+      <input type="text" name="name" placeholder="Name" required>
+      <input type="text" name="phone" placeholder="Phone Number" required>
+      <input type="email" name="email" placeholder="Email" required>
+      <input type="text" name="vehicle" placeholder="Vehicle (e.g. 2016 Ford F150)" required>
+      <input type="text" name="codes" placeholder="Engine Codes (e.g. P0451, P0460)" required>
+      <button type="submit">Generate Report</button>
+      <button type="button" onclick="autoFill()">Auto-Generate</button>
+    </form>
+  </div>
+  <script>
+    function autoFill() {
+      document.querySelector('input[name="name"]').value = "Max Torque";
+      document.querySelector('input[name="phone"]').value = "555-FAST-CAR";
+      document.querySelector('input[name="email"]').value = "max@read.codes";
+      document.querySelector('input[name="vehicle"]').value = "2021 Cybertruck";
+      document.querySelector('input[name="codes"]').value = "P2270, P0451";
+    }
+
+    document.getElementById("codeForm").addEventListener("submit", function () {
+      document.getElementById("loader").classList.remove("hidden");
+    });
+  </script>
+</body>
+</html>
+DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
