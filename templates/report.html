@@ -1,40 +1,79 @@
-<!-- CodeREAD Form (form.html) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeREAD Diagnostic Form</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeREAD Diagnostic Report</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="loader" class="hidden">
-    <h2>Generating CodeREAD Report... <a href="https://www.read.codes">www.read.codes</a></h2>
-  </div>
-  <div class="form-container">
-    <img src="/static/coderead-logo.png" alt="CodeREAD Logo" class="logo">
-    <form id="codeForm" action="/report" method="post">
-      <input type="text" name="name" placeholder="Name" required>
-      <input type="text" name="phone" placeholder="Phone Number" required>
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="text" name="vehicle" placeholder="Vehicle (e.g. 2016 Ford F150)" required>
-      <input type="text" name="codes" placeholder="Engine Codes (e.g. P0451, P0460)" required>
-      <button type="submit">Generate Report</button>
-      <button type="button" onclick="autoFill()">Auto-Generate</button>
-    </form>
-  </div>
-  <script>
-    function autoFill() {
-      document.querySelector('input[name="name"]').value = "Max Torque";
-      document.querySelector('input[name="phone"]').value = "555-FAST-CAR";
-      document.querySelector('input[name="email"]').value = "max@read.codes";
-      document.querySelector('input[name="vehicle"]').value = "2021 Cybertruck";
-      document.querySelector('input[name="codes"]').value = "P2270, P0451";
-    }
+  <div class="report-container">
+    <h1>CodeREAD Diagnostic Report</h1>
+    <p><strong>Name:</strong> Jane Doe<br>
+       <strong>Phone:</strong> 519-555-9999<br>
+       <strong>Email:</strong> jane.doe@example.com<br>
+       <strong>Vehicle:</strong> 2016 Ford F150<br>
+       <strong>Code(s) Detected:</strong> P0451, P0460, P2270, P069E</p>
 
-    document.getElementById("codeForm").addEventListener("submit", function () {
-      document.getElementById("loader").classList.remove("hidden");
-    });
-  </script>
+    <div class="urgency-section">
+      <h2>Urgency Scale</h2>
+      <div class="urgency-gauge">
+        <div class="urgency-score">5/10 — Can Wait Until Next Visit</div>
+        <div class="urgency-bar">
+          <div class="urgency-fill" style="width: 50%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <h2>CodeREAD AI Recommendation</h2>
+    <p>These faults should not be ignored. Schedule a visit to your mechanic to diagnose and fix these issues to prevent long-term vehicle damage.</p>
+
+    <h2>Layman’s Explanation</h2>
+    <p>Your truck is having trouble accurately reading the fuel level and air/fuel mix. This can lead to stalling or running inefficiently. It’s not an emergency today, but don’t ignore it.</p>
+
+    <h2>Technical Explanation</h2>
+    <ul>
+      <li><strong>P0451:</strong> EVAP Pressure Sensor Range/Performance</li>
+      <li><strong>P0460:</strong> Fuel Level Sensor Circuit Malfunction</li>
+      <li><strong>P2270:</strong> O2 Sensor Signal Stuck Lean</li>
+      <li><strong>P069E:</strong> Fuel Pump Control Module Requested MIL Illumination</li>
+    </ul>
+
+    <h2>Estimated Repair Cost</h2>
+    <p>$200–$1000+ depending on parts and labor</p>
+
+    <h2>Consequences of Ignoring</h2>
+    <p>Reduced fuel economy, misfires, sluggish acceleration, potential long-term damage to sensors and the fuel system.</p>
+
+    <h2>Preventative Care Tips</h2>
+    <ul>
+      <li>Keep your fuel tank above ¼ full to protect sensors.</li>
+      <li>Replace fuel and air filters regularly.</li>
+      <li>Don’t ignore engine lights—get scanned promptly.</li>
+    </ul>
+
+    <h2>DIY Repair Potential</h2>
+    <p>Moderate. Some sensors are accessible, but fuel system work may require a lift and advanced tools.</p>
+
+    <h2>Environmental Impact</h2>
+    <p>Increased emissions and wasted fuel. Get this fixed for the planet and your wallet.</p>
+
+    <h2>Watch & Learn</h2>
+    <ul>
+      <li><a href="https://www.read.codes/report" target="_blank">▶ Code Explanation Video</a></li>
+      <li><a href="https://www.read.codes/report" target="_blank">🔧 DIY Repair Guide</a></li>
+    </ul>
+
+    <h2>Recommended Mechanics (Windsor, ON)</h2>
+    <ul>
+      <li><strong>Clover Auto:</strong> 519-979-1834</li>
+      <li><strong>Tecumseh Auto:</strong> 519-956-9190</li>
+      <li><strong>DLH Auto Service:</strong> 2378 Central Ave · 519-555-2222</li>
+    </ul>
+
+    <footer class="footer">
+      🚘 Powered by CodeREAD – Smarter Diagnostics at <a href="https://www.read.codes">www.read.codes</a>
+    </footer>
+  </div>
 </body>
 </html>
