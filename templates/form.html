@@ -1,181 +1,84 @@
-<<!-- CodeREAD Form (form.html) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeREAD Diagnostic Form</title>
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-  <div id="loader" class="hidden">
-    <h2>Generating CodeREAD Report... <a href="https://www.read.codes">www.read.codes</a></h2>
-  </div>
-  <div class="form-container">
-    <img src="/static/coderead-logo.png" alt="CodeREAD Logo" class="logo">
-    <form id="codeForm" action="/report" method="post">
-      <input type="text" name="name" placeholder="Name" required>
-      <input type="text" name="phone" placeholder="Phone Number" required>
-      <input type="email" name="email" placeholder="Email" required>
-      <input type="text" name="vehicle" placeholder="Vehicle (e.g. 2016 Ford F150)" required>
-      <input type="text" name="codes" placeholder="Engine Codes (e.g. P0451, P0460)" required>
-      <button type="submit">Generate Report</button>
-      <button type="button" onclick="autoFill()">Auto-Generate</button>
-    </form>
-  </div>
-  <script>
-    function autoFill() {
-      document.querySelector('input[name="name"]').value = "Max Torque";
-      document.querySelector('input[name="phone"]').value = "555-FAST-CAR";
-      document.querySelector('input[name="email"]').value = "max@read.codes";
-      document.querySelector('input[name="vehicle"]').value = "2021 Cybertruck";
-      document.querySelector('input[name="codes"]').value = "P2270, P0451";
-    }
-
-    document.getElementById("codeForm").addEventListener("submit", function () {
-      document.getElementById("loader").classList.remove("hidden");
-    });
-  </script>
-</body>
-</html>
-DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>CodeREAD Diagnostic Form</title>
+  <title>CodeREAD Diagnostic Intake</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <style>
     body {
-      background-color: #000;
-      color: #FFD700;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
+      background-color: #f4f7fa;
+      font-family: 'Segoe UI', sans-serif;
     }
-    form {
-      background-color: #111;
-      border: 1px solid #FFD700;
-      padding: 20px;
-      margin: 40px auto;
+    .coderead-header {
+      text-align: center;
+      margin-top: 2rem;
+    }
+    .coderead-header img {
+      max-height: 60px;
+      margin-bottom: 10px;
+    }
+    .coderead-form {
       max-width: 600px;
-      border-radius: 10px;
+      margin: auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
     }
-    label {
-      display: block;
-      margin-top: 10px;
-      text-align: left;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      border: 1px solid #FFD700;
-      border-radius: 4px;
-      background-color: #222;
-      color: #FFD700;
-    }
-    button {
-      background-color: #FFD700;
-      color: #000;
-      padding: 10px 20px;
-      margin: 15px 10px 0 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #e6c200;
-    }
-    .footer-logo {
-      margin-top: 30px;
-    }
-    .footer-logo img {
-      width: 200px;
-    }
-
-    /* LOADER OVERLAY */
-    #loaderOverlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #000;
-      color: red;
-      z-index: 9999;
-      text-align: center;
-      padding-top: 20%;
-      font-size: 2em;
-      font-family: Arial, sans-serif;
-    }
-
-    #loaderOverlay svg {
-      margin-top: 20px;
+    .autofill-btn {
+      float: right;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
 
-  <h1>CodeREAD Diagnostic Report Generator</h1>
-
-  <form action="/report" method="post" id="diagnosticForm" novalidate>
-    <label for="name">Name *</label>
-    <input type="text" id="name" name="name" placeholder="Jane Driver" required>
-
-    <label for="phone">Phone *</label>
-    <input type="tel" id="phone" name="phone" placeholder="519-555-1234" required>
-
-    <label for="email">Email *</label>
-    <input type="email" id="email" name="email" placeholder="you@yourmail.com" required>
-
-    <label for="make">Vehicle Make *</label>
-    <input type="text" id="make" name="make" placeholder="Toyota" required>
-
-    <label for="model">Vehicle Model *</label>
-    <input type="text" id="model" name="model" placeholder="Camry" required>
-
-    <label for="year">Year *</label>
-    <input type="text" id="year" name="year" placeholder="2014" required>
-
-    <label for="codes">Diagnostic Code(s) *</label>
-    <textarea id="codes" name="codes" rows="3" placeholder="e.g. P0451, P2270" required></textarea>
-
-    <button type="submit">Generate Report</button>
-    <button type="button" onclick="autoFill()">Auto-Fill Example</button>
-  </form>
-
-  <div class="footer-logo">
-    <img src="https://read.codes/logo-yellow.png" alt="CodeREAD Logo">
+  <div class="coderead-header">
+    <img src="https://www.read.codes/logo.png" alt="CodeREAD Logo" />
+    <h1>Submit Your Diagnostic</h1>
+    <p>Let’s CodeREAD the sh*t out of it.™</p>
   </div>
 
-  <!-- LOADING ANIMATION OVERLAY -->
-  <div id="loaderOverlay">
-    <div>
-      <div style="font-size: 2.5em; font-weight: bold;">Generating CodeREAD Report...</div>
-      <div>
-        <svg width="80" height="80" viewBox="0 0 100 100" fill="none">
-          <circle cx="50" cy="50" r="35" stroke="red" stroke-width="10" stroke-dasharray="180" stroke-linecap="round">
-            <animateTransform attributeName="transform" type="rotate" dur="1s" repeatCount="indefinite" from="0 50 50" to="360 50 50" />
-          </circle>
-        </svg>
+  <div class="coderead-form">
+    <form method="POST" action="/generate_report">
+      <div class="mb-3">
+        <label for="name" class="form-label">Full Name</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="Jane Doe">
       </div>
-      <div style="margin-top:10px;">www.read.codes</div>
-    </div>
+
+      <div class="mb-3">
+        <label for="phone" class="form-label">Phone Number</label>
+        <input type="text" class="form-control" id="phone" name="phone" placeholder="519-555-1234">
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email Address</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="jane.doe@example.com">
+      </div>
+
+      <div class="mb-3">
+        <label for="vehicle" class="form-label">Vehicle</label>
+        <input type="text" class="form-control" id="vehicle" name="vehicle" placeholder="2016 Ford F150">
+      </div>
+
+      <div class="mb-3">
+        <label for="codes" class="form-label">Engine Codes</label>
+        <input type="text" class="form-control" id="codes" name="codes" placeholder="P0451, P0460, P2270, P069E">
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">🛠️ Run CodeREAD</button>
+      <button type="button" class="btn btn-secondary w-100 mt-2 autofill-btn" onclick="autofillForm()">✨ Auto-Fill for Demo</button>
+    </form>
   </div>
 
   <script>
-    function autoFill() {
-      document.getElementById("name").value = "Jane Doe";
-      document.getElementById("phone").value = "519-555-9999";
-      document.getElementById("email").value = "jane.doe@example.com";
-      document.getElementById("make").value = "Ford";
-      document.getElementById("model").value = "F150";
-      document.getElementById("year").value = "2016";
-      document.getElementById("codes").value = "P0451, P0460, P2270, P069E";
+    function autofillForm() {
+      document.getElementById('name').value = 'Jane Doe';
+      document.getElementById('phone').value = '519-555-9999';
+      document.getElementById('email').value = 'jane.doe@example.com';
+      document.getElementById('vehicle').value = '2016 Ford F150';
+      document.getElementById('codes').value = 'P0451, P0460, P2270, P069E';
     }
-
-    document.getElementById("diagnosticForm").addEventListener("submit", function () {
-      document.getElementById("loaderOverlay").style.display = "block";
-    });
   </script>
 
 </body>
