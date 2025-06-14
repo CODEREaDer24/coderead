@@ -1,22 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>CodeREAD Diagnostic Form</title>
+    <meta charset="UTF-8">
+    <title>CodeREAD Loading</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #ffeb3b;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .spinner {
+            border: 6px solid #444;
+            border-top: 6px solid #ffeb3b;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message {
+            font-size: 1.4rem;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInOut 10s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 40% { opacity: 1; }
+            50%, 90% { opacity: 0; }
+        }
+    </style>
 </head>
-<body style="background-color:#000; color:#fff; font-family:Arial, sans-serif;">
-  <div style="max-width:600px;margin:0 auto;padding:2em;">
-    <h1 style="color:yellow;">CodeREAD Diagnostic</h1>
-    <form action="/report" method="POST">
-      <input type="text" name="name" placeholder="Name" required style="width:100%;margin-bottom:10px;" />
-      <input type="email" name="email" placeholder="Email" required style="width:100%;margin-bottom:10px;" />
-      <input type="tel" name="phone" placeholder="Phone" required style="width:100%;margin-bottom:10px;" />
-      <input type="text" name="make" placeholder="Make" required style="width:100%;margin-bottom:10px;" />
-      <input type="text" name="model" placeholder="Model" required style="width:100%;margin-bottom:10px;" />
-      <input type="number" name="year" placeholder="Year" required style="width:100%;margin-bottom:10px;" />
-      <input type="text" name="code" placeholder="Diagnostic Code (e.g. P0420)" required style="width:100%;margin-bottom:10px;" />
-      <button type="submit" style="background:yellow;color:black;width:100%;padding:1em;">Generate Report</button>
-    </form>
-  </div>
+<body>
+    <div class="spinner"></div>
+    <div class="message" id="loadingText">Initializing CodeREAD Systems...</div>
+
+    <script>
+        const messages = [
+            "🔍 Connecting to vehicle’s onboard computer...",
+            "📡 Scanning for stored and pending fault codes...",
+            "💡 Interrogating live engine data streams...",
+            "🧠 Evaluating fault consequences and repair urgency...",
+            "📤 Uploading diagnostic insights to CodeREAD AI..."
+        ];
+
+        let current = 0;
+        const loadingText = document.getElementById('loadingText');
+
+        function cycleMessages() {
+            loadingText.style.opacity = 0;
+            setTimeout(() => {
+                loadingText.textContent = messages[current];
+                loadingText.style.opacity = 1;
+                current = (current + 1) % messages.length;
+            }, 300);
+        }
+
+        setInterval(cycleMessages, 4000);
+    </script>
 </body>
 </html>
