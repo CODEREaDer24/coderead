@@ -1,47 +1,49 @@
-from flask import Flask, render_template, request, send_file
-import io
+from flask import Flask, render_template, request, send_file, Markup
 import pdfkit
+import tempfile
+import os
 
 app = Flask(__name__)
 
-# Hardcoded mechanic data
+# Static mechanic data
 mechanics = [
-    {"name": "Clover Auto Service", "address": "1130 Clover Ave", "phone": "(519) 979-1834"},
-    {"name": "Tecumseh Auto Repair", "address": "11931 Tecumseh Rd E", "phone": "(519) 956-9190"},
-    {"name": "Demario’s Auto Clinic", "address": "2366 Dougall Ave", "phone": "(519) 972-8383"},
+    {"name": "Clover Auto", "address": "5195 Clover Ave, Windsor, ON", "phone": "519-979-1834"},
+    {"name": "Tecumseh Auto", "address": "1295 Walker Rd, Windsor, ON", "phone": "519-956-9190"},
+    {"name": "Demario’s Auto Clinic", "address": "2366 Dougall Ave, Windsor, ON", "phone": "519-972-8383"}
 ]
 
-# Sample diagnostic data for demo; in real use, this would come from DB or AI processing
+# Sample report structure
 sample_report = {
     "code": "P0171",
-    "vehicle": "2015 Ford F-150",
-    "layman": "Your engine is running with too much air and not enough fuel. It’s 'running lean', which can cause poor performance and long-term damage.",
+    "vehicle": "2014 Chevrolet Malibu",
+    "layman": "Your engine is running lean – too much air, not enough fuel.",
     "youtube": "https://www.youtube.com/watch?v=MX3A1f-M_7I",
-    "technical": "The PCM detected that the air-fuel mixture is too lean in Bank 1, often caused by vacuum leaks, faulty MAF sensor, or weak fuel delivery.",
+    "technical": "PCM detects a lean air/fuel ratio in Bank 1 – often due to vacuum leak, dirty MAF sensor, or low fuel pressure.",
     "consequences": [
-        "Loss of power and acceleration",
-        "Misfires and rough idle",
-        "Damage to catalytic converter (expensive)",
-        "Decreased fuel economy",
+        "Rough idle and hesitation",
+        "Reduced performance",
+        "Catalytic converter damage"
     ],
-    "repair_cost": [
+    "costs": [
         "MAF sensor replacement: $120–$300",
-        "Fuel injector cleaning/replacement: $90–$450",
         "Vacuum leak repair: $150–$350",
+        "Fuel pump replacement: $400–$700"
     ],
-    "environmental_impact": "A lean-running engine burns fuel inefficiently, increasing emissions and possibly damaging pollution control systems.",
+    "environment": "Leaner mix increases NOx emissions and can ruin catalytic converter.",
     "preventative": [
-        "Replace air filter regularly",
-        "Use quality fuel and fuel system cleaners",
-        "Inspect vacuum lines annually for wear or cracks",
+        "Inspect vacuum hoses regularly",
+        "Use quality fuel",
+        "Replace air filter annually"
     ],
-    "diy_level": "Moderate",
-    "diy_link": "https://www.youtube.com/watch?v=WFxULjbnxig",
+    "diy": {
+        "level": "Moderate",
+        "video": "https://www.youtube.com/watch?v=WFxULjbnxig"
+    },
     "parts": [
-        "Mass Air Flow (MAF) Sensor – $80–$150",
-        "Fuel Injector Cleaner – $10–$20",
-        "Vacuum Hose Kit – $25–$50",
-    ],
+        {"name": "MAF Sensor", "price": "$85–$140"},
+        {"name": "Vacuum Hose Kit", "price": "$30–$50"},
+        {"name": "Fuel System Cleaner", "price": "$10–$20"}
+    ]
 }
 
 @app.route("/", methods=["GET", "POST"])
@@ -49,35 +51,22 @@ def home():
     if request.method == "POST":
         code = request.form.get("engine_code", "").upper()
         city = request.form.get("city", "")
-        vehicle_year = request.form.get("year", "")
-        vehicle_make = request.form.get("make", "")
-        vehicle_model = request.form.get("model", "")
-
-        # Here you would replace this logic with your actual code lookup and processing
-        # For now, return the sample report with replaced code and vehicle info
+        year = request.form.get("year", "")
+        make = request.form.get("make", "")
+        model = request.form.get("model", "")
+        
         report = sample_report.copy()
         report["code"] = code or sample_report["code"]
-        report["vehicle"] = f"{vehicle_year} {vehicle_make} {vehicle_model}".strip() or sample_report["vehicle"]
+        report["vehicle"] = f"{year} {make} {model}".strip() or sample_report["vehicle"]
 
-        return render_template(
-            "report.html",
-            report=report,
-            mechanics=mechanics,
-        )
+        html_content = render_template("report_content.html", report=report, mechanics=mechanics)
+        return render_template("report.html", report=report, report_html=Markup(html_content), mechanics=mechanics)
+
     return render_template("form.html")
 
 @app.route("/download-pdf", methods=["POST"])
 def download_pdf():
-    html = request.form.get("html")
-    if not html:
-        return "No report content to generate PDF.", 400
-    pdf = pdfkit.from_string(html, False)
-    return send_file(
-        io.BytesIO(pdf),
-        download_name="CodeREAD_Report.pdf",
-        mimetype="application/pdf",
-        as_attachment=True,
-    )
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    html = request.form.get("html", "")
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
+        pdfkit.from_string(html, f.name)
+        return send_file(f.name, as_attachment=True, download_name="CodeREAD_Report.pdf")
