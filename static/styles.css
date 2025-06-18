@@ -1,0 +1,93 @@
+body {
+    background-color: #111;
+    color: #f1f1f1;
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.form-container, .report-container {
+    max-width: 700px;
+    margin: 40px auto;
+    background-color: #1a1a1a;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.2);
+}
+
+h1, h2 {
+    color: #ffd700;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+input:focus, textarea:focus {
+    outline: 2px solid #ffd700;
+    background-color: #222;
+    color: #fff;
+}
+
+button {
+    background-color: #ffd700;
+    color: #000;
+    padding: 12px 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #ffcc00;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 20px;
+    width: 120px;
+}
+
+a {
+    color: #4dd;
+    text-decoration: underline;
+}
+
+.urgency-box {
+    background-color: #222;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.urgent {
+    color: #ff4444;
+    font-weight: bold;
+}
+
+.moderate {
+    color: #ffaa00;
+    font-weight: bold;
+}
+
+.low {
+    color: #44ff44;
+    font-weight: bold;
+}
+
+.download-btn {
+    display: inline-block;
+    margin-top: 20px;
+    background-color: #333;
+    color: #ffd700;
+    padding: 10px 14px;
+    border-radius: 5px;
+    text-decoration: none;
+}
