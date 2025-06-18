@@ -1,121 +1,140 @@
-from flask import Flask, render_template, request, send_file
-from fpdf import FPDF
-import sqlite3
-import os
-import smtplib
-from email.message import EmailMessage
+from flask import Flask, request, render_template_string
 
 app = Flask(__name__)
-DATABASE = 'coderead.db'
 
-MECHANICS = [
-    {"name": "DLH Auto Service", "address": "2378 Central Ave, Windsor, ON N8W 4J2", "maps": "https://maps.google.com/?q=2378+Central+Ave+Windsor+ON"},
-    {"name": "Demario’s Auto Clinic", "address": "2366 Dougall Ave, Windsor, ON N8X 1T1", "maps": "https://maps.google.com/?q=2366+Dougall+Ave+Windsor+ON"},
-    {"name": "Kipping Tire & Automotive", "address": "1197 Ouellette Ave, Windsor, ON N9A 4K1", "maps": "https://maps.google.com/?q=1197+Ouellette+Ave+Windsor+ON"},
-]
+FORM_HTML = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CodeREAD Form</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: #eee; }
+    .container { max-width: 600px; margin: 40px auto; padding: 20px; background: #1e1e1e; border-radius: 8px; box-shadow: 0 0 15px #ffcc00; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input[type=text], input[type=email] {
+      width: 100%; padding: 10px; margin-top: 6px; border: none; border-radius: 4px; background: #333; color: #eee;
+    }
+    button {
+      margin-top: 20px; background: #ffcc00; border: none; padding: 12px 20px; font-weight: bold; color: #121212; border-radius: 4px;
+      cursor: pointer; transition: background 0.3s ease;
+    }
+    button:hover { background: #e6b800; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CodeREAD Diagnostic Form</h1>
+    <form method="POST" action="/submit">
+      <label for="name">Name *</label>
+      <input id="name" name="name" type="text" placeholder="Jane Doe" required />
+      <label for="email">Email *</label>
+      <input id="email" name="email" type="email" placeholder="jane@example.com" required />
+      <label for="code">Engine Code *</label>
+      <input id="code" name="code" type="text" placeholder="P0420" required />
+      <label for="phone">Phone</label>
+      <input id="phone" name="phone" type="text" placeholder="(555) 123-4567" />
+      <button type="submit">Generate Report</button>
+    </form>
+  </div>
+</body>
+</html>
+"""
 
-def init_db():
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS reports (
-                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                 name TEXT,
-                 email TEXT,
-                 code TEXT,
-                 phone TEXT)''')
-    conn.commit()
-    conn.close()
+REPORT_HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CodeREAD Report for {{ name }}</title>
+  <style>
+    body {
+      background: #121212;
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 25px #ffcc00;
+      background-image: linear-gradient(135deg, #1e1e1e 25%, #292929 75%);
+    }
+    h1 {
+      color: #ffcc00;
+      border-bottom: 2px solid #ffcc00;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+    .field-label {
+      font-weight: 700;
+      color: #f5d94e;
+    }
+    .report-section {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #444;
+    }
+    a.code-link {
+      color: #ffcc00;
+      font-weight: bold;
+      text-decoration: none;
+      border-bottom: 1px dotted #ffcc00;
+    }
+    a.code-link:hover {
+      color: #ffd633;
+      border-bottom: 1px solid #ffd633;
+    }
+  </style>
+</head>
+<body>
+  <h1>CodeREAD Diagnostic Report</h1>
 
-@app.route('/')
-def index():
-    return render_template('form.html')
+  <div class="report-section">
+    <span class="field-label">Name:</span> {{ name }}
+  </div>
+  <div class="report-section">
+    <span class="field-label">Email:</span> {{ email }}
+  </div>
+  <div class="report-section">
+    <span class="field-label">Phone:</span> {{ phone if phone else "N/A" }}
+  </div>
+  <div class="report-section">
+    <span class="field-label">Engine Code:</span> 
+    <a href="https://www.youtube.com/results?search_query={{ code | url_encode }}" target="_blank" class="code-link">{{ code }}</a>
+  </div>
+
+  <div class="report-section">
+    <h2>Analysis</h2>
+    <p>Your code <strong>{{ code }}</strong> typically indicates an issue related to the vehicle's emission system. For more info, check out the linked YouTube videos above.</p>
+    <p>Contact us at <a href="mailto:support@read.codes" style="color:#ffcc00;">support@read.codes</a> for detailed diagnostics and repair advice.</p>
+  </div>
+</body>
+</html>
+"""
+
+from flask import render_template_string
+import urllib.parse
+
+@app.route('/', methods=['GET'])
+def form():
+    return FORM_HTML
 
 @app.route('/submit', methods=['POST'])
 def submit():
-    name = request.form['name']
-    email = request.form['email']
-    code = request.form['code'].upper().strip()
-    phone = request.form.get('phone', '')
+    name = request.form.get('name')
+    email = request.form.get('email')
+    code = request.form.get('code')
+    phone = request.form.get('phone')
 
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    c.execute("INSERT INTO reports (name, email, code, phone) VALUES (?, ?, ?, ?)", (name, email, code, phone))
-    conn.commit()
-    conn.close()
-
-    advice, urgency = analyze_code(code)
-    pdf_path = create_pdf(name, email, code, phone, advice, urgency)
-
-    if email:
-        send_email(email, pdf_path)
-
-    return render_template('report.html', name=name, code=code, advice=advice, urgency=urgency, pdf_path=pdf_path, mechanics=MECHANICS)
-
-def analyze_code(code):
-    severity_scale = {
-        "P0300": ("Random/Multiple Misfire Detected", 90),
-        "P0420": ("Catalyst System Efficiency Below Threshold", 60),
-        "P0171": ("System Too Lean (Bank 1)", 70),
-        "P0455": ("Evaporative Emission System Leak Detected", 50),
-    }
-    return severity_scale.get(code, ("Code not recognized. Further diagnosis needed.", 40))
-
-def create_pdf(name, email, code, phone, advice, urgency):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.set_text_color(255, 0, 0)
-    pdf.cell(200, 10, "CodeREAD Diagnostic Report", ln=True, align='C')
-
-    pdf.set_text_color(0, 0, 0)
-    pdf.set_font("Arial", '', 12)
-    pdf.ln(10)
-    pdf.cell(0, 10, f"Name: {name}", ln=True)
-    pdf.cell(0, 10, f"Email: {email}", ln=True)
-    pdf.cell(0, 10, f"Phone: {phone}", ln=True)
-    pdf.cell(0, 10, f"OBD-II Code: {code}", ln=True)
-    pdf.cell(0, 10, f"Urgency Level: {urgency} MPH", ln=True)
-    pdf.multi_cell(0, 10, f"Advice: {advice}")
-
-    pdf.ln(10)
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, "Recommended Mechanics in Windsor:", ln=True)
-
-    for mech in MECHANICS:
-        pdf.set_font("Arial", '', 11)
-        pdf.cell(0, 10, f"{mech['name']} - {mech['address']}", ln=True)
-
-    pdf.ln(5)
-    pdf.set_font("Arial", 'I', 10)
-    pdf.set_text_color(100, 100, 100)
-    pdf.cell(0, 10, "Visit www.read.codes for more info", ln=True)
-
-    os.makedirs('reports', exist_ok=True)
-    filename = f"CodeREAD_Report_{name.replace(' ', '_')}.pdf"
-    path = os.path.join('reports', filename)
-    pdf.output(path)
-    return path
-
-def send_email(recipient, attachment_path):
-    msg = EmailMessage()
-    msg['Subject'] = "Your CodeREAD Diagnostic Report"
-    msg['From'] = "noreply@read.codes"
-    msg['To'] = recipient
-    msg.set_content("Attached is your CodeREAD report. Drive safe!")
-
-    with open(attachment_path, 'rb') as f:
-        msg.add_attachment(f.read(), maintype='application', subtype='pdf', filename=os.path.basename(attachment_path))
-
-    try:
-        with smtplib.SMTP('localhost') as smtp:
-            smtp.send_message(msg)
-    except Exception as e:
-        print(f"Email sending failed: {e}")
-
-@app.route('/download/<path:filename>')
-def download(filename):
-    return send_file(os.path.join('reports', filename), as_attachment=True)
+    # Just render the report page with values and clickable link
+    # Use Jinja2 render_template_string with URL encoding for the code link
+    return render_template_string(
+        REPORT_HTML_TEMPLATE,
+        name=name,
+        email=email,
+        code=code,
+        phone=phone
+    )
 
 if __name__ == '__main__':
-    init_db()
     app.run(debug=True)
