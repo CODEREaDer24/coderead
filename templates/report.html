@@ -1,26 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
     <title>CodeREAD Report</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 2em; line-height: 1.6; max-width: 800px; margin: auto; }
-        h1, h2 { color: #c00; }
-        .section { margin-bottom: 2em; }
-        .mechanic { background: #f4f4f4; padding: 1em; border-radius: 8px; margin-bottom: 1em; }
-        .btn-download { background: #c00; color: white; padding: 0.6em 1.2em; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
-        a { color: #0077cc; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
 </head>
 <body>
-
-    {{ report_html|safe }}
-
-    <form method="POST" action="/download-pdf">
-        <input type="hidden" name="html" value="{{ report_html|tojson|safe }}" />
-        <button type="submit" class="btn-download">⬇️ Download Full PDF Report</button>
-    </form>
-
+    <h1>Diagnostic Report for {{ name }}</h1>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Phone:</strong> {{ phone }}</p>
+    <p><strong>Code:</strong> {{ code }}</p>
+    <p><strong>Generated at:</strong> {{ timestamp }}</p>
 </body>
 </html>
