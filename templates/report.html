@@ -10,7 +10,6 @@
     .urgency-meter { margin-top: 1rem; }
     .brand { font-size: 2rem; font-weight: bold; color: #ffc107; text-align: center; margin-bottom: 1rem; }
     .link-yellow { color: #ffc107; text-decoration: underline; }
-    .btn-download { display: block; margin: 2rem auto 0; }
   </style>
 </head>
 <body class="py-5">
@@ -44,7 +43,12 @@
       {% endfor %}
     </ul>
 
-    <a href="/download/{{ pdf_path | replace('reports/', '') }}" class="btn btn-outline-warning btn-download">Download PDF Report</a>
+    <hr />
+
+    <h5>Helpful Video</h5>
+    <a class="link-yellow" href="https://www.youtube.com/results?search_query={{ code | urlencode }}" target="_blank">
+      Search "{{ code }}" on YouTube
+    </a>
   </div>
 
 </body>
