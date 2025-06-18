@@ -1,36 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>CodeREAD Diagnostic</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 2rem auto; }
-        label { display: block; margin: 1rem 0 0.5rem; }
-        input, button { width: 100%; padding: 0.5rem; font-size: 1rem; }
-        button { margin-top: 1rem; background: #ffd700; border: none; cursor: pointer; font-weight: bold; }
-        #logo { margin-top: 2rem; text-align: center; font-weight: bold; font-size: 1.5rem; color: #222; }
-    </style>
+  <meta charset="UTF-8" />
+  <title>CodeREAD Diagnostic Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 2rem;
+      color: #222;
+    }
+    h1 {
+      text-align: center;
+      color: #111;
+    }
+    form {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.8rem;
+      width: 100%;
+      background-color: #000;
+      color: #fff;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .auto-fill {
+      margin-top: 0.5rem;
+      background-color: #444;
+    }
+    .logo {
+      text-align: center;
+      margin-top: 2rem;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+  </style>
 </head>
 <body>
-    <h1>Enter Your OBD2 Code</h1>
-    <form method="POST">
-        <label for="code">Engine Code (e.g. P0101):</label>
-        <input type="text" id="code" name="code" placeholder="P0101" required />
+  <h1>CodeREAD Diagnostic Form</h1>
+  <form action="/generate" method="post">
+    <label for="name">Name*</label>
+    <input type="text" name="name" required>
 
-        <label for="city">Your City (for local mechanic recommendations):</label>
-        <input type="text" id="city" name="city" placeholder="e.g. Windsor" required />
+    <label for="email">Email*</label>
+    <input type="email" name="email" required>
 
-        <button type="submit">Generate Report</button>
-        <button type="button" id="autoFillBtn">Auto-Fill Sample</button>
-    </form>
+    <label for="phone">Phone (optional)</label>
+    <input type="text" name="phone">
 
-    <div id="logo">CodeREAD &bull; www.read.codes</div>
+    <label for="city">City*</label>
+    <input type="text" name="city" required>
 
-    <script>
-        document.getElementById("autoFillBtn").addEventListener("click", () => {
-            document.getElementById("code").value = "P0101";
-            document.getElementById("city").value = "Windsor";
-        });
-    </script>
+    <label for="year">Vehicle Year*</label>
+    <select name="year" required>
+      {% for y in range(2025, 1989, -1) %}
+        <option value="{{ y }}">{{ y }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="make">Vehicle Make*</label>
+    <select name="make" required>
+      <option>Ford</option>
+      <option>Chevrolet</option>
+      <option>Honda</option>
+      <option>Toyota</option>
+      <option>Nissan</option>
+      <option>Dodge</option>
+      <option>Hyundai</option>
+      <option>Kia</option>
+      <option>BMW</option>
+      <option>Other</option>
+    </select>
+
+    <label for="model">Vehicle Model*</label>
+    <input type="text" name="model" required>
+
+    <label for="code">OBD2 Code*</label>
+    <input type="text" name="code" required placeholder="e.g. P0420">
+
+    <button type="submit">Generate Report</button>
+    <button type="button" class="auto-fill" onclick="autoFill()">Auto-Fill Sample</button>
+  </form>
+
+  <div class="logo">
+    CodeREAD • <a href="https://www.read.codes" target="_blank">www.read.codes</a>
+  </div>
+
+  <script>
+    function autoFill() {
+      document.querySelector('[name=name]').value = 'Jane Sample';
+      document.querySelector('[name=email]').value = 'jane@example.com';
+      document.querySelector('[name=phone]').value = '555-123-4567';
+      document.querySelector('[name=city]').value = 'Windsor';
+      document.querySelector('[name=year]').value = '2017';
+      document.querySelector('[name=make]').value = 'Toyota';
+      document.querySelector('[name=model]').value = 'Corolla';
+      document.querySelector('[name=code]').value = 'P0420';
+    }
+  </script>
 </body>
 </html>
