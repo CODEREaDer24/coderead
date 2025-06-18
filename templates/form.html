@@ -1,24 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CodeREAD Submission Form</title>
+    <title>CodeREAD Diagnostic Intake</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script>
+        function autoGenerate() {
+            document.getElementById("name").value = "Jane Driver";
+            document.getElementById("email").value = "jane@driver.com";
+            document.getElementById("vin").value = "1HGCM82633A004352";
+            document.getElementById("symptoms").value = "Loud knocking on cold starts. Rough idle. Occasional engine stall at lights.";
+        }
+    </script>
 </head>
-<body>
-    <h1>Submit Your Vehicle Symptoms</h1>
-    <form action="/submit" method="post">
-        <label>Name:</label><br>
-        <input type="text" name="name" required><br><br>
+<body class="coderead-bg">
+    <div class="form-container">
+        <img src="/static/logo.png" alt="CodeREAD Logo" class="logo">
+        <h1>Submit a CodeREAD Diagnostic</h1>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br><br>
+        <form action="/submit" method="post">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" placeholder="Jane Driver" required>
 
-        <label>VIN:</label><br>
-        <input type="text" name="vin" required><br><br>
+            <label for="email">Your Email</label>
+            <input type="email" id="email" name="email" placeholder="jane@example.com" required>
 
-        <label>Symptoms:</label><br>
-        <textarea name="symptoms" rows="5" cols="40" required></textarea><br><br>
+            <label for="vin">Vehicle VIN</label>
+            <input type="text" id="vin" name="vin" placeholder="1HGCM82633A004352" required>
 
-        <button type="submit">Submit to CodeREAD</button>
-    </form>
+            <label for="symptoms">Vehicle Symptoms</label>
+            <textarea id="symptoms" name="symptoms" rows="6" placeholder="Describe what the car is doing. Be specific." required></textarea>
+
+            <button type="submit">Submit Diagnostic</button>
+            <button type="button" onclick="autoGenerate()">Auto-Generate Demo</button>
+        </form>
+    </div>
 </body>
 </html>
