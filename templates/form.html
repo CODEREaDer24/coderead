@@ -1,191 +1,89 @@
-**1. `form.html`**
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CodeREAD Diagnostic Tool</title>
-  <style>
-    body { font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 2em; }
-    label, select, input { display: block; margin: 1em 0; }
-    button { padding: 0.5em 1em; background-color: #c00; color: #fff; border: none; cursor: pointer; }
-    .logo { margin-top: 2em; text-align: center; }
-  </style>
+    <meta charset="UTF-8">
+    <title>CodeREAD Diagnostic Form</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f7f7f7;
+            padding: 2rem;
+        }
+        form {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: auto;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 1rem;
+            display: block;
+        }
+        input, select {
+            width: 100%;
+            padding: 0.6rem;
+            margin-top: 0.25rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #cc0000;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .logo {
+            display: block;
+            margin: 2rem auto 0;
+            max-width: 180px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Enter Your OBD2 Code</h1>
-  <form action="/report" method="post">
-    <label for="code">Engine Code (e.g., P0171):</label>
-    <input type="text" id="code" name="code" required>
+    <form action="/report" method="post">
+        <h2>Enter Your OBD2 Code</h2>
 
-    <label for="year">Year:</label>
-    <select name="year" id="year">
-      <option value="">Select Year</option>
-      {% for y in range(1990, 2025) %}<option value="{{y}}">{{y}}</option>{% endfor %}
-    </select>
+        <label for="code">Engine Code</label>
+        <input type="text" id="code" name="code" placeholder="e.g. P0171" required>
 
-    <label for="make">Make:</label>
-    <input type="text" id="make" name="make" required>
+        <label for="year">Vehicle Year</label>
+        <select id="year" name="year">
+            {% for y in range(2025, 1990, -1) %}
+                <option value="{{ y }}">{{ y }}</option>
+            {% endfor %}
+        </select>
 
-    <label for="model">Model:</label>
-    <input type="text" id="model" name="model" required>
+        <label for="make">Make</label>
+        <input type="text" id="make" name="make" placeholder="Ford, Toyota, Honda" required>
 
-    <label for="city">City:</label>
-    <input type="text" id="city" name="city" required>
+        <label for="model">Model</label>
+        <input type="text" id="model" name="model" placeholder="F-150, Camry, Civic" required>
 
-    <button type="submit">Generate Report</button>
-    <button type="button" onclick="autofill()">Auto-Fill Sample</button>
-  </form>
-  <div class="logo">
-    <p>CodeREAD • <a href="https://www.read.codes">www.read.codes</a></p>
-  </div>
-  <script>
-    function autofill() {
-      document.getElementById('code').value = 'P0171';
-      document.getElementById('year').value = '2015';
-      document.getElementById('make').value = 'Ford';
-      document.getElementById('model').value = 'F-150';
-      document.getElementById('city').value = 'Windsor';
-    }
-  </script>
+        <label for="city">Your City</label>
+        <input type="text" id="city" name="city" placeholder="e.g. Windsor">
+
+        <button type="submit">Generate Report</button>
+        <button type="button" onclick="autofill()">Auto-Fill Sample</button>
+    </form>
+
+    <img class="logo" src="/static/coderead_logo.png" alt="CodeREAD Logo">
+
+    <script>
+        function autofill() {
+            document.getElementById('code').value = 'P0171';
+            document.getElementById('year').value = '2015';
+            document.getElementById('make').value = 'Ford';
+            document.getElementById('model').value = 'F-150';
+            document.getElementById('city').value = 'Windsor';
+        }
+    </script>
 </body>
 </html>
-```
-
-**2. `report.html`**
-```html
-<!DOCTYPE html>
-<html>
-<head>
-  <title>CodeREAD Report</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 2em; line-height: 1.6; }
-    h1, h2 { color: #c00; }
-    a { color: #0056b3; text-decoration: none; }
-    .section { margin-bottom: 2em; }
-    .gauge { margin: 2em 0; }
-  </style>
-</head>
-<body>
-  <h1>CodeREAD Diagnostic Report</h1>
-  <p><strong>Engine Code:</strong> {{ code }}</p>
-  <p><strong>Vehicle:</strong> {{ year }} {{ make }} {{ model }}</p>
-
-  <div class="gauge">
-    <img src="/static/urgency-gauge.png" alt="Urgency Scale" width="400">
-  </div>
-
-  <div class="section">
-    <h2>Layman’s Explanation</h2>
-    <p>{{ layman }}</p>
-    <p><a href="{{ video_link }}" target="_blank">▶️ Watch on YouTube</a></p>
-  </div>
-
-  <div class="section">
-    <h2>Technical Explanation</h2>
-    <p>{{ technical }}</p>
-  </div>
-
-  <div class="section">
-    <h2>Consequences of Ignoring This Code</h2>
-    <ul>
-      {% for issue in consequences %}<li>{{ issue }}</li>{% endfor %}
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Repair Cost Estimate</h2>
-    <ul>
-      {% for item in cost_estimates %}<li>{{ item }}</li>{% endfor %}
-    </ul>
-  </div>
-
-  <div class="section">
-    <h2>Environmental Impact</h2>
-    <p>{{ environment }}</p>
-  </div>
-
-  <div class="section">
-    <h2>Preventative Tips</h2>
-    <ul>{% for tip in prevention %}<li>{{ tip }}</li>{% endfor %}</ul>
-  </div>
-
-  <div class="section">
-    <h2>DIY Potential</h2>
-    <p><strong>Level:</strong> {{ diy_level }}</p>
-    <p><a href="{{ diy_video }}" target="_blank">🔧 Watch DIY Fix</a></p>
-  </div>
-
-  <div class="section">
-    <h2>Suggested Parts</h2>
-    <ul>{% for part in parts %}<li>{{ part }}</li>{% endfor %}</ul>
-  </div>
-
-  <div class="section">
-    <h2>Local Trusted Mechanics ({{ city }})</h2>
-    <ul>
-      {% for mech in mechanics %}<li><strong>{{ mech.name }}</strong> – {{ mech.address }} – {{ mech.phone }}</li>{% endfor %}
-    </ul>
-  </div>
-
-  <p><a href="/download-pdf">⬇️ Download Full PDF Report</a></p>
-  <p>Generated by <strong>CodeREAD</strong> • <a href="https://www.read.codes">www.read.codes</a></p>
-</body>
-</html>
-```
-
-**3. `main.py`**
-```python
-from flask import Flask, render_template, request, send_file
-import json
-
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return render_template('form.html')
-
-@app.route('/report', methods=['POST'])
-def report():
-    code = request.form['code'].upper()
-    year = request.form['year']
-    make = request.form['make']
-    model = request.form['model']
-    city = request.form['city']
-
-    # Fake data for now
-    report_data = {
-        "code": code,
-        "year": year,
-        "make": make,
-        "model": model,
-        "city": city,
-        "layman": "Your engine is running lean. That means too much air, not enough fuel.",
-        "video_link": "https://www.youtube.com/watch?v=MX3A1f-M_7I",
-        "technical": "The PCM detected a lean condition in Bank 1, often due to vacuum leaks or MAF sensor issues.",
-        "consequences": ["Reduced power", "Misfires", "Damage to catalytic converter"],
-        "cost_estimates": ["MAF Sensor: $120–$300", "Vacuum Leak Fix: $150–$350"],
-        "environment": "Increased emissions, inefficient fuel burn.",
-        "prevention": ["Change air filters", "Use fuel system cleaner annually"],
-        "diy_level": "Moderate",
-        "diy_video": "https://www.youtube.com/watch?v=WFxULjbnxig",
-        "parts": ["MAF Sensor – $120", "Fuel Cleaner – $15"],
-        "mechanics": [
-            {"name": "DLH Auto Service", "address": "2378 Central Ave", "phone": "(519) 944-4400"},
-            {"name": "Demario’s Auto Clinic", "address": "2366 Dougall Ave", "phone": "(519) 972-8383"},
-            {"name": "Kipping Tire & Automotive", "address": "1197 Ouellette Ave", "phone": "(519) 252-2382"}
-        ]
-    }
-
-    return render_template('report.html', **report_data)
-
-@app.route('/download-pdf')
-def download_pdf():
-    return send_file("static/demo-report.pdf", as_attachment=True)
-
-if __name__ == '__main__':
-    app.run(debug=True)
-```
-
-Let’s rip it on Render next.
