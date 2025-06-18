@@ -1,72 +1,86 @@
-from flask import Flask, render_template, request, send_file, Markup
-import pdfkit
-import tempfile
+from flask import Flask, render_template, request, redirect, url_for, send_file
 import os
+import sqlite3
+import datetime
+import pdfkit  # Or use WeasyPrint if preferred
+from markupsafe import Markup
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'reports'
 
-# Static mechanic data
-mechanics = [
-    {"name": "Clover Auto", "address": "5195 Clover Ave, Windsor, ON", "phone": "519-979-1834"},
-    {"name": "Tecumseh Auto", "address": "1295 Walker Rd, Windsor, ON", "phone": "519-956-9190"},
-    {"name": "Demario’s Auto Clinic", "address": "2366 Dougall Ave, Windsor, ON", "phone": "519-972-8383"}
-]
+# Ensure the reports directory exists
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# Sample report structure
-sample_report = {
-    "code": "P0171",
-    "vehicle": "2014 Chevrolet Malibu",
-    "layman": "Your engine is running lean – too much air, not enough fuel.",
-    "youtube": "https://www.youtube.com/watch?v=MX3A1f-M_7I",
-    "technical": "PCM detects a lean air/fuel ratio in Bank 1 – often due to vacuum leak, dirty MAF sensor, or low fuel pressure.",
-    "consequences": [
-        "Rough idle and hesitation",
-        "Reduced performance",
-        "Catalytic converter damage"
-    ],
-    "costs": [
-        "MAF sensor replacement: $120–$300",
-        "Vacuum leak repair: $150–$350",
-        "Fuel pump replacement: $400–$700"
-    ],
-    "environment": "Leaner mix increases NOx emissions and can ruin catalytic converter.",
-    "preventative": [
-        "Inspect vacuum hoses regularly",
-        "Use quality fuel",
-        "Replace air filter annually"
-    ],
-    "diy": {
-        "level": "Moderate",
-        "video": "https://www.youtube.com/watch?v=WFxULjbnxig"
-    },
-    "parts": [
-        {"name": "MAF Sensor", "price": "$85–$140"},
-        {"name": "Vacuum Hose Kit", "price": "$30–$50"},
-        {"name": "Fuel System Cleaner", "price": "$10–$20"}
-    ]
-}
+DATABASE = 'coderead.db'
+
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 @app.route("/", methods=["GET", "POST"])
-def home():
+def index():
     if request.method == "POST":
-        code = request.form.get("engine_code", "").upper()
-        city = request.form.get("city", "")
-        year = request.form.get("year", "")
-        make = request.form.get("make", "")
-        model = request.form.get("model", "")
-        
-        report = sample_report.copy()
-        report["code"] = code or sample_report["code"]
-        report["vehicle"] = f"{year} {make} {model}".strip() or sample_report["vehicle"]
+        name = request.form.get("name")
+        email = request.form.get("email")
+        phone = request.form.get("phone")
+        code = request.form.get("code")
 
-        html_content = render_template("report_content.html", report=report, mechanics=mechanics)
-        return render_template("report.html", report=report, report_html=Markup(html_content), mechanics=mechanics)
+        if not name or not email or not code:
+            return "Missing required fields", 400
+
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        report_id = f"{name}_{timestamp}".replace(" ", "_").replace(":", "-")
+
+        # Prepare context
+        context = {
+            "name": name,
+            "email": email,
+            "phone": phone,
+            "code": code,
+            "timestamp": timestamp,
+            "report_id": report_id
+        }
+
+        # Render HTML from template
+        html = render_template("report.html", **context)
+
+        # Save HTML to database
+        conn = get_db_connection()
+        conn.execute(
+            "INSERT INTO reports (name, email, phone, code, html, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+            (name, email, phone, code, html, timestamp)
+        )
+        conn.commit()
+        conn.close()
+
+        # Save PDF to disk
+        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{report_id}.pdf")
+        pdfkit.from_string(html, pdf_path)
+
+        return render_template("confirmation.html", name=name, report_id=report_id)
 
     return render_template("form.html")
 
-@app.route("/download-pdf", methods=["POST"])
-def download_pdf():
-    html = request.form.get("html", "")
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as f:
-        pdfkit.from_string(html, f.name)
-        return send_file(f.name, as_attachment=True, download_name="CodeREAD_Report.pdf")
+@app.route("/report/<report_id>")
+def view_report(report_id):
+    conn = get_db_connection()
+    report = conn.execute(
+        "SELECT * FROM reports WHERE html LIKE ? ORDER BY created_at DESC LIMIT 1",
+        (f"%{report_id}%",)
+    ).fetchone()
+    conn.close()
+
+    if report:
+        return Markup(report["html"])
+    return "Report not found", 404
+
+@app.route("/report/<report_id>/pdf")
+def download_pdf(report_id):
+    pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{report_id}.pdf")
+    if os.path.exists(pdf_path):
+        return send_file(pdf_path, as_attachment=True)
+    return "PDF not found", 404
+
+if __name__ == "__main__":
+    app.run(debug=True)
