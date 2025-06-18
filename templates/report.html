@@ -1,96 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>CodeREAD Report for {{ code }}</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; line-height: 1.5; }
-        h1, h2 { color: #222; }
-        a { color: #ffd700; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        section { margin-bottom: 2rem; }
-        ul { list-style: none; padding-left: 0; }
-        ul li { margin-bottom: 0.5rem; }
-        .mechanics li { margin-bottom: 1rem; }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Diagnostic Report</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #fff;
+      color: #111;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #000;
+      border-bottom: 2px solid #000;
+    }
+    a {
+      color: #0055cc;
+    }
+    .section {
+      margin-top: 2rem;
+    }
+  </style>
 </head>
 <body>
-    <h1>CodeREAD Diagnostic Report for <code>{{ code }}</code></h1>
+  <h1>CodeREAD Diagnostic Report</h1>
 
-    <section>
-        <h2>1. Code Overview (Layman’s Terms)</h2>
-        <p>{{ report.layman.text }}</p>
-        {% if report.layman.video %}
-        <p>Watch the explanation: <a href="{{ report.layman.video }}" target="_blank">YouTube Video</a></p>
-        {% endif %}
-    </section>
+  <div class="section">
+    <strong>Name:</strong> {{ name }}<br>
+    <strong>Email:</strong> {{ email }}<br>
+    {% if phone %}<strong>Phone:</strong> {{ phone }}<br>{% endif %}
+    <strong>City:</strong> {{ city }}<br>
+    <strong>Vehicle:</strong> {{ year }} {{ make }} {{ model }}<br>
+    <strong>Code:</strong> {{ code }}
+  </div>
 
-    <section>
-        <h2>2. Technical Explanation</h2>
-        <p>{{ report.technical }}</p>
-    </section>
+  <div class="section">
+    <h2>Layman’s Explanation</h2>
+    <p>This code means something is wrong with how your engine is running. For code <strong>{{ code }}</strong>, here’s a helpful breakdown in simple terms.</p>
+    <p><a href="{{ video_link }}" target="_blank">🎥 Watch a video about code {{ code }}</a></p>
+  </div>
 
-    <section>
-        <h2>3. Consequences of Ignoring It</h2>
-        <p>{{ report.consequences }}</p>
-    </section>
+  <div class="section">
+    <h2>Technical Explanation</h2>
+    <p>Technical details about what this code refers to go here.</p>
+  </div>
 
-    <section>
-        <h2>4. Repair Cost Range</h2>
-        <ul>
-            <li><strong>Parts:</strong> {{ report.cost.parts or "N/A" }}</li>
-            <li><strong>Labor:</strong> {{ report.cost.labor or "N/A" }}</li>
-            <li><strong>Total (Shop):</strong> {{ report.cost.total_shop or "N/A" }}</li>
-            <li><strong>Total (DIY):</strong> {{ report.cost.total_diy or "N/A" }}</li>
-        </ul>
-    </section>
+  <div class="section">
+    <h2>Consequences of Ignoring This Code</h2>
+    <p>Driving with this issue could lead to further damage, loss of fuel economy, or safety issues.</p>
+  </div>
 
-    <section>
-        <h2>5. Environmental Impact</h2>
-        <p>{{ report.environmental }}</p>
-    </section>
+  <div class="section">
+    <h2>Repair Cost Estimate</h2>
+    <p>Based on industry averages for {{ make }} {{ model }}, you can expect $300–$850 depending on labor and parts.</p>
+  </div>
 
-    <section>
-        <h2>6. Preventative Characteristics</h2>
-        <p>{{ report.prevention }}</p>
-    </section>
+  <div class="section">
+    <h2>Environmental Impact</h2>
+    <p>This code may increase emissions or fuel waste. Addressing it helps reduce your vehicle’s environmental footprint.</p>
+  </div>
 
-    <section>
-        <h2>7. DIY Potential</h2>
-        <p>Difficulty Level: <strong>{{ report.diy.level }}</strong></p>
-        {% if report.diy.video %}
-        <p>DIY Repair Video: <a href="{{ report.diy.video }}" target="_blank">Watch Here</a></p>
-        {% endif %}
-    </section>
+  <div class="section">
+    <h2>Preventative Tips</h2>
+    <p>Use top-tier fuel, keep your maintenance schedule, and fix codes early before they trigger more expensive issues.</p>
+  </div>
 
-    <section>
-        <h2>8. Parts Needed</h2>
-        <ul>
-            {% for part in report.parts_needed %}
-            <li>{{ part.name }} — {{ part.price }}</li>
-            {% else %}
-            <li>No parts information available.</li>
-            {% endfor %}
-        </ul>
-    </section>
+  <div class="section">
+    <h2>DIY Potential</h2>
+    <p>Moderate. With basic tools and a video tutorial, you might be able to fix this at home.</p>
+    <p><a href="{{ video_link }}" target="_blank">🔧 DIY Repair Video</a></p>
+  </div>
 
-    <section>
-        <h2>9. Local Mechanic Recommendations</h2>
-        {% if mechanics %}
-        <ul class="mechanics">
-            {% for m in mechanics %}
-            <li>
-                <strong>{{ m.name }}</strong><br/>
-                {{ m.address }}<br/>
-                Phone: <a href="tel:{{ m.phone }}">{{ m.phone }}</a>
-            </li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p>No local mechanics found for your city.</p>
-        {% endif %}
-    </section>
+  <div class="section">
+    <h2>Suggested Parts</h2>
+    <ul>
+      <li>O2 Sensor – ~$75</li>
+      <li>Gasket Kit – ~$20</li>
+      <li>Exhaust Sealant – ~$10</li>
+    </ul>
+  </div>
 
-    <p><a href="/">← Back to form</a></p>
+  <div class="section">
+    <h2>Local Mechanic Suggestions</h2>
+    <ul>
+      <li>DLH Auto – 2378 Central Ave, Windsor</li>
+      <li>Demario’s Auto Clinic – 2366 Dougall Ave, Windsor</li>
+      <li>Kipping Tire – 1197 Ouellette Ave, Windsor</li>
+    </ul>
+  </div>
 </body>
 </html>
