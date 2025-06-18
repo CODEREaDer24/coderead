@@ -1,75 +1,95 @@
-from flask import Flask, render_template, request, send_file
+import os
+from flask import Flask, render_template, request, abort, send_file
 import pdfkit
-import io
+import logging
+from datetime import datetime
 
 app = Flask(__name__)
 
-# Dummy local mechanics data keyed by city (expand as needed)
-LOCAL_MECHANICS = {
-    "windsor": [
-        {"name": "DLH Auto Service", "address": "2378 Central Ave, Windsor, ON N8W 4J2", "phone": "519-979-1834"},
-        {"name": "Demario’s Auto Clinic", "address": "2366 Dougall Ave, Windsor, ON N8X 1T1", "phone": "519-956-9190"},
-        {"name": "Kipping Tire & Automotive", "address": "1197 Ouellette Ave, Windsor, ON N9A 4K1", "phone": "519-254-1151"},
+# Setup logging - this will log to console and file 'app.log'
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler()
     ]
-}
+)
 
-@app.route("/", methods=["GET", "POST"])
+# Basic input validation
+def validate_input(form):
+    required_fields = ['name', 'email', 'city', 'year', 'make', 'model', 'code']
+    for field in required_fields:
+        if not form.get(field):
+            return f"Missing required field: {field}"
+    # Add more validations here if needed (e.g., email format, code format)
+    return None
+
+@app.route('/')
 def index():
-    if request.method == "POST":
-        code = request.form.get("code", "").strip().upper()
-        city = request.form.get("city", "").strip().lower()
+    return render_template('form.html')
 
-        # Fake data for demo purposes, replace with your real data source
-        report_data = generate_report_for_code(code)
+@app.route('/generate', methods=['POST'])
+def generate():
+    # Validate inputs
+    error = validate_input(request.form)
+    if error:
+        logging.warning(f"Validation error: {error}")
+        return f"<h2>Error: {error}</h2><p><a href='/'>Go back</a></p>", 400
 
-        # Get local mechanics or empty list
-        mechanics = LOCAL_MECHANICS.get(city, [])
-
-        return render_template("report.html", code=code, report=report_data, mechanics=mechanics)
-    return render_template("form.html")
-
-def generate_report_for_code(code):
-    # This is a hardcoded example - replace with DB or API calls in prod
-    if code == "P0101":
-        return {
-            "layman": {
-                "text": "Your car's airflow sensor is misreading air intake, causing rough idling or poor performance.",
-                "video": "https://www.youtube.com/watch?v=FAKE_VIDEO_P0101"
-            },
-            "technical": "P0101 means the Mass Air Flow (MAF) sensor output is out of expected range based on RPM and throttle input.",
-            "consequences": (
-                "Ignoring this can lead to reduced fuel efficiency, engine stalling, "
-                "and damage to the catalytic converter."
-            ),
-            "cost": {
-                "parts": "$60–$120",
-                "labor": "$77–$132",
-                "total_shop": "$137–$252",
-                "total_diy": "$60–$120"
-            },
-            "environmental": "Increased emissions and failed smog checks are common.",
-            "prevention": "Regular air filter changes and sensor cleaning can help prevent this.",
-            "diy": {
-                "level": "Moderate 🟡",
-                "video": "https://www.youtube.com/watch?v=DIY_P0101_REPAIR"
-            },
-            "parts_needed": [
-                {"name": "MAF Sensor", "price": "$60–$120"},
-                {"name": "Intake Hose", "price": "$15–$40"},
-                {"name": "Throttle Body Cleaner", "price": "$10–$15"},
-            ]
-        }
-    # Default fallback
-    return {
-        "layman": {"text": "No info available for this code.", "video": ""},
-        "technical": "",
-        "consequences": "",
-        "cost": {},
-        "environmental": "",
-        "prevention": "",
-        "diy": {"level": "Unknown", "video": ""},
-        "parts_needed": []
+    data = {
+        'name': request.form['name'].strip(),
+        'email': request.form['email'].strip(),
+        'phone': request.form.get('phone', '').strip(),
+        'city': request.form['city'].strip(),
+        'year': request.form['year'].strip(),
+        'make': request.form['make'].strip(),
+        'model': request.form['model'].strip(),
+        'code': request.form['code'].strip().upper(),
+        'video_link': f"https://www.youtube.com/results?search_query=OBD2+code+{request.form['code'].strip().upper()}"
     }
 
-if __name__ == "__main__":
+    # Render HTML report
+    try:
+        rendered_html = render_template('report.html', **data)
+    except Exception as e:
+        logging.error(f"Template rendering error: {e}")
+        abort(500, description="Internal server error rendering report")
+
+    # Save HTML report for record-keeping
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_dir = 'reports'
+    os.makedirs(report_dir, exist_ok=True)
+    report_filename = f"{report_dir}/report_{timestamp}.html"
+    try:
+        with open(report_filename, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+        logging.info(f"Saved HTML report: {report_filename}")
+    except Exception as e:
+        logging.error(f"Failed to save report HTML: {e}")
+
+    # Generate PDF (optional)
+    try:
+        pdf_filename = f"{report_dir}/report_{timestamp}.pdf"
+        pdfkit.from_string(rendered_html, pdf_filename)
+        logging.info(f"Generated PDF report: {pdf_filename}")
+    except Exception as e:
+        logging.error(f"PDF generation failed: {e}")
+        pdf_filename = None
+
+    # Return HTML report with a link to download PDF if created
+    pdf_link_html = ''
+    if pdf_filename and os.path.exists(pdf_filename):
+        pdf_link_html = f'<p><a href="/download/{os.path.basename(pdf_filename)}" target="_blank">Download PDF Report</a></p>'
+
+    return rendered_html + pdf_link_html
+
+@app.route('/download/<filename>')
+def download_report(filename):
+    path = os.path.join('reports', filename)
+    if not os.path.exists(path):
+        abort(404, description="Report not found")
+    return send_file(path, as_attachment=True)
+
+if __name__ == '__main__':
     app.run(debug=True)
