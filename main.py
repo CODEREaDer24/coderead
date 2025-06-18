@@ -4,27 +4,14 @@ import sqlite3
 import os
 import smtplib
 from email.message import EmailMessage
-from urllib.parse import quote_plus
 
 app = Flask(__name__)
 DATABASE = 'coderead.db'
 
 MECHANICS = [
-    {
-        "name": "DLH Auto Service",
-        "address": "2378 Central Ave, Windsor, ON N8W 4J2",
-        "maps": "https://maps.google.com/?q=2378+Central+Ave+Windsor+ON",
-    },
-    {
-        "name": "Demario’s Auto Clinic",
-        "address": "2366 Dougall Ave, Windsor, ON N8X 1T1",
-        "maps": "https://maps.google.com/?q=2366+Dougall+Ave+Windsor+ON",
-    },
-    {
-        "name": "Kipping Tire & Automotive",
-        "address": "1197 Ouellette Ave, Windsor, ON N9A 4K1",
-        "maps": "https://maps.google.com/?q=1197+Ouellette+Ave+Windsor+ON",
-    },
+    {"name": "DLH Auto Service", "address": "2378 Central Ave, Windsor, ON N8W 4J2", "maps": "https://maps.google.com/?q=2378+Central+Ave+Windsor+ON"},
+    {"name": "Demario’s Auto Clinic", "address": "2366 Dougall Ave, Windsor, ON N8X 1T1", "maps": "https://maps.google.com/?q=2366+Dougall+Ave+Windsor+ON"},
+    {"name": "Kipping Tire & Automotive", "address": "1197 Ouellette Ave, Windsor, ON N9A 4K1", "maps": "https://maps.google.com/?q=1197+Ouellette+Ave+Windsor+ON"},
 ]
 
 def init_db():
@@ -52,8 +39,7 @@ def submit():
 
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
-    c.execute("INSERT INTO reports (name, email, code, phone) VALUES (?, ?, ?, ?)",
-              (name, email, code, phone))
+    c.execute("INSERT INTO reports (name, email, code, phone) VALUES (?, ?, ?, ?)", (name, email, code, phone))
     conn.commit()
     conn.close()
 
@@ -63,8 +49,7 @@ def submit():
     if email:
         send_email(email, pdf_path)
 
-    return render_template('report.html', name=name, code=code, advice=advice,
-                           urgency=urgency, pdf_path=pdf_path, mechanics=MECHANICS)
+    return render_template('report.html', name=name, code=code, advice=advice, urgency=urgency, pdf_path=pdf_path, mechanics=MECHANICS)
 
 def analyze_code(code):
     severity_scale = {
@@ -73,9 +58,7 @@ def analyze_code(code):
         "P0171": ("System Too Lean (Bank 1)", 70),
         "P0455": ("Evaporative Emission System Leak Detected", 50),
     }
-    if code in severity_scale:
-        return severity_scale[code]
-    return ("Code not recognized. Further diagnosis needed.", 40)
+    return severity_scale.get(code, ("Code not recognized. Further diagnosis needed.", 40))
 
 def create_pdf(name, email, code, phone, advice, urgency):
     pdf = FPDF()
@@ -107,9 +90,9 @@ def create_pdf(name, email, code, phone, advice, urgency):
     pdf.set_text_color(100, 100, 100)
     pdf.cell(0, 10, "Visit www.read.codes for more info", ln=True)
 
+    os.makedirs('reports', exist_ok=True)
     filename = f"CodeREAD_Report_{name.replace(' ', '_')}.pdf"
     path = os.path.join('reports', filename)
-    os.makedirs('reports', exist_ok=True)
     pdf.output(path)
     return path
 
@@ -121,9 +104,7 @@ def send_email(recipient, attachment_path):
     msg.set_content("Attached is your CodeREAD report. Drive safe!")
 
     with open(attachment_path, 'rb') as f:
-        file_data = f.read()
-        file_name = os.path.basename(attachment_path)
-        msg.add_attachment(file_data, maintype='application', subtype='pdf', filename=file_name)
+        msg.add_attachment(f.read(), maintype='application', subtype='pdf', filename=os.path.basename(attachment_path))
 
     try:
         with smtplib.SMTP('localhost') as smtp:
