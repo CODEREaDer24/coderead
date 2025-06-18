@@ -34,8 +34,29 @@ def submit():
         c = conn.cursor()
         c.execute("INSERT INTO submissions (name, email, vin, symptoms) VALUES (?, ?, ?, ?)",
                   (name, email, vin, symptoms))
+        submission_id = c.lastrowid
         conn.commit()
-    return redirect("/")
+
+    return redirect(f"/report/{submission_id}")
+
+@app.route("/report/<int:submission_id>")
+def report(submission_id):
+    with sqlite3.connect(DB) as conn:
+        c = conn.cursor()
+        c.execute("SELECT * FROM submissions WHERE id = ?", (submission_id,))
+        row = c.fetchone()
+        if row:
+            job = {
+                "id": row[0],
+                "name": row[1],
+                "email": row[2],
+                "vin": row[3],
+                "symptoms": row[4],
+                "timestamp": row[5]
+            }
+            return render_template("report.html", job=job)
+        else:
+            return "Report not found", 404
 
 if __name__ == "__main__":
     init_db()
