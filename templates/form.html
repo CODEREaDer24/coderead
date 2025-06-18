@@ -1,52 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
+<!<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>CodeREAD Diagnostic Report</title>
-    <style>
-        body { font-family: sans-serif; max-width: 600px; margin: auto; padding: 2em; }
-        input, select { width: 100%; padding: 0.5em; margin-bottom: 1em; }
-        button { padding: 0.6em 1.2em; background: #222; color: white; border: none; cursor: pointer; }
-        .logo { text-align: center; margin-bottom: 2em; }
-    </style>
+    <title>CodeREAD Diagnostic Form</title>
 </head>
 <body>
-    <div class="logo">
-        <h1>CodeREAD</h1>
-        <p><a href="https://www.read.codes">www.read.codes</a></p>
-    </div>
+    <h1>Submit Your Diagnostic Code</h1>
+    <form method="POST" action="/">
+        <label>Name:</label><br>
+        <input type="text" name="name" required><br><br>
 
-    <form method="POST">
-        <label for="engine_code">Engine Code (e.g. P0171):</label>
-        <input type="text" name="engine_code" required>
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br><br>
 
-        <label for="year">Vehicle Year:</label>
-        <select name="year">
-            {% for y in range(2025, 1995, -1) %}
-                <option value="{{ y }}">{{ y }}</option>
-            {% endfor %}
-        </select>
+        <label>Phone:</label><br>
+        <input type="text" name="phone"><br><br>
 
-        <label for="make">Make:</label>
-        <input type="text" name="make" placeholder="Ford, Honda, etc." required>
-
-        <label for="model">Model:</label>
-        <input type="text" name="model" placeholder="F-150, Civic, etc." required>
-
-        <label for="city">Your City (for mechanic results):</label>
-        <input type="text" name="city" placeholder="Windsor">
+        <label>OBD2 Code:</label><br>
+        <input type="text" name="code" required><br><br>
 
         <button type="submit">Generate Report</button>
-        <button type="button" onclick="autoFill()">Auto-Fill Sample</button>
     </form>
-
-    <script>
-        function autoFill() {
-            document.querySelector('input[name="engine_code"]').value = "P0171";
-            document.querySelector('input[name="make"]').value = "Chevrolet";
-            document.querySelector('input[name="model"]').value = "Malibu";
-            document.querySelector('input[name="city"]').value = "Windsor";
-        }
-    </script>
 </body>
 </html>
