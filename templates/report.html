@@ -1,98 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CodeREAD Diagnostic Report</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 2rem;
-            background: #fff;
-            max-width: 800px;
-            margin: auto;
-            line-height: 1.6;
-        }
-        h1, h2 {
-            color: #cc0000;
-        }
-        a {
-            color: #0066cc;
+        body { font-family: Arial, sans-serif; background: #121212; color: #eee; padding: 20px; }
+        h1, h2, h3 { color: #e53935; }
+        a { color: #f44336; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        ul { margin: 0 0 20px 20px; }
+        .section { margin-bottom: 30px; }
+        .mechanic { margin-bottom: 10px; }
+        .btn-download {
+            background: #e53935; 
+            border: none; 
+            color: white; 
+            padding: 12px 24px; 
+            font-size: 1rem; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin-top: 20px;
+            display: inline-block;
             text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-        ul {
-            margin: 0;
-            padding-left: 1.25rem;
-        }
-        .download {
-            display: block;
-            margin-top: 2rem;
-            font-weight: bold;
         }
     </style>
 </head>
 <body>
+    <h1>CodeREAD Diagnostic Report</h1>
+    <p><strong>Engine Code:</strong> {{ report.code }}</p>
+    <p><strong>Vehicle:</strong> {{ report.vehicle }}</p>
 
-<h1>CodeREAD Diagnostic Report</h1>
+    <div class="section">
+        <h2>Layman’s Explanation</h2>
+        <p>{{ report.layman }}</p>
+        <p><a href="{{ report.youtube }}" target="_blank" rel="noopener">▶️ Watch {{ report.code }} explained on YouTube</a></p>
+    </div>
 
-<p><strong>Engine Code:</strong> {{ code }}</p>
-<p><strong>Vehicle:</strong> {{ year }} {{ make }} {{ model }}</p>
+    <div class="section">
+        <h2>Technical Explanation</h2>
+        <p>{{ report.technical }}</p>
+    </div>
 
-<h2>Layman’s Explanation</h2>
-<p>{{ laymans }}</p>
-<p><a href="{{ video_url }}" target="_blank">▶️ Watch {{ code }} explained on YouTube</a></p>
+    <div class="section">
+        <h2>Consequences of Ignoring This Code</h2>
+        <ul>
+            {% for item in report.consequences %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 
-<h2>Technical Explanation</h2>
-<p>{{ technical }}</p>
+    <div class="section">
+        <h2>Repair Cost Estimate</h2>
+        <ul>
+            {% for item in report.repair_cost %}
+            <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+        <small>Prices vary by region, parts quality, and labor rates.</small>
+    </div>
 
-<h2>Consequences of Ignoring This Code</h2>
-<ul>
-    {% for consequence in consequences %}
-        <li>{{ consequence }}</li>
-    {% endfor %}
-</ul>
+    <div class="section">
+        <h2>Environmental Impact</h2>
+        <p>{{ report.environmental_impact }}</p>
+    </div>
 
-<h2>Repair Cost Estimate</h2>
-<ul>
-    {% for item in repair_costs %}
-        <li>{{ item }}</li>
-    {% endfor %}
-</ul>
-<p><em>Prices vary by region, parts quality, and labor rates.</em></p>
+    <div class="section">
+        <h2>Preventative Tips</h2>
+        <ul>
+            {% for tip in report.preventative %}
+            <li>{{ tip }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 
-<h2>Environmental Impact</h2>
-<p>{{ environmental }}</p>
+    <div class="section">
+        <h2>DIY Potential</h2>
+        <p><strong>Level:</strong> {{ report.diy_level }}</p>
+        <p><a href="{{ report.diy_link }}" target="_blank" rel="noopener">🔧 DIY Fix Video</a></p>
+    </div>
 
-<h2>Preventative Tips</h2>
-<ul>
-    {% for tip in prevention %}
-        <li>{{ tip }}</li>
-    {% endfor %}
-</ul>
+    <div class="section">
+        <h2>Suggested Parts</h2>
+        <ul>
+            {% for part in report.parts %}
+            <li>{{ part }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 
-<h2>DIY Potential</h2>
-<p><strong>Level:</strong> {{ diy_level }}</p>
-<p><a href="{{ diy_video_url }}" target="_blank">🔧 DIY Fix: Watch the tutorial</a></p>
+    <div class="section">
+        <h2>Local Trusted Mechanics (Windsor, ON)</h2>
+        {% for m in mechanics %}
+        <div class="mechanic">
+            <strong>{{ m.name }}</strong><br/>
+            {{ m.address }}<br/>
+            Phone: {{ m.phone }}
+        </div>
+        {% endfor %}
+    </div>
 
-<h2>Suggested Parts</h2>
-<ul>
-    {% for part in parts %}
-        <li>{{ part }}</li>
-    {% endfor %}
-</ul>
+    <form method="POST" action="/download-pdf">
+        <input type="hidden" name="html" value="{{ self.render() | tojson | safe }}" />
+        <button type="submit" class="btn-download">⬇️ Download Full PDF Report</button>
+    </form>
 
-<h2>Local Trusted Mechanics ({{ city }})</h2>
-<ul>
-    {% for mech in mechanics %}
-        <li><strong>{{ mech.name }}</strong> – {{ mech.address }} – ({{ mech.phone }})</li>
-    {% endfor %}
-</ul>
-
-<a class="download" href="/download?code={{ code }}&year={{ year }}&make={{ make }}&model={{ model }}&city={{ city }}">⬇️ Download Full PDF Report</a>
-
-<p>Generated by <strong>CodeREAD</strong> • <a href="https://www.read.codes" target="_blank">www.read.codes</a></p>
-
+    <footer style="margin-top:40px; font-size:0.9rem; color:#777;">
+        Generated by <strong>CodeREAD</strong> • <a href="https://www.read.codes" style="color:#e53935;">www.read.codes</a>
+    </footer>
 </body>
 </html>
