@@ -1,14 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file
+from flask import Flask, render_template, request, redirect, send_file
 import os
 import sqlite3
 import datetime
-import pdfkit  # Or use WeasyPrint if preferred
-from markupsafe import Markup
+import pdfkit
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'reports'
-
-# Ensure the reports directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 DATABASE = 'coderead.db'
@@ -32,7 +29,6 @@ def index():
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         report_id = f"{name}_{timestamp}".replace(" ", "_").replace(":", "-")
 
-        # Prepare context
         context = {
             "name": name,
             "email": email,
@@ -42,10 +38,8 @@ def index():
             "report_id": report_id
         }
 
-        # Render HTML from template
         html = render_template("report.html", **context)
 
-        # Save HTML to database
         conn = get_db_connection()
         conn.execute(
             "INSERT INTO reports (name, email, phone, code, html, created_at) VALUES (?, ?, ?, ?, ?, ?)",
@@ -54,7 +48,6 @@ def index():
         conn.commit()
         conn.close()
 
-        # Save PDF to disk
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{report_id}.pdf")
         pdfkit.from_string(html, pdf_path)
 
@@ -72,7 +65,7 @@ def view_report(report_id):
     conn.close()
 
     if report:
-        return Markup(report["html"])
+        return report["html"]
     return "Report not found", 404
 
 @app.route("/report/<report_id>/pdf")
