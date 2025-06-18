@@ -2,11 +2,10 @@ services:
   - type: web
     name: CodeReadApp
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn main:app"
+    buildCommand: |
+      apt-get update && apt-get install -y wkhtmltopdf
+      pip install -r requirements.txt
+    startCommand: gunicorn main:app
     envVars:
       - key: OPENAI_API_KEY
         sync: false
-    build:
-      packages:
-        - wkhtmltopdf
