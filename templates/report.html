@@ -1,15 +1,85 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>CodeREAD Report</title>
+  <meta charset="UTF-8">
+  <title>CodeREAD Report</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background-color: #f4f4f4;
+    }
+
+    .report-box {
+      background: #fff;
+      border: 2px solid #222;
+      padding: 2rem;
+      border-radius: 12px;
+      max-width: 700px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #111;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin: 0.5rem 0;
+    }
+
+    .section-title {
+      margin-top: 1.5rem;
+      font-weight: bold;
+      color: #333;
+      font-size: 1.2rem;
+    }
+
+    ul {
+      margin-left: 1.5rem;
+    }
+
+    .pdf-link {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .pdf-link a {
+      background-color: #000;
+      color: #fff;
+      padding: 0.7rem 1.2rem;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <h1>Diagnostic Report for {{ name }}</h1>
+  <div class="report-box">
+    <h1>CodeREAD Diagnostic Report</h1>
+
+    <p><strong>Name:</strong> {{ name }}</p>
     <p><strong>Email:</strong> {{ email }}</p>
     <p><strong>Phone:</strong> {{ phone }}</p>
-    <p><strong>Code:</strong> {{ code }}</p>
-    <p><strong>Generated at:</strong> {{ timestamp }}</p>
+    <p><strong>OBD2 Code:</strong> {{ code }}</p>
+    <p><strong>Vehicle:</strong> {{ year }} {{ make }} {{ model }}</p>
+    <p><strong>Generated At:</strong> {{ timestamp }}</p>
 
-    <p><a href="/pdf/{{ report_id }}">Download PDF</a></p>
+    <div class="section-title">Preliminary Diagnosis:</div>
+    <p>⚠️ This code typically indicates a system malfunction. Further detail requires database hookup or AI logic injection (coming soon).</p>
+
+    <div class="section-title">Suggested Next Steps:</div>
+    <ul>
+      <li>Search this code with your year/make/model on YouTube</li>
+      <li>Check Amazon or parts suppliers for the most likely component</li>
+      <li>Book with a trusted mechanic or mobile scanner</li>
+    </ul>
+
+    <div class="pdf-link">
+      <a href="/pdf/{{ report_id }}">Download Full PDF</a>
+    </div>
+  </div>
 </body>
 </html>
