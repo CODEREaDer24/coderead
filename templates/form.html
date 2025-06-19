@@ -1,24 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CodeREAD Diagnostic Form</title>
+  <meta charset="UTF-8">
+  <title>CodeREAD Diagnostic</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://www.transparenttextures.com/patterns/brushed-alum.png') repeat;
+      background-color: #888;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      background-color: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+      border: 4px solid #444;
+      position: relative;
+    }
+
+    .bolt {
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(#666, #222);
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .bolt.tl { top: -12px; left: -12px; }
+    .bolt.tr { top: -12px; right: -12px; }
+    .bolt.bl { bottom: -12px; left: -12px; }
+    .bolt.br { bottom: -12px; right: -12px; }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #222;
+    }
+
+    label {
+      font-weight: bold;
+      margin-top: 1rem;
+      display: block;
+      color: #333;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 1rem;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      background-color: #111;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #222;
+    }
+  </style>
 </head>
 <body>
-    <h1>Submit Your Diagnostic Code</h1>
+  <div class="form-container">
+    <div class="bolt tl"></div>
+    <div class="bolt tr"></div>
+    <div class="bolt bl"></div>
+    <div class="bolt br"></div>
+    <h1>CodeREAD Diagnostic</h1>
     <form method="POST" action="/">
-        <label>Name:</label><br>
-        <input type="text" name="name" required><br><br>
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" required>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br><br>
+      <label for="email">Email</label>
+      <input type="email" name="email" id="email" required>
 
-        <label>Phone:</label><br>
-        <input type="text" name="phone"><br><br>
+      <label for="phone">Phone</label>
+      <input type="text" name="phone" id="phone">
 
-        <label>OBD2 Code:</label><br>
-        <input type="text" name="code" required><br><br>
+      <label for="code">OBD2 Code</label>
+      <input type="text" name="code" id="code" required>
 
-        <button type="submit">Generate Report</button>
+      <label for="year">Year</label>
+      <select name="year" id="year" required>
+        <option value="">Select Year</option>
+        {% for y in range(2000, 2026) %}
+          <option value="{{ y }}">{{ y }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="make">Make</label>
+      <input type="text" name="make" id="make" required>
+
+      <label for="model">Model</label>
+      <input type="text" name="model" id="model" required>
+
+      <button type="submit">Generate Report</button>
     </form>
+  </div>
 </body>
 </html>
