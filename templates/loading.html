@@ -1,54 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Generating CodeREAD Report...</title>
-  <style>
-    body {
-      background-color: #111;
-      color: #f2f2f2;
-      font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .loading-line {
-      font-size: 1.2rem;
-      opacity: 0;
-      animation: appear 1s ease forwards;
-    }
-
-    .loading-line:nth-child(2) { animation-delay: 0.5s; }
-    .loading-line:nth-child(3) { animation-delay: 1.5s; }
-    .loading-line:nth-child(4) { animation-delay: 2.5s; }
-    .loading-line:nth-child(5) { animation-delay: 3.5s; }
-
-    @keyframes appear {
-      to { opacity: 1; transform: translateY(0); }
-      from { opacity: 0; transform: translateY(10px); }
-    }
-  </style>
-  <script>
-    setTimeout(() => {
-      window.location.href = "/report";
-    }, 5000);
-  </script>
+    <title>Generating Report...</title>
+    <meta http-equiv="refresh" content="2;url={{ url_for('report') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>🔧 Generating CodeREAD Report...</h1>
-  <div class="loading-line">📡 Reading your OBD2 code...</div>
-  <div class="loading-line">🧠 Analyzing internal fault data...</div>
-  <div class="loading-line">🤖 Interrogating the ECU...</div>
-  <div class="loading-line">⚙️ Writing the sh*t out of your report...</div>
-  <div class="loading-line">✅ Launching results...</div>
+    <div class="loading-container">
+        <h2>Processing your diagnostic report...</h2>
+        <p>Please wait a moment.</p>
+    </div>
 </body>
 </html>
