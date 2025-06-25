@@ -1,106 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Diagnostic Report</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f8f8f8;
-            margin: 0;
-            padding: 20px;
-        }
-        .report {
-            max-width: 700px;
-            margin: auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .issue {
-            border-left: 5px solid #333;
-            padding-left: 15px;
-            margin-bottom: 25px;
-            background: #fefefe;
-            padding: 15px;
-            border-radius: 8px;
-        }
-        .high { border-color: #e63946; }
-        .medium { border-color: #ffba08; }
-        .low { border-color: #43aa8b; }
-
-        .urgency {
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        .urgency.red { color: #e63946; }
-        .urgency.orange { color: #ffba08; }
-        .urgency.green { color: #43aa8b; }
-
-        a {
-            color: #1d3557;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 0.9em;
-            color: #777;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>CodeRead Diagnostic Report</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #1a1a1a;
+    }
+    .urgency {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin: 15px 0;
+      color: #e63946;
+    }
+    .info p {
+      margin: 6px 0;
+    }
+    a {
+      color: #1d3557;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <div class="report">
-        <h1>📋 Vehicle Diagnostic Report</h1>
+  <div class="container">
+    <h1>📋 CodeRead Diagnostic Report</h1>
 
-        <div class="issue high">
-            <div class="urgency red">🔴 Urgency: HIGH – Immediate Attention Needed</div>
-            <p>💥 <strong>Code:</strong> P0301 – Cylinder 1 Misfire Detected</p>
-            <p>💸 <strong>Estimated Cost:</strong> $200–$700</p>
-            <p>🧨 <strong>Consequences:</strong> Risk of engine damage, catalytic converter failure</p>
-            <p>🛠️ <strong>DIY Difficulty:</strong> Medium – <a href="#">📺 Watch Repair Video</a></p>
-            <p>🧩 <strong>Parts:</strong> <a href="#">🔗 Buy Spark Plugs</a></p>
-            <p>📘 <strong>More Info:</strong> <a href="#">P0301 Code Meaning</a></p>
-            <p>📍 <strong>Nearby Repair Shops:</strong></p>
-            <ul>
-                <li><a href="https://www.cloverautorepair.com">🔧 Clover Auto</a></li>
-                <li><a href="https://www.tecumsehauto.ca">🔧 Tecumseh Auto</a></li>
-                <li><a href="https://www.demarioauto.ca">🔧 DeMario Auto</a></li>
-            </ul>
-        </div>
+    <div class="info">
+      <p><strong>💥 Code:</strong> P0301 – Cylinder 1 Misfire Detected</p>
+      <p class="urgency">🔴 Urgency: HIGH – Fix Immediately</p>
+      <p><strong>💸 Cost Estimate:</strong> $200–$700</p>
+      <p><strong>🧨 If Ignored:</strong> Engine damage, catalytic converter failure ($1,200+ risk)</p>
+      <p><strong>🛠️ DIY Option:</strong> Medium – <a href="https://www.youtube.com/results?search_query=P0301+fix">📺 Watch How-To</a></p>
+      <p><strong>🧩 Parts:</strong> <a href="https://www.rockauto.com/en/catalog/*,spark+plug">Buy Spark Plugs</a></p>
+      <p><strong>📘 More Info:</strong> <a href="https://www.obd-codes.com/p0301">P0301 Meaning</a></p>
 
-        <div class="issue medium">
-            <div class="urgency orange">🟠 Urgency: MEDIUM – Service Soon</div>
-            <p>💥 <strong>Code:</strong> P0455 – EVAP System Leak (Large)</p>
-            <p>💸 <strong>Estimated Cost:</strong> $150–$450</p>
-            <p>⚠️ <strong>Consequences:</strong> Poor fuel economy, failed emissions test</p>
-            <p>🛠️ <strong>DIY Difficulty:</strong> Easy – <a href="#">📺 Watch Hose Leak Fix</a></p>
-            <p>🧩 <strong>Parts:</strong> <a href="#">🔗 Buy EVAP Hose Kit</a></p>
-            <p>📘 <strong>More Info:</strong> <a href="#">P0455 Code Meaning</a></p>
-        </div>
-
-        <div class="issue low">
-            <div class="urgency green">🟢 Urgency: LOW – No Immediate Action</div>
-            <p>💥 <strong>Code:</strong> P0442 – Small EVAP Leak Detected</p>
-            <p>💸 <strong>Estimated Cost:</strong> $50–$100</p>
-            <p>🔎 <strong>Consequences:</strong> Minor emissions issue, can monitor short-term</p>
-            <p>🛠️ <strong>DIY Difficulty:</strong> Easy – <a href="#">📺 Quick Fix Tutorial</a></p>
-            <p>📘 <strong>More Info:</strong> <a href="#">P0442 Code Meaning</a></p>
-        </div>
-
-        <div class="footer">
-            Report generated by <strong>CodeRead</strong> – Trusted Vehicle Diagnostics
-        </div>
+      <p><strong>📍 Nearby Shops:</strong></p>
+      <ul>
+        <li><a href="https://www.cloverautorepair.com">🔧 Clover Auto</a></li>
+        <li><a href="https://www.tecumsehauto.ca">🔧 Tecumseh Auto</a></li>
+        <li><a href="https://www.demarioauto.ca">🔧 DeMario Auto</a></li>
+      </ul>
     </div>
+  </div>
 </body>
 </html>
